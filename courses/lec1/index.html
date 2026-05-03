@@ -5,11 +5,18 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <meta name="robots" content="index, follow">
-<title>Posts | 我的AI学习之路</title>
+<title>CS336: LLM from Scratch Lecture Notes | 我的AI学习之路</title>
 <meta name="keywords" content="">
-<meta name="description" content="Posts - 我的AI学习之路">
+<meta name="description" content="Related Resources:
+
+Lecture Website: CS336 LLM from Scratch
+Lecture Recordings: YouTube Playlist
+My Solution Repo: GitHub
+
+Lecture 01: Introduction &amp; Tokenization
+Lecture01介绍了课程的大纲以及LLM的现状和基本概念。在课程的后续部分介绍了Language Modeling的第一步，即Tokenization的基本概念和常用方法。着重介绍了Byte Pair Encoding (BPE)算法的原理和实现。">
 <meta name="author" content="Hanhan Wang">
-<link rel="canonical" href="https://NPU-HanhanWang.github.io/posts/">
+<link rel="canonical" href="https://NPU-HanhanWang.github.io/courses/lec1/">
 <link crossorigin="anonymous" href="/assets/css/stylesheet.a1a1b118b3e83435265dc39da18e54244bcc0e5481d1d034aadc0c899c51e15c.css" integrity="sha256-oaGxGLPoNDUmXcOdoY5UJEvMDlSB0dA0qtwMiZxR4Vw=" rel="preload stylesheet" as="style">
 <link rel="icon" href="https://NPU-HanhanWang.github.io/favicon.ico">
 <link rel="icon" type="image/png" sizes="16x16" href="https://NPU-HanhanWang.github.io/favicon-16x16.png">
@@ -18,8 +25,7 @@
 <link rel="mask-icon" href="https://NPU-HanhanWang.github.io/safari-pinned-tab.svg">
 <meta name="theme-color" content="#2e2e33">
 <meta name="msapplication-TileColor" content="#2e2e33">
-<link rel="alternate" type="application/rss+xml" href="https://NPU-HanhanWang.github.io/posts/index.xml" title="rss">
-<link rel="alternate" hreflang="en" href="https://NPU-HanhanWang.github.io/posts/">
+<link rel="alternate" hreflang="en" href="https://NPU-HanhanWang.github.io/courses/lec1/">
 <noscript>
     <style>
         #theme-toggle,
@@ -65,16 +71,19 @@
         document.querySelector("html").dataset.theme = 'light';
     }
 
-</script><meta property="og:url" content="https://NPU-HanhanWang.github.io/posts/">
+</script><meta property="og:url" content="https://NPU-HanhanWang.github.io/courses/lec1/">
   <meta property="og:site_name" content="我的AI学习之路">
-  <meta property="og:title" content="Posts">
-  <meta property="og:description" content="LLM 学习笔记与思考">
+  <meta property="og:title" content="CS336: LLM from Scratch Lecture Notes">
+  <meta property="og:description" content="Related Resources: Lecture Website: CS336 LLM from Scratch Lecture Recordings: YouTube Playlist My Solution Repo: GitHub Lecture 01: Introduction &amp; Tokenization Lecture01介绍了课程的大纲以及LLM的现状和基本概念。在课程的后续部分介绍了Language Modeling的第一步，即Tokenization的基本概念和常用方法。着重介绍了Byte Pair Encoding (BPE)算法的原理和实现。">
   <meta property="og:locale" content="zh_CN">
-  <meta property="og:type" content="website">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="courses">
+    <meta property="article:published_time" content="2026-05-03T13:33:07+08:00">
+    <meta property="article:modified_time" content="2026-05-03T13:33:07+08:00">
 
   <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="Posts">
-  <meta name="twitter:description" content="LLM 学习笔记与思考">
+  <meta name="twitter:title" content="CS336: LLM from Scratch Lecture Notes">
+  <meta name="twitter:description" content="Related Resources: Lecture Website: CS336 LLM from Scratch Lecture Recordings: YouTube Playlist My Solution Repo: GitHub Lecture 01: Introduction &amp; Tokenization Lecture01介绍了课程的大纲以及LLM的现状和基本概念。在课程的后续部分介绍了Language Modeling的第一步，即Tokenization的基本概念和常用方法。着重介绍了Byte Pair Encoding (BPE)算法的原理和实现。">
 
 
 <script type="application/ld+json">
@@ -85,14 +94,53 @@
     {
       "@type": "ListItem",
       "position":  1 ,
-      "name": "Posts",
-      "item": "https://NPU-HanhanWang.github.io/posts/"
+      "name": "Courses",
+      "item": "https://NPU-HanhanWang.github.io/courses/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "CS336: LLM from Scratch Lecture Notes",
+      "item": "https://NPU-HanhanWang.github.io/courses/lec1/"
     }
   ]
 }
 </script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "CS336: LLM from Scratch Lecture Notes",
+  "name": "CS336: LLM from Scratch Lecture Notes",
+  "description": "Related Resources: Lecture Website: CS336 LLM from Scratch Lecture Recordings: YouTube Playlist My Solution Repo: GitHub Lecture 01: Introduction \u0026amp; Tokenization Lecture01介绍了课程的大纲以及LLM的现状和基本概念。在课程的后续部分介绍了Language Modeling的第一步，即Tokenization的基本概念和常用方法。着重介绍了Byte Pair Encoding (BPE)算法的原理和实现。\n",
+  "keywords": [
+    
+  ],
+  "articleBody": "Related Resources: Lecture Website: CS336 LLM from Scratch Lecture Recordings: YouTube Playlist My Solution Repo: GitHub Lecture 01: Introduction \u0026 Tokenization Lecture01介绍了课程的大纲以及LLM的现状和基本概念。在课程的后续部分介绍了Language Modeling的第一步，即Tokenization的基本概念和常用方法。着重介绍了Byte Pair Encoding (BPE)算法的原理和实现。\n",
+  "wordCount" : "26",
+  "inLanguage": "en",
+  "datePublished": "2026-05-03T13:33:07+08:00",
+  "dateModified": "2026-05-03T13:33:07+08:00",
+  "author":{
+    "@type": "Person",
+    "name": "Hanhan Wang"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://NPU-HanhanWang.github.io/courses/lec1/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "我的AI学习之路",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://NPU-HanhanWang.github.io/favicon.ico"
+    }
+  }
+}
+</script>
 </head>
-<body class="list" id="top">
+<body id="top">
     <header class="header">
     <nav class="header-nav">
         <div class="logo">
@@ -124,27 +172,36 @@
         </ul>
     </nav>
 </header>
-<main class="main"> 
-<header class="page-header">
-  <h1>
-    Posts
-  </h1>
-</header>
+<main class="main">
 
-<article class="post-entry"> 
-  <header class="entry-header">
-    <h2 class="entry-hint-parent">CS336: LLM from Scratch Lecture Notes
-    </h2>
-  </header>
-  <div class="entry-content">
-    <p>Related Resources: Lecture Website: CS336 LLM from Scratch Lecture Recordings: YouTube Playlist My Solution Repo: GitHub Lecture 01: Introduction &amp; Tokenization Lecture01介绍了课程的大纲以及LLM的现状和基本概念。在课程的后续部分介绍了Language Modeling的第一步，即Tokenization的基本概念和常用方法。着重介绍了Byte Pair Encoding (BPE)算法的原理和实现。
-Lecture 02: PyTorch Basics &amp; Resource Accounts Lecture02介绍了PyTorch的基本概念和使用方法。可以将这节课当作一个review，复习一下之前学过的PyTorch知识点。
-Lecture 03: PyTorch Basics &amp; Resource Accounts </p>
+<article class="post-single">
+  <header class="post-header">
+    
+    <h1 class="post-title entry-hint-parent">
+      CS336: LLM from Scratch Lecture Notes
+    </h1>
+    <div class="post-meta">
+
+<span title='2026-05-03 13:33:07 +0800 CST'>May 3, 2026</span>&nbsp;·&nbsp;<span>Hanhan Wang</span>
+
+</div>
+  </header> 
+  <div class="post-content md-content"><h2 id="related-resources">Related Resources:<a hidden class="anchor" aria-hidden="true" href="#related-resources">#</a></h2>
+<ul>
+<li><strong>Lecture Website</strong>: <a href="https://www.cs336.org/lectures/">CS336 LLM from Scratch</a></li>
+<li><strong>Lecture Recordings</strong>: YouTube Playlist</li>
+<li><strong>My Solution Repo</strong>: GitHub</li>
+</ul>
+<h2 id="lecture-01-introduction--tokenization">Lecture 01: Introduction &amp; Tokenization<a hidden class="anchor" aria-hidden="true" href="#lecture-01-introduction--tokenization">#</a></h2>
+<p>Lecture01介绍了课程的大纲以及LLM的现状和基本概念。在课程的后续部分介绍了Language Modeling的第一步，即Tokenization的基本概念和常用方法。着重介绍了Byte Pair Encoding (BPE)算法的原理和实现。</p>
+
+
   </div>
-  <footer class="entry-footer">
 
-<span title='2026-05-03 13:33:07 +0800 CST'>May 3, 2026</span>&nbsp;·&nbsp;<span>Hanhan Wang</span></footer>
-  <a class="entry-link" aria-label="post link to CS336: LLM from Scratch Lecture Notes" href="https://NPU-HanhanWang.github.io/posts/my-first-post/"></a>
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+  </footer>
 </article>
     </main>
     

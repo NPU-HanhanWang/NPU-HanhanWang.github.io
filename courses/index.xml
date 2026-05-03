@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Courses on 我的AI学习之路</title>
+    <link>https://NPU-HanhanWang.github.io/courses/</link>
+    <description>Recent content in Courses on 我的AI学习之路</description>
+    <generator>Hugo</generator>
+    <language>zh-CN</language>
+    <lastBuildDate>Sun, 03 May 2026 13:33:07 +0800</lastBuildDate>
+    <atom:link href="https://NPU-HanhanWang.github.io/courses/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>CS336: LLM from Scratch Lecture Notes</title>
+      <link>https://NPU-HanhanWang.github.io/courses/lec1/</link>
+      <pubDate>Sun, 03 May 2026 13:33:07 +0800</pubDate>
+      <guid>https://NPU-HanhanWang.github.io/courses/lec1/</guid>
+      <description>&lt;h2 id=&#34;related-resources&#34;&gt;Related Resources:&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Lecture Website&lt;/strong&gt;: &lt;a href=&#34;https://www.cs336.org/lectures/&#34;&gt;CS336 LLM from Scratch&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Lecture Recordings&lt;/strong&gt;: YouTube Playlist&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;My Solution Repo&lt;/strong&gt;: GitHub&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;lecture-01-introduction--tokenization&#34;&gt;Lecture 01: Introduction &amp;amp; Tokenization&lt;/h2&gt;
+&lt;p&gt;Lecture01介绍了课程的大纲以及LLM的现状和基本概念。在课程的后续部分介绍了Language Modeling的第一步，即Tokenization的基本概念和常用方法。着重介绍了Byte Pair Encoding (BPE)算法的原理和实现。&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>

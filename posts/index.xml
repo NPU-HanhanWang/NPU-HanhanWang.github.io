@@ -22,7 +22,9 @@
 &lt;h2 id=&#34;lecture-01-introduction--tokenization&#34;&gt;Lecture 01: Introduction &amp;amp; Tokenization&lt;/h2&gt;
 &lt;p&gt;Lecture01介绍了课程的大纲以及LLM的现状和基本概念。在课程的后续部分介绍了Language Modeling的第一步，即Tokenization的基本概念和常用方法。着重介绍了Byte Pair Encoding (BPE)算法的原理和实现。&lt;/p&gt;
 &lt;h2 id=&#34;lecture-02-pytorch-basics--resource-accounts&#34;&gt;Lecture 02: PyTorch Basics &amp;amp; Resource Accounts&lt;/h2&gt;
-&lt;p&gt;Lecture02介绍了PyTorch的基本概念和使用方法。可以将这节课当作一个review，复习一下之前学过的PyTorch知识点。&lt;/p&gt;</description>
+&lt;p&gt;Lecture02介绍了PyTorch的基本概念和使用方法。可以将这节课当作一个review，复习一下之前学过的PyTorch知识点。&lt;/p&gt;
+&lt;h2 id=&#34;lecture-03-pytorch-basics--resource-accounts&#34;&gt;Lecture 03: PyTorch Basics &amp;amp; Resource Accounts&lt;/h2&gt;
+&lt;h2&gt;&lt;/h2&gt;</description>
     </item>
   </channel>
 </rss>
