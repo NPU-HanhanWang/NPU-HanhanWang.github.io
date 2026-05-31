@@ -1,0 +1,87 @@
+{
+  "courses": [
+    {
+      "slug": "computer-vision",
+      "title": {
+        "zh": "计算机视觉",
+        "en": "Computer Vision"
+      },
+      "shortDesc": {
+        "zh": "计算机视觉课程笔记与实验",
+        "en": "Computer Vision course notes and labs"
+      },
+      "description": {
+        "zh": "本课程涵盖图像处理基础、特征提取与匹配、图像分割、目标检测、图像分类以及深度学习在计算机视觉中的应用。通过理论学习与实验结合，深入理解计算机视觉的核心算法。",
+        "en": "This course covers image processing fundamentals, feature extraction and matching, image segmentation, object detection, image classification, and deep learning applications in computer vision. Through a combination of theory and labs, gain deep understanding of core CV algorithms."
+      },
+      "tags": ["Python", "OpenCV", "Deep Learning", "PyTorch"],
+      "order": 1,
+      "chapters": [
+        {
+          "slug": "chapter-01",
+          "title": {
+            "zh": "第一章：图像处理基础",
+            "en": "Chapter 1: Image Processing Fundamentals"
+          },
+          "order": 1,
+          "filename": "chapter-01"
+        },
+        {
+          "slug": "chapter-02",
+          "title": {
+            "zh": "第二章：特征提取与匹配",
+            "en": "Chapter 2: Feature Extraction & Matching"
+          },
+          "order": 2,
+          "filename": "chapter-02"
+        },
+        {
+          "slug": "chapter-03",
+          "title": {
+            "zh": "第三章：图像分割",
+            "en": "Chapter 3: Image Segmentation"
+          },
+          "order": 3,
+          "filename": "chapter-03"
+        }
+      ]
+    },
+    {
+      "slug": "deep-learning",
+      "title": {
+        "zh": "深度学习",
+        "en": "Deep Learning"
+      },
+      "shortDesc": {
+        "zh": "深度学习理论与实践课程笔记",
+        "en": "Deep Learning theory and practice course notes"
+      },
+      "description": {
+        "zh": "系统学习深度学习的基础理论与主流框架，包括神经网络基础、CNN、RNN、Transformer、生成模型等内容。结合PyTorch进行实验，深入理解模型原理。",
+        "en": "A systematic study of deep learning fundamentals and mainstream frameworks, including neural network basics, CNN, RNN, Transformer, generative models, and more. Hands-on experiments with PyTorch for deeper understanding."
+      },
+      "tags": ["Python", "PyTorch", "Neural Networks", "Transformer"],
+      "order": 2,
+      "chapters": [
+        {
+          "slug": "chapter-01",
+          "title": {
+            "zh": "第一章：神经网络基础",
+            "en": "Chapter 1: Neural Network Basics"
+          },
+          "order": 1,
+          "filename": "chapter-01"
+        },
+        {
+          "slug": "chapter-02",
+          "title": {
+            "zh": "第二章：卷积神经网络",
+            "en": "Chapter 2: Convolutional Neural Networks"
+          },
+          "order": 2,
+          "filename": "chapter-02"
+        }
+      ]
+    }
+  ]
+}

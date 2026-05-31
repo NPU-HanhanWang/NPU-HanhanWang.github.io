@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>课程学习 | 王晗晗</title>
+
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Shared Styles -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <!-- Navigation -->
+    <shared-nav active="courses"></shared-nav>
+
+    <!-- ============================================================
+    PAGE HEADER
+    ============================================================ -->
+    <section class="page-header">
+        <div class="container">
+            <h1 data-i18n="courses-title">课程学习</h1>
+            <p class="subtitle" data-i18n="courses-subtitle">课程笔记与学习记录</p>
+        </div>
+    </section>
+
+    <!-- ============================================================
+    CONTENT AREA — dynamically populated
+    ============================================================ -->
+    <section class="section">
+        <div class="container" id="contentArea">
+            <div class="loading">
+                <i class="fas fa-spinner fa-spin"></i> <span data-i18n="loading">加载中...</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <shared-footer></shared-footer>
+
+    <!-- Back to Top Button -->
+    <button class="back-to-top" id="backToTop" aria-label="Back to top">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast"></div>
+
+    <!-- Dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/md-renderer.js"></script>
+
+    <!-- ============================================================
+    PAGE-SPECIFIC SCRIPT
+    ============================================================ -->
+    <script>
+        (function () {
+            'use strict';
+
+            const contentArea = document.getElementById('contentArea');
+            let catalog = null;
+
+            /**
+             * Get current view state from URL parameters.
+             */
+            function getParams() {
+                const p = new URLSearchParams(window.location.search);
+                return {
+                    course: p.get('course'),
+                    chapter: p.get('chapter')
+                };
+            }
+
+            /**
+             * Main render function — called on page load and language switch.
+             * @param {string} lang
+             */
+            async function render(lang) {
+                const params = getParams();
+                lang = lang || window.currentLang || 'zh';
+
+                if (!catalog) {
+                    try {
+                        catalog = await window.mdRenderer.loadCatalog('courses');
+                    } catch (err) {
+                        contentArea.innerHTML =
+                            '<div class="error-state"><i class="fas fa-exclamation-triangle"></i><p>' +
+                            window.t('load-error') + ': ' + err.message + '</p></div>';
+                        return;
+                    }
+                }
+
+                if (!params.course) {
+                    renderCourseList(lang);
+                } else if (!params.chapter) {
+                    await renderChapterList(params.course, lang);
+                } else {
+                    await renderChapterContent(params.course, params.chapter, lang);
+                }
+
+                // Scroll to top of content
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+
+            /**
+             * State 1: Show all courses as cards.
+             */
+            function renderCourseList(lang) {
+                document.title = window.t('courses-title', lang) + ' | Hanhan Wang';
+
+                const courses = [...catalog.courses].sort((a, b) => a.order - b.order);
+
+                contentArea.innerHTML = `
+                    <div class="card-grid">
+                        ${courses.map((c, i) => `
+                            <a href="?course=${c.slug}" class="card" style="cursor: pointer;">
+                                <div class="card-img img-${(i % 6) + 1}">
+                                    <i class="fas fa-book-open"></i>
+                                </div>
+                                <div class="card-info">
+                                    <h4>${c.title[lang] || c.title['zh']}</h4>
+                                    <p>${c.shortDesc[lang] || c.shortDesc['zh']}</p>
+                                    <div class="card-tags">
+                                        ${(c.tags || []).map(t => '<span>' + t + '</span>').join('')}
+                                    </div>
+                                    <div style="color: var(--gray-light); font-size: 0.85rem;">
+                                        <i class="fas fa-list"></i> ${c.chapters.length} ${lang === 'zh' ? '个章节' : 'chapters'}
+                                    </div>
+                                </div>
+                            </a>
+                        `).join('')}
+                    </div>
+                `;
+            }
+
+            /**
+             * State 2: Show course overview with chapter list.
+             */
+            async function renderChapterList(courseSlug, lang) {
+                const course = catalog.courses.find(c => c.slug === courseSlug);
+                if (!course) {
+                    contentArea.innerHTML =
+                        '<div class="error-state"><i class="fas fa-exclamation-triangle"></i><p>' +
+                        (lang === 'zh' ? '未找到该课程' : 'Course not found') + '</p></div>';
+                    return;
+                }
+
+                document.title = (course.title[lang] || course.title['zh']) + ' | Hanhan Wang';
+
+                contentArea.innerHTML = `
+                    <a href="courses.html" class="back-btn">
+                        <i class="fas fa-arrow-left"></i> ${window.t('back-to-courses', lang)}
+                    </a>
+                    <h1 style="font-size: 2.2rem; color: var(--dark); margin-bottom: 8px;">
+                        ${course.title[lang] || course.title['zh']}
+                    </h1>
+                    <p style="color: var(--gray); margin-bottom: 15px; font-size: 1.1rem;">
+                        ${course.description[lang] || course.description['zh']}
+                    </p>
+                    ${course.tags ? `
+                        <div class="card-tags" style="margin-bottom: 25px;">
+                            ${course.tags.map(t => '<span>' + t + '</span>').join('')}
+                        </div>
+                    ` : ''}
+                    <hr style="margin: 20px 0 30px;">
+                    <h2 style="font-size: 1.4rem; margin-bottom: 18px; color: var(--dark);">
+                        <i class="fas fa-list-ol" style="color: var(--primary); margin-right: 8px;"></i>
+                        ${window.t('chapters-title', lang)}
+                    </h2>
+                    <div class="chapter-list">
+                        ${course.chapters.sort((a, b) => a.order - b.order).map((ch, i) => `
+                            <a href="?course=${courseSlug}&chapter=${ch.slug}" class="chapter-item">
+                                <span class="chapter-number">${String(i + 1).padStart(2, '0')}</span>
+                                <span class="chapter-title">${ch.title[lang] || ch.title['zh']}</span>
+                                <span class="chapter-arrow"><i class="fas fa-chevron-right"></i></span>
+                            </a>
+                        `).join('')}
+                    </div>
+                `;
+            }
+
+            /**
+             * State 3: Show chapter content with sidebar navigation.
+             */
+            async function renderChapterContent(courseSlug, chapterSlug, lang) {
+                const course = catalog.courses.find(c => c.slug === courseSlug);
+                if (!course) {
+                    contentArea.innerHTML =
+                        '<div class="error-state"><i class="fas fa-exclamation-triangle"></i><p>' +
+                        (lang === 'zh' ? '未找到该课程' : 'Course not found') + '</p></div>';
+                    return;
+                }
+
+                const chapter = course.chapters.find(ch => ch.slug === chapterSlug);
+                if (!chapter) {
+                    contentArea.innerHTML =
+                        '<div class="error-state"><i class="fas fa-exclamation-triangle"></i><p>' +
+                        (lang === 'zh' ? '未找到该章节' : 'Chapter not found') + '</p></div>';
+                    return;
+                }
+
+                document.title = (chapter.title[lang] || chapter.title['zh']) + ' | ' +
+                    (course.title[lang] || course.title['zh']) + ' | Hanhan Wang';
+
+                // Show loading
+                contentArea.innerHTML = `
+                    <a href="?course=${courseSlug}" class="back-btn">
+                        <i class="fas fa-arrow-left"></i> ${course.title[lang] || course.title['zh']}
+                    </a>
+                    <div class="loading">
+                        <i class="fas fa-spinner fa-spin"></i> ${window.t('loading', lang)}
+                    </div>
+                `;
+
+                // Fetch and render markdown
+                let mdHtml, mdTitle;
+                try {
+                    const result = await window.mdRenderer.renderChapter(
+                        'courses', courseSlug, chapter.filename, lang
+                    );
+                    mdHtml = result.html;
+                    mdTitle = result.title;
+                } catch (err) {
+                    contentArea.innerHTML = `
+                        <a href="?course=${courseSlug}" class="back-btn">
+                            <i class="fas fa-arrow-left"></i> ${course.title[lang] || course.title['zh']}
+                        </a>
+                        <div class="error-state">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <p>${window.t('load-error', lang)}: ${err.message}</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                // Render with sidebar
+                contentArea.innerHTML = `
+                    <a href="?course=${courseSlug}" class="back-btn">
+                        <i class="fas fa-arrow-left"></i> ${course.title[lang] || course.title['zh']}
+                    </a>
+                    <div class="chapter-viewer">
+                        <!-- Sidebar: Chapter Navigation -->
+                        <aside class="chapter-nav-sidebar">
+                            <h3><i class="fas fa-list"></i> ${window.t('chapters-title', lang)}</h3>
+                            ${course.chapters.sort((a, b) => a.order - b.order).map((ch, i) => `
+                                <a href="?course=${courseSlug}&chapter=${ch.slug}"
+                                   class="chapter-nav-item ${ch.slug === chapterSlug ? 'active' : ''}">
+                                    <span class="chapter-number">${String(i + 1).padStart(2, '0')}</span>
+                                    ${ch.title[lang] || ch.title['zh']}
+                                </a>
+                            `).join('')}
+                        </aside>
+
+                        <!-- Main Content -->
+                        <div class="chapter-content-area">
+                            <div class="breadcrumb">
+                                <a href="courses.html">${window.t('courses-title', lang)}</a>
+                                <span class="separator">/</span>
+                                <a href="?course=${courseSlug}">${course.title[lang] || course.title['zh']}</a>
+                                <span class="separator">/</span>
+                                <span>${chapter.title[lang] || chapter.title['zh']}</span>
+                            </div>
+                            <div class="md-content">${mdHtml}</div>
+                        </div>
+                    </div>
+                `;
+
+                // Apply syntax highlighting if hljs is loaded
+                if (window.hljs) {
+                    contentArea.querySelectorAll('pre code').forEach(function (block) {
+                        hljs.highlightElement(block);
+                    });
+                }
+            }
+
+            // ============================================================
+            // HISTORY HANDLING — pushState on link clicks
+            // ============================================================
+            contentArea.addEventListener('click', function (e) {
+                const link = e.target.closest('a');
+                if (!link) return;
+
+                const href = link.getAttribute('href');
+                if (!href || href.startsWith('#') || href.startsWith('http') || link.getAttribute('target')) return;
+
+                // Only intercept same-page query links
+                if (href.startsWith('?')) {
+                    e.preventDefault();
+                    const newParams = new URLSearchParams(href.substring(1));
+                    const newUrl = window.location.pathname + '?' + newParams.toString();
+                    window.history.pushState({
+                        course: newParams.get('course'),
+                        chapter: newParams.get('chapter')
+                    }, '', newUrl);
+                    render(window.currentLang);
+                }
+            });
+
+            // Handle browser back/forward
+            window.addEventListener('popstate', function () {
+                render(window.currentLang);
+            });
+
+            // ============================================================
+            // DYNAMIC CONTENT HANDLER — called by applyLanguage()
+            // ============================================================
+            window.dynamicContentHandler = function (lang) {
+                render(lang);
+            };
+
+            // ============================================================
+            // INITIAL RENDER
+            // ============================================================
+            render(window.currentLang);
+
+        })();
+    </script>
+</body>
+
+</html>

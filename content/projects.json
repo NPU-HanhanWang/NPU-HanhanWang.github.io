@@ -1,0 +1,47 @@
+{
+  "projects": [
+    {
+      "slug": "personal-blog",
+      "title": {
+        "zh": "个人学术博客",
+        "en": "Personal Academic Blog"
+      },
+      "shortDesc": {
+        "zh": "基于GitHub Pages的学术博客，支持Markdown渲染与双语切换",
+        "en": "GitHub Pages academic blog with Markdown rendering & bilingual support"
+      },
+      "description": {
+        "zh": "个人学术博客网站，使用纯HTML/CSS/JS构建。支持中英双语切换、Markdown文件渲染、课程笔记管理和项目展示。",
+        "en": "Personal academic blog built with pure HTML/CSS/JS. Features bilingual switching, Markdown rendering, course note management, and project showcase."
+      },
+      "tags": ["HTML5", "CSS3", "JavaScript", "GitHub Pages", "marked.js"],
+      "links": {
+        "github": "https://github.com/NPU-HanhanWang/NPU-HanhanWang.github.io",
+        "demo": "https://NPU-HanhanWang.github.io"
+      },
+      "order": 1,
+      "featured": true
+    },
+    {
+      "slug": "image-classification",
+      "title": {
+        "zh": "图像分类实验",
+        "en": "Image Classification Lab"
+      },
+      "shortDesc": {
+        "zh": "基于PyTorch的图像分类实验项目",
+        "en": "Image classification lab project based on PyTorch"
+      },
+      "description": {
+        "zh": "使用PyTorch实现多种图像分类模型（ResNet、ViT等），在CIFAR-100和自定义数据集上进行训练和评估，对比不同模型架构的性能。",
+        "en": "Implementing various image classification models (ResNet, ViT, etc.) with PyTorch, training and evaluating on CIFAR-100 and custom datasets, comparing performance across architectures."
+      },
+      "tags": ["Python", "PyTorch", "ResNet", "ViT", "CIFAR-100"],
+      "links": {
+        "github": "https://github.com/NPU-HanhanWang/image-classification"
+      },
+      "order": 2,
+      "featured": false
+    }
+  ]
+}
