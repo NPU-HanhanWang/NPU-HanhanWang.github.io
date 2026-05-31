@@ -502,7 +502,7 @@ nav .container {
     width: 260px;
     height: 260px;
     border-radius: 50%;
-    background: #15151a;
+    background: #1d1d22;
     border: 6px solid var(--card-bg);
     box-shadow: 0 0 50px rgba(108, 99, 255, 0.25);
     display: flex;
