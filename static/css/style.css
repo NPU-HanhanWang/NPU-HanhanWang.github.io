@@ -431,7 +431,7 @@ nav .container {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 30px;
+    gap: 15px;
 }
 
 .hero-text h1 {
