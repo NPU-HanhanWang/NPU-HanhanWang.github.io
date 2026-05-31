@@ -1,0 +1,1680 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!--
+    ============================================================
+    🔧 CUSTOMIZATION: Replace the title below with your own name
+    ============================================================
+    -->
+    <title>Your Name | 个人作品集</title>
+
+    <!-- Font Awesome Icons (CDN — no local files needed) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <style>
+        /* ============================================================
+           CSS VARIABLES — tweak these to change the entire color scheme
+           ============================================================ */
+        :root {
+            --primary: #6c63ff;
+            --primary-light: #8b83ff;
+            --primary-dark: #5a52d5;
+            --dark: #2c2c54;
+            --dark-light: #3d3d6b;
+            --light: #f8f9fa;
+            --gray: #6c757d;
+            --gray-light: #adb5bd;
+            --white: #ffffff;
+            --bg-gradient-start: #f5f7fa;
+            --bg-gradient-end: #c3cfe2;
+            --card-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+            --card-shadow-hover: 0 15px 35px rgba(0, 0, 0, 0.12);
+            --transition: all 0.3s ease;
+            --border-radius: 15px;
+            --border-radius-sm: 10px;
+            --nav-height: 70px;
+        }
+
+        /* ============================================================
+           RESET & BASE
+           ============================================================ */
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            scroll-padding-top: var(--nav-height);
+            /* offset for fixed nav */;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.7;
+            color: var(--dark);
+            background-color: var(--light);
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        img {
+            max-width: 100%;
+            display: block;
+        }
+
+        ul {
+            list-style: none;
+        }
+
+        /* ============================================================
+           UTILITY CLASSES
+           ============================================================ */
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section {
+            padding: 100px 0;
+        }
+
+        .section-alt {
+            background: var(--white);
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            position: relative;
+            color: var(--dark);
+        }
+
+        .section-subtitle {
+            text-align: center;
+            color: var(--gray);
+            margin-bottom: 60px;
+            font-size: 1.1rem;
+        }
+
+        .section-title::after {
+            content: '';
+            display: block;
+            width: 60px;
+            height: 4px;
+            background: var(--primary);
+            margin: 18px auto 0;
+            border-radius: 2px;
+        }
+
+        /* ============================================================
+           LANGUAGE SWITCH — fixed top-right
+           ============================================================ */
+        .lang-switch {
+            position: fixed;
+            top: 18px;
+            right: 100px;
+            /* leave room so it doesn't overlap hamburger on mobile */
+            z-index: 1002;
+            background: var(--white);
+            border-radius: 30px;
+            padding: 4px;
+            box-shadow: var(--card-shadow);
+            display: flex;
+        }
+
+        .lang-btn {
+            background: none;
+            border: none;
+            padding: 7px 16px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: var(--transition);
+            color: var(--dark);
+            letter-spacing: 0.5px;
+        }
+
+        .lang-btn.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 3px 10px rgba(108, 99, 255, 0.3);
+        }
+
+        .lang-btn:hover:not(.active) {
+            background: #f0edff;
+        }
+
+        /* ============================================================
+           NAVIGATION — fixed, glassmorphism effect
+           ============================================================ */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            z-index: 1000;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.06);
+            transition: var(--transition);
+        }
+
+        nav.scrolled {
+            box-shadow: 0 4px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        nav .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: var(--nav-height);
+        }
+
+        /*
+        🔧 CUSTOMIZATION: Change the logo text / replace with an SVG or image
+        */
+        .logo {
+            font-size: 1.7rem;
+            font-weight: 700;
+            color: var(--primary);
+            letter-spacing: -0.5px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 35px;
+        }
+
+        .nav-links a {
+            font-weight: 500;
+            position: relative;
+            padding: 5px 0;
+            font-size: 0.95rem;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: var(--primary);
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--primary);
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:hover::after,
+        .nav-links a.active::after {
+            width: 100%;
+        }
+
+        /* Hamburger menu icon */
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+            gap: 6px;
+            padding: 5px;
+            z-index: 1003;
+        }
+
+        .hamburger span {
+            display: block;
+            width: 26px;
+            height: 2.5px;
+            background: var(--dark);
+            border-radius: 5px;
+            transition: var(--transition);
+            transform-origin: center;
+        }
+
+        /* Hamburger animation — turns into X */
+        .hamburger.active span:nth-child(1) {
+            transform: translateY(8.5px) rotate(45deg);
+        }
+
+        .hamburger.active span:nth-child(2) {
+            opacity: 0;
+            transform: scaleX(0);
+        }
+
+        .hamburger.active span:nth-child(3) {
+            transform: translateY(-8.5px) rotate(-45deg);
+        }
+
+        /* ============================================================
+           HERO SECTION — full viewport, gradient background
+           ============================================================ */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
+            padding-top: var(--nav-height);
+        }
+
+        .hero-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 60px;
+        }
+
+        .hero-text h1 {
+            font-size: 3.5rem;
+            line-height: 1.2;
+            margin-bottom: 18px;
+            color: var(--dark);
+        }
+
+        /*
+        🔧 CUSTOMIZATION: The <span> below highlights your name in the primary color.
+        Replace "Your Name" with your actual name.
+        */
+        .hero-text h1 .highlight {
+            color: var(--primary);
+        }
+
+        .hero-text .subtitle {
+            font-size: 1.5rem;
+            color: var(--gray);
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .hero-text .hero-desc {
+            font-size: 1.1rem;
+            margin-bottom: 35px;
+            max-width: 520px;
+            color: #555;
+            line-height: 1.8;
+        }
+
+        /* Primary CTA button */
+        .btn {
+            display: inline-block;
+            padding: 13px 35px;
+            background: var(--primary);
+            color: white;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: var(--transition);
+            border: 2px solid transparent;
+            cursor: pointer;
+            letter-spacing: 0.3px;
+            box-shadow: 0 5px 15px rgba(108, 99, 255, 0.3);
+        }
+
+        .btn:hover {
+            background: transparent;
+            color: var(--primary);
+            border-color: var(--primary);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(108, 99, 255, 0.2);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+            box-shadow: none;
+        }
+
+        .btn-outline:hover {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 8px 25px rgba(108, 99, 255, 0.2);
+        }
+
+        /*
+        🔧 CUSTOMIZATION: Replace this SVG data URI with your actual photo URL.
+        Example: background: url('your-photo.jpg') center/cover;
+        */
+        .hero-image {
+            flex-shrink: 0;
+            width: 340px;
+            height: 340px;
+            border-radius: 50%;
+            background:
+                linear-gradient(135deg, var(--primary), var(--primary-light));
+            border: 6px solid white;
+            box-shadow: 0 0 50px rgba(108, 99, 255, 0.25);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 8rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        /* ============================================================
+           ABOUT SECTION
+           ============================================================ */
+        .about-content {
+            display: flex;
+            gap: 70px;
+            align-items: center;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .about-image {
+            flex: 0 0 300px;
+            text-align: center;
+        }
+
+        /*
+        🔧 CUSTOMIZATION: Replace with your actual photo.
+        Change the src in HTML or use a real URL.
+        */
+        .about-image .img-placeholder {
+            width: 280px;
+            height: 320px;
+            border-radius: 20px;
+            background: linear-gradient(135deg, #e9ecef, #dee2e6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--card-shadow);
+            color: var(--gray);
+            font-size: 1rem;
+            overflow: hidden;
+        }
+
+        .about-image .img-placeholder img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .about-text {
+            flex: 1 1 400px;
+        }
+
+        .about-text h3 {
+            font-size: 2rem;
+            margin-bottom: 22px;
+            color: var(--dark);
+        }
+
+        .about-text p {
+            margin-bottom: 18px;
+            color: #555;
+            line-height: 1.8;
+        }
+
+        .about-text .highlight-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 20px 0 30px;
+        }
+
+        .about-text .highlight-list span {
+            background: #f0edff;
+            color: var(--primary);
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        /* ============================================================
+           SKILLS SECTION
+           ============================================================ */
+        .skills-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 30px;
+        }
+
+        .skill-card {
+            background: var(--white);
+            padding: 35px 25px;
+            border-radius: var(--border-radius);
+            text-align: center;
+            box-shadow: var(--card-shadow);
+            transition: var(--transition);
+            border: 1px solid rgba(0, 0, 0, 0.04);
+        }
+
+        .skill-card:hover {
+            transform: translateY(-10px);
+            box-shadow: var(--card-shadow-hover);
+        }
+
+        .skill-card .skill-icon {
+            width: 70px;
+            height: 70px;
+            border-radius: 20px;
+            background: #f0edff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 2rem;
+            color: var(--primary);
+        }
+
+        .skill-card h4 {
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+            color: var(--dark);
+        }
+
+        .skill-card p {
+            color: var(--gray);
+            font-size: 0.95rem;
+        }
+
+        /* ============================================================
+           PROJECTS SECTION
+           ============================================================ */
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 35px;
+        }
+
+        .project-card {
+            background: white;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: var(--card-shadow);
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .project-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--card-shadow-hover);
+        }
+
+        /*
+        🔧 CUSTOMIZATION: Replace the gradient backgrounds with actual project screenshots.
+        Use: background: url('project-screenshot.jpg') center/cover;
+        */
+        .project-img {
+            height: 210px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3.5rem;
+            color: rgba(255, 255, 255, 0.7);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .project-img.img-1 {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+        }
+
+        .project-img.img-2 {
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+        }
+
+        .project-img.img-3 {
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
+        }
+
+        .project-img.img-4 {
+            background: linear-gradient(135deg, #43e97b, #38f9d7);
+        }
+
+        .project-info {
+            padding: 25px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .project-info h4 {
+            font-size: 1.25rem;
+            margin-bottom: 10px;
+            color: var(--dark);
+        }
+
+        .project-info p {
+            color: #555;
+            margin-bottom: 18px;
+            flex: 1;
+            font-size: 0.95rem;
+            line-height: 1.7;
+        }
+
+        .project-tags {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+
+        .project-tags span {
+            background: #f0edff;
+            color: var(--primary);
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .project-links {
+            display: flex;
+            gap: 12px;
+        }
+
+        .project-links a {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--primary);
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .project-links a:hover {
+            color: var(--primary-dark);
+        }
+
+        /* ============================================================
+           CONTACT SECTION
+           ============================================================ */
+        .contact-wrapper {
+            display: flex;
+            gap: 60px;
+            flex-wrap: wrap;
+        }
+
+        .contact-form {
+            flex: 1 1 420px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .contact-form input,
+        .contact-form textarea {
+            padding: 15px 18px;
+            border: 2px solid #e9ecef;
+            border-radius: var(--border-radius-sm);
+            font-size: 1rem;
+            transition: var(--transition);
+            font-family: inherit;
+            background: var(--white);
+        }
+
+        .contact-form input:focus,
+        .contact-form textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.1);
+        }
+
+        .contact-form input.error,
+        .contact-form textarea.error {
+            border-color: #e74c3c;
+            box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1);
+        }
+
+        .contact-form textarea {
+            height: 150px;
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .contact-form .btn {
+            align-self: flex-start;
+        }
+
+        .contact-info {
+            flex: 1 1 280px;
+            display: flex;
+            flex-direction: column;
+            gap: 28px;
+            justify-content: center;
+        }
+
+        .contact-info .info-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            font-size: 1.05rem;
+            color: var(--dark);
+        }
+
+        .contact-info .info-icon {
+            width: 50px;
+            height: 50px;
+            background: #f0edff;
+            color: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .contact-info .info-item a {
+            color: var(--primary);
+            transition: var(--transition);
+        }
+
+        .contact-info .info-item a:hover {
+            text-decoration: underline;
+        }
+
+        /* ============================================================
+           FOOTER
+           ============================================================ */
+        footer {
+            background: var(--dark);
+            color: rgba(255, 255, 255, 0.8);
+            text-align: center;
+            padding: 35px 0 25px;
+        }
+
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 22px;
+            margin-bottom: 18px;
+        }
+
+        .social-links a {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            color: white;
+            transition: var(--transition);
+        }
+
+        .social-links a:hover {
+            background: var(--primary);
+            transform: translateY(-4px);
+            box-shadow: 0 5px 15px rgba(108, 99, 255, 0.4);
+        }
+
+        footer p {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        /* ============================================================
+           BACK TO TOP BUTTON
+           ============================================================ */
+        .back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 45px;
+            height: 45px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+            z-index: 999;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(20px);
+            transition: var(--transition);
+            box-shadow: 0 5px 15px rgba(108, 99, 255, 0.35);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .back-to-top.visible {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .back-to-top:hover {
+            background: var(--primary-dark);
+            transform: translateY(-5px);
+        }
+
+        /* ============================================================
+           TOAST NOTIFICATION
+           ============================================================ */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: var(--dark);
+            color: white;
+            padding: 14px 28px;
+            border-radius: 30px;
+            font-weight: 500;
+            z-index: 2000;
+            opacity: 0;
+            transition: all 0.4s ease;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            pointer-events: none;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* ============================================================
+           RESPONSIVE DESIGN
+           ============================================================ */
+
+        /* Tablet & small desktop */
+        @media (max-width: 992px) {
+            .hero-content {
+                gap: 40px;
+            }
+
+            .hero-text h1 {
+                font-size: 2.8rem;
+            }
+
+            .hero-image {
+                width: 280px;
+                height: 280px;
+                font-size: 6rem;
+            }
+
+            .lang-switch {
+                right: 80px;
+            }
+        }
+
+        /* Mobile */
+        @media (max-width: 768px) {
+            :root {
+                --nav-height: 65px;
+            }
+
+            .section {
+                padding: 70px 0;
+            }
+
+            .section-title {
+                font-size: 2rem;
+            }
+
+            /* Language switch — move to avoid hamburger */
+            .lang-switch {
+                top: 12px;
+                right: 65px;
+                padding: 3px;
+            }
+
+            .lang-btn {
+                padding: 6px 12px;
+                font-size: 0.8rem;
+            }
+
+            /* Mobile nav — slide in from right */
+            .nav-links {
+                position: fixed;
+                top: var(--nav-height);
+                right: -100%;
+                flex-direction: column;
+                background: rgba(255, 255, 255, 0.98);
+                backdrop-filter: blur(15px);
+                width: 75%;
+                max-width: 320px;
+                height: calc(100vh - var(--nav-height));
+                padding: 50px 35px;
+                box-shadow: -10px 0 30px rgba(0, 0, 0, 0.1);
+                transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+                gap: 30px;
+            }
+
+            .nav-links.active {
+                right: 0;
+            }
+
+            .nav-links a {
+                font-size: 1.1rem;
+            }
+
+            .hamburger {
+                display: flex;
+            }
+
+            /* Hero — stack vertically */
+            .hero-content {
+                flex-direction: column-reverse;
+                text-align: center;
+                gap: 35px;
+                padding: 40px 0;
+            }
+
+            .hero-text h1 {
+                font-size: 2.3rem;
+            }
+
+            .hero-text .subtitle {
+                font-size: 1.2rem;
+            }
+
+            .hero-text .hero-desc {
+                max-width: 100%;
+                margin-left: auto;
+                margin-right: auto;
+            }
+
+            .hero-image {
+                width: 220px;
+                height: 220px;
+                font-size: 5rem;
+            }
+
+            /* About */
+            .about-content {
+                gap: 40px;
+                text-align: center;
+            }
+
+            .about-image {
+                flex: 0 0 auto;
+            }
+
+            .about-image .img-placeholder {
+                width: 220px;
+                height: 260px;
+                margin: 0 auto;
+            }
+
+            .about-text .highlight-list {
+                justify-content: center;
+            }
+
+            /* Projects */
+            .projects-grid {
+                grid-template-columns: 1fr;
+                max-width: 450px;
+                margin: 0 auto;
+            }
+
+            /* Contact */
+            .contact-wrapper {
+                gap: 40px;
+            }
+
+            .contact-form .btn {
+                align-self: stretch;
+                text-align: center;
+            }
+
+            .back-to-top {
+                bottom: 20px;
+                right: 20px;
+                width: 40px;
+                height: 40px;
+                font-size: 1rem;
+            }
+        }
+
+        /* Small phones */
+        @media (max-width: 480px) {
+            .hero-text h1 {
+                font-size: 1.9rem;
+            }
+
+            .hero-image {
+                width: 180px;
+                height: 180px;
+                font-size: 4rem;
+            }
+
+            .section-title {
+                font-size: 1.7rem;
+            }
+
+            .skills-grid {
+                grid-template-columns: 1fr;
+                max-width: 350px;
+                margin: 0 auto;
+            }
+
+            .lang-switch {
+                right: 55px;
+                top: 14px;
+            }
+
+            .lang-btn {
+                padding: 5px 10px;
+                font-size: 0.75rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- ============================================================
+    LANGUAGE TOGGLE — Top-right corner, fixed
+    ============================================================ -->
+    <div class="lang-switch" aria-label="Language switcher">
+        <button class="lang-btn active" data-lang="zh" aria-pressed="true">中文</button>
+        <button class="lang-btn" data-lang="en" aria-pressed="false">EN</button>
+    </div>
+
+    <!-- ============================================================
+    NAVIGATION BAR — Fixed top, glassmorphism
+    ============================================================ -->
+    <nav id="navbar">
+        <div class="container">
+            <!--
+            🔧 CUSTOMIZATION: Change logo text or replace with an <img> tag
+            -->
+            <a href="#home" class="logo" data-i18n="logo">作品集</a>
+
+            <ul class="nav-links" id="navLinks">
+                <li><a href="#home" data-i18n="nav-home" class="active">首页</a></li>
+                <li><a href="#about" data-i18n="nav-about">关于</a></li>
+                <li><a href="#skills" data-i18n="nav-skills">技能</a></li>
+                <li><a href="#projects" data-i18n="nav-projects">项目</a></li>
+                <li><a href="#contact" data-i18n="nav-contact">联系</a></li>
+            </ul>
+
+            <!-- Hamburger menu (mobile only) -->
+            <div class="hamburger" id="hamburger" aria-label="Toggle navigation menu" role="button" tabindex="0">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ============================================================
+    HERO SECTION — Full viewport, gradient background
+    🔧 CUSTOMIZATION:
+      - Replace "Your Name" with your real name in both languages (see JS translations)
+      - Replace the avatar div with <img> tag pointing to your photo
+    ============================================================ -->
+    <section class="hero" id="home">
+        <div class="container hero-content">
+            <div class="hero-text">
+                <!-- The name inside <span class="highlight"> is set via JS for i18n support -->
+                <h1 data-i18n="hero-greeting">你好，我是 <span class="highlight">你的名字</span></h1>
+                <div class="subtitle" data-i18n="hero-role">全栈开发工程师</div>
+                <p class="hero-desc" data-i18n="hero-desc">
+                    我用简洁的代码和创意设计，打造美观实用的网站和应用程序。
+                </p>
+                <a href="#projects" class="btn" data-i18n="hero-btn">查看我的作品</a>
+            </div>
+
+            <!--
+            🔧 CUSTOMIZATION: Replace this div with an <img> tag for your actual photo.
+            Example: <img src="your-photo.jpg" alt="Your Name" class="hero-image">
+            -->
+            <div class="hero-image" aria-label="Profile photo placeholder">
+                <i class="fas fa-user"></i>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================
+    ABOUT SECTION
+    🔧 CUSTOMIZATION:
+      - Replace placeholder text in JS translations with your own bio
+      - Replace the SVG placeholder with your actual photo
+    ============================================================ -->
+    <section class="section section-alt" id="about">
+        <div class="container">
+            <h2 class="section-title" data-i18n="about-title">关于我</h2>
+            <p class="section-subtitle" data-i18n="about-subtitle">了解一些关于我的事情</p>
+            <div class="about-content">
+                <div class="about-image">
+                    <div class="img-placeholder">
+                        <!--
+                        🔧 CUSTOMIZATION: Replace with your actual photo.
+                        <img src="your-photo.jpg" alt="Your Name">
+                        -->
+                        <span data-i18n="about-photo-placeholder">你的照片</span>
+                    </div>
+                </div>
+                <div class="about-text">
+                    <h3 data-i18n="about-heading">我是谁？</h3>
+                    <p data-i18n="about-p1">
+                        我是一名充满热情的开发者，常驻北京，拥有5年以上网页开发经验。我喜欢将复杂问题转化为简单、美观且直观的解决方案。
+                    </p>
+                    <p data-i18n="about-p2">
+                        不写代码的时候，我会探索新技术，为开源项目做贡献，或者一边喝咖啡一边阅读技术博客。
+                    </p>
+                    <div class="highlight-list">
+                        <span>🌐 Web Development</span>
+                        <span>📱 Responsive Design</span>
+                        <span>⚡ Performance</span>
+                        <span>🎨 UI/UX</span>
+                        <span>🔧 Open Source</span>
+                    </div>
+                    <a href="#contact" class="btn btn-outline" data-i18n="about-btn">联系我</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================
+    SKILLS SECTION
+    🔧 CUSTOMIZATION: Modify skill names/descriptions in JS translations
+    ============================================================ -->
+    <section class="section" id="skills">
+        <div class="container">
+            <h2 class="section-title" data-i18n="skills-title">我的技能</h2>
+            <p class="section-subtitle" data-i18n="skills-subtitle">我日常使用的技术栈</p>
+            <div class="skills-grid">
+                <!-- Skill Card 1: Frontend -->
+                <div class="skill-card">
+                    <div class="skill-icon"><i class="fas fa-code"></i></div>
+                    <h4 data-i18n="skill-frontend-title">前端开发</h4>
+                    <p data-i18n="skill-frontend-desc">HTML5, CSS3, JavaScript (ES6+), React, Vue.js, TypeScript</p>
+                </div>
+                <!-- Skill Card 2: Backend -->
+                <div class="skill-card">
+                    <div class="skill-icon"><i class="fas fa-server"></i></div>
+                    <h4 data-i18n="skill-backend-title">后端开发</h4>
+                    <p data-i18n="skill-backend-desc">Node.js, Express, Python, Django, RESTful APIs, GraphQL</p>
+                </div>
+                <!-- Skill Card 3: Database -->
+                <div class="skill-card">
+                    <div class="skill-icon"><i class="fas fa-database"></i></div>
+                    <h4 data-i18n="skill-database-title">数据库</h4>
+                    <p data-i18n="skill-database-desc">MySQL, PostgreSQL, MongoDB, Redis, Firebase</p>
+                </div>
+                <!-- Skill Card 4: Design & Tools -->
+                <div class="skill-card">
+                    <div class="skill-icon"><i class="fas fa-paint-brush"></i></div>
+                    <h4 data-i18n="skill-design-title">设计与工具</h4>
+                    <p data-i18n="skill-design-desc">Figma, Adobe XD, Git, Docker, CI/CD, UI/UX 原则</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================
+    PROJECTS SECTION
+    🔧 CUSTOMIZATION:
+      - Replace gradient project images with actual screenshots
+      - Update GitHub/Demo links when you have real projects
+      - The 4th card IS this portfolio website — update its links
+    ============================================================ -->
+    <section class="section section-alt" id="projects">
+        <div class="container">
+            <h2 class="section-title" data-i18n="projects-title">近期项目</h2>
+            <p class="section-subtitle" data-i18n="projects-subtitle">我最近做的一些项目</p>
+            <div class="projects-grid">
+                <!-- Project 1: E-Commerce -->
+                <div class="project-card">
+                    <div class="project-img img-1">
+                        <i class="fas fa-shopping-cart"></i>
+                    </div>
+                    <div class="project-info">
+                        <h4 data-i18n="proj1-title">电商平台</h4>
+                        <p data-i18n="proj1-desc">使用React和Node.js构建的全栈在线商城，集成Stripe支付功能。</p>
+                        <div class="project-tags">
+                            <span>React</span><span>Node.js</span><span>MongoDB</span><span>Stripe</span>
+                        </div>
+                        <div class="project-links">
+                            <!-- 🔧 CUSTOMIZATION: Replace # with actual GitHub repo URL -->
+                            <a href="#" target="_blank" rel="noopener"><i class="fab fa-github"></i> GitHub</a>
+                            <!-- 🔧 CUSTOMIZATION: Replace # with actual live demo URL -->
+                            <a href="#" target="_blank" rel="noopener"><i class="fas fa-external-link-alt"></i> <span data-i18n="proj-demo">Demo</span></a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Project 2: Weather Dashboard -->
+                <div class="project-card">
+                    <div class="project-img img-2">
+                        <i class="fas fa-cloud-sun"></i>
+                    </div>
+                    <div class="project-info">
+                        <h4 data-i18n="proj2-title">天气仪表板</h4>
+                        <p data-i18n="proj2-desc">利用OpenWeather API构建的实时天气应用，支持城市搜索和可视化图表。</p>
+                        <div class="project-tags">
+                            <span>JavaScript</span><span>Chart.js</span><span>API</span><span>CSS Grid</span>
+                        </div>
+                        <div class="project-links">
+                            <a href="#" target="_blank" rel="noopener"><i class="fab fa-github"></i> GitHub</a>
+                            <a href="#" target="_blank" rel="noopener"><i class="fas fa-external-link-alt"></i> <span data-i18n="proj-demo">Demo</span></a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Project 3: Task Manager -->
+                <div class="project-card">
+                    <div class="project-img img-3">
+                        <i class="fas fa-tasks"></i>
+                    </div>
+                    <div class="project-info">
+                        <h4 data-i18n="proj3-title">任务管理器</h4>
+                        <p data-i18n="proj3-desc">基于Firebase实时同步的协作任务管理工具，支持拖拽排序和PWA离线使用。</p>
+                        <div class="project-tags">
+                            <span>Vue.js</span><span>Firebase</span><span>PWA</span><span>Drag & Drop</span>
+                        </div>
+                        <div class="project-links">
+                            <a href="#" target="_blank" rel="noopener"><i class="fab fa-github"></i> GitHub</a>
+                            <a href="#" target="_blank" rel="noopener"><i class="fas fa-external-link-alt"></i> <span data-i18n="proj-demo">Demo</span></a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Project 4: This Portfolio Website -->
+                <div class="project-card">
+                    <div class="project-img img-4">
+                        <i class="fas fa-globe"></i>
+                    </div>
+                    <div class="project-info">
+                        <h4 data-i18n="proj4-title">个人作品集网站</h4>
+                        <p data-i18n="proj4-desc">你现在正在浏览的网站！纯HTML/CSS/JS构建，支持中英双语切换，响应式设计，部署于GitHub Pages。</p>
+                        <div class="project-tags">
+                            <span>HTML5</span><span>CSS3</span><span>JavaScript</span><span>GitHub Pages</span>
+                        </div>
+                        <div class="project-links">
+                            <!-- 🔧 CUSTOMIZATION: Replace # with your actual portfolio repo URL -->
+                            <a href="#" target="_blank" rel="noopener"><i class="fab fa-github"></i> GitHub</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================
+    CONTACT SECTION
+    🔧 CUSTOMIZATION:
+      - Replace email address (your.email@example.com)
+      - Replace phone number
+      - Replace GitHub, LinkedIn, Twitter URLs in footer
+      - Replace location if needed
+    ============================================================ -->
+    <section class="section" id="contact">
+        <div class="container">
+            <h2 class="section-title" data-i18n="contact-title">联系我</h2>
+            <p class="section-subtitle" data-i18n="contact-subtitle">有项目合作或其他问题？欢迎联系！</p>
+            <div class="contact-wrapper">
+                <!-- Contact Form -->
+                <form class="contact-form" id="contactForm" novalidate>
+                    <input type="text" id="contactName" data-i18n-placeholder="contact-name" placeholder="你的名字" required>
+                    <input type="email" id="contactEmail" data-i18n-placeholder="contact-email" placeholder="你的邮箱" required>
+                    <textarea id="contactMessage" data-i18n-placeholder="contact-message" placeholder="你的留言" required></textarea>
+                    <button type="submit" class="btn" data-i18n="contact-btn">发送消息</button>
+                </form>
+
+                <!-- Contact Info -->
+                <div class="contact-info">
+                    <div class="info-item">
+                        <div class="info-icon"><i class="fas fa-envelope"></i></div>
+                        <!-- 🔧 CUSTOMIZATION: Replace with your real email -->
+                        <span><a href="mailto:your.email@example.com">your.email@example.com</a></span>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-icon"><i class="fas fa-map-marker-alt"></i></div>
+                        <!-- 🔧 CUSTOMIZATION: Replace with your actual location -->
+                        <span data-i18n="contact-location">中国北京</span>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-icon"><i class="fas fa-phone"></i></div>
+                        <!-- 🔧 CUSTOMIZATION: Replace with your real phone number -->
+                        <span>+86 123 4567 8901</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================
+    FOOTER
+    🔧 CUSTOMIZATION: Replace social media links with your own URLs
+    ============================================================ -->
+    <footer>
+        <div class="container">
+            <div class="social-links">
+                <!-- 🔧 CUSTOMIZATION: Replace # with your actual GitHub profile URL -->
+                <a href="#" target="_blank" rel="noopener" aria-label="GitHub"><i class="fab fa-github"></i></a>
+                <!-- 🔧 CUSTOMIZATION: Replace # with your actual LinkedIn profile URL -->
+                <a href="#" target="_blank" rel="noopener" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                <!-- 🔧 CUSTOMIZATION: Replace # with your actual Twitter/X profile URL -->
+                <a href="#" target="_blank" rel="noopener" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+            </div>
+            <!-- 🔧 CUSTOMIZATION: Replace "你的名字" with your actual name -->
+            <p data-i18n="footer-text">© 2025 你的名字. 保留所有权利.</p>
+        </div>
+    </footer>
+
+    <!-- Back to Top Button -->
+    <button class="back-to-top" id="backToTop" aria-label="Back to top">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast"></div>
+
+    <!-- ============================================================
+    JAVASCRIPT — All interactivity below
+    ============================================================ -->
+    <script>
+        (function () {
+            'use strict';
+
+            // ============================================================
+            // TRANSLATION DATA
+            // 🔧 CUSTOMIZATION: Edit the text values here to personalize.
+            //    - "en" object: English text
+            //    - "zh" object: Chinese text
+            //    - Any key used in HTML as data-i18n="key" must exist here
+            // ============================================================
+            const translations = {
+                zh: {
+                    // Navigation
+                    logo: '作品集',
+                    'nav-home': '首页',
+                    'nav-about': '关于',
+                    'nav-skills': '技能',
+                    'nav-projects': '项目',
+                    'nav-contact': '联系',
+
+                    // Hero
+                    'hero-greeting': '你好，我是 <span class="highlight">你的名字</span>',
+                    'hero-role': '全栈开发工程师',
+                    'hero-desc': '我用简洁的代码和创意设计，打造美观实用的网站和应用程序。',
+                    'hero-btn': '查看我的作品',
+
+                    // About
+                    'about-title': '关于我',
+                    'about-subtitle': '了解一些关于我的事情',
+                    'about-photo-placeholder': '你的照片',
+                    'about-heading': '我是谁？',
+                    'about-p1': '我是一名充满热情的开发者，常驻北京，拥有5年以上网页开发经验。我喜欢将复杂问题转化为简单、美观且直观的解决方案。',
+                    'about-p2': '不写代码的时候，我会探索新技术，为开源项目做贡献，或者一边喝咖啡一边阅读技术博客。',
+                    'about-btn': '联系我',
+
+                    // Skills
+                    'skills-title': '我的技能',
+                    'skills-subtitle': '我日常使用的技术栈',
+                    'skill-frontend-title': '前端开发',
+                    'skill-frontend-desc': 'HTML5, CSS3, JavaScript (ES6+), React, Vue.js, TypeScript',
+                    'skill-backend-title': '后端开发',
+                    'skill-backend-desc': 'Node.js, Express, Python, Django, RESTful APIs, GraphQL',
+                    'skill-database-title': '数据库',
+                    'skill-database-desc': 'MySQL, PostgreSQL, MongoDB, Redis, Firebase',
+                    'skill-design-title': '设计与工具',
+                    'skill-design-desc': 'Figma, Adobe XD, Git, Docker, CI/CD, UI/UX 原则',
+
+                    // Projects
+                    'projects-title': '近期项目',
+                    'projects-subtitle': '我最近做的一些项目',
+                    'proj1-title': '电商平台',
+                    'proj1-desc': '使用React和Node.js构建的全栈在线商城，集成Stripe支付功能。',
+                    'proj2-title': '天气仪表板',
+                    'proj2-desc': '利用OpenWeather API构建的实时天气应用，支持城市搜索和可视化图表。',
+                    'proj3-title': '任务管理器',
+                    'proj3-desc': '基于Firebase实时同步的协作任务管理工具，支持拖拽排序和PWA离线使用。',
+                    'proj4-title': '个人作品集网站',
+                    'proj4-desc': '你现在正在浏览的网站！纯HTML/CSS/JS构建，支持中英双语切换，响应式设计，部署于GitHub Pages。',
+                    'proj-demo': '演示',
+
+                    // Contact
+                    'contact-title': '联系我',
+                    'contact-subtitle': '有项目合作或其他问题？欢迎联系！',
+                    'contact-name': '你的名字',
+                    'contact-email': '你的邮箱',
+                    'contact-message': '你的留言',
+                    'contact-btn': '发送消息',
+                    'contact-location': '中国北京',
+
+                    // Footer
+                    'footer-text': '© 2025 你的名字. 保留所有权利.',
+
+                    // Toast messages
+                    'toast-success': '✅ 感谢留言！我会尽快回复。',
+                    'toast-error': '⚠️ 请填写所有必填字段。',
+                },
+                en: {
+                    // Navigation
+                    logo: 'Portfolio',
+                    'nav-home': 'Home',
+                    'nav-about': 'About',
+                    'nav-skills': 'Skills',
+                    'nav-projects': 'Projects',
+                    'nav-contact': 'Contact',
+
+                    // Hero
+                    'hero-greeting': 'Hello, I\'m <span class="highlight">Your Name</span>',
+                    'hero-role': 'Full-Stack Developer',
+                    'hero-desc': 'I craft beautiful, functional websites and applications with clean code and creative design.',
+                    'hero-btn': 'View My Work',
+
+                    // About
+                    'about-title': 'About Me',
+                    'about-subtitle': 'Get to know a little about me',
+                    'about-photo-placeholder': 'Your Photo',
+                    'about-heading': 'Who Am I?',
+                    'about-p1': 'I\'m a passionate developer based in Beijing, China, with 5+ years of experience in web development. I love turning complex problems into simple, beautiful, and intuitive solutions.',
+                    'about-p2': 'When I\'m not coding, you\'ll find me exploring new technologies, contributing to open-source projects, or enjoying a good cup of coffee while reading tech blogs.',
+                    'about-btn': 'Let\'s Talk',
+
+                    // Skills
+                    'skills-title': 'My Skills',
+                    'skills-subtitle': 'Technologies I work with on a daily basis',
+                    'skill-frontend-title': 'Frontend',
+                    'skill-frontend-desc': 'HTML5, CSS3, JavaScript (ES6+), React, Vue.js, TypeScript',
+                    'skill-backend-title': 'Backend',
+                    'skill-backend-desc': 'Node.js, Express, Python, Django, RESTful APIs, GraphQL',
+                    'skill-database-title': 'Database',
+                    'skill-database-desc': 'MySQL, PostgreSQL, MongoDB, Redis, Firebase',
+                    'skill-design-title': 'Design & Tools',
+                    'skill-design-desc': 'Figma, Adobe XD, Git, Docker, CI/CD, UI/UX Principles',
+
+                    // Projects
+                    'projects-title': 'Recent Projects',
+                    'projects-subtitle': 'Some of my recent work',
+                    'proj1-title': 'E-Commerce Platform',
+                    'proj1-desc': 'A full-stack online store with Stripe payment integration, built using React and Node.js.',
+                    'proj2-title': 'Weather Dashboard',
+                    'proj2-desc': 'Real-time weather app using the OpenWeather API with city search and interactive charts.',
+                    'proj3-title': 'Task Manager',
+                    'proj3-desc': 'A collaborative task management tool with real-time Firebase sync, drag-and-drop, and PWA offline support.',
+                    'proj4-title': 'Portfolio Website',
+                    'proj4-desc': 'The website you\'re browsing right now! Built with pure HTML/CSS/JS, bilingual support, responsive design, deployed on GitHub Pages.',
+                    'proj-demo': 'Demo',
+
+                    // Contact
+                    'contact-title': 'Get In Touch',
+                    'contact-subtitle': 'Have a project in mind or just want to say hi? Feel free to reach out!',
+                    'contact-name': 'Your Name',
+                    'contact-email': 'Your Email',
+                    'contact-message': 'Your Message',
+                    'contact-btn': 'Send Message',
+                    'contact-location': 'Beijing, China',
+
+                    // Footer
+                    'footer-text': '© 2025 Your Name. All rights reserved.',
+
+                    // Toast messages
+                    'toast-success': '✅ Thank you! I\'ll get back to you soon.',
+                    'toast-error': '⚠️ Please fill in all required fields.',
+                }
+            };
+
+            // ============================================================
+            // DOM REFERENCES
+            // ============================================================
+            const hamburger = document.getElementById('hamburger');
+            const navLinks = document.getElementById('navLinks');
+            const navbar = document.getElementById('navbar');
+            const contactForm = document.getElementById('contactForm');
+            const backToTopBtn = document.getElementById('backToTop');
+            const toast = document.getElementById('toast');
+            const langBtns = document.querySelectorAll('.lang-btn');
+
+            // ============================================================
+            // 1. LANGUAGE SWITCHING (with localStorage persistence)
+            // ============================================================
+            let currentLang = localStorage.getItem('portfolio-lang') || 'zh';
+
+            function applyLanguage(lang) {
+                currentLang = lang;
+
+                // Update text content for elements with data-i18n
+                document.querySelectorAll('[data-i18n]').forEach(el => {
+                    const key = el.getAttribute('data-i18n');
+                    if (translations[lang] && translations[lang][key]) {
+                        // The hero greeting contains an HTML <span> — use innerHTML
+                        if (key === 'hero-greeting') {
+                            el.innerHTML = translations[lang][key];
+                        } else {
+                            el.textContent = translations[lang][key];
+                        }
+                    }
+                });
+
+                // Update placeholder attributes
+                document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+                    const key = el.getAttribute('data-i18n-placeholder');
+                    if (translations[lang] && translations[lang][key]) {
+                        el.setAttribute('placeholder', translations[lang][key]);
+                    }
+                });
+
+                // Update language toggle buttons
+                langBtns.forEach(btn => {
+                    const isActive = btn.getAttribute('data-lang') === lang;
+                    btn.classList.toggle('active', isActive);
+                    btn.setAttribute('aria-pressed', isActive);
+                });
+
+                // Update HTML lang attribute
+                document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en';
+
+                // Persist preference
+                localStorage.setItem('portfolio-lang', lang);
+            }
+
+            // Bind language button clicks
+            langBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    applyLanguage(btn.getAttribute('data-lang'));
+                });
+            });
+
+            // Apply saved or default language on load
+            applyLanguage(currentLang);
+
+            // ============================================================
+            // 2. MOBILE NAVIGATION TOGGLE (hamburger menu)
+            // ============================================================
+            function toggleMobileNav() {
+                const isActive = navLinks.classList.toggle('active');
+                hamburger.classList.toggle('active', isActive);
+                hamburger.setAttribute('aria-expanded', isActive);
+                // Prevent body scroll when menu is open
+                document.body.style.overflow = isActive ? 'hidden' : '';
+            }
+
+            hamburger.addEventListener('click', toggleMobileNav);
+
+            // Keyboard accessibility for hamburger
+            hamburger.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    toggleMobileNav();
+                }
+            });
+
+            // Close mobile menu when a nav link is clicked
+            navLinks.querySelectorAll('a').forEach(link => {
+                link.addEventListener('click', () => {
+                    if (navLinks.classList.contains('active')) {
+                        navLinks.classList.remove('active');
+                        hamburger.classList.remove('active');
+                        hamburger.setAttribute('aria-expanded', 'false');
+                        document.body.style.overflow = '';
+                    }
+                });
+            });
+
+            // ============================================================
+            // 3. SMOOTH SCROLLING (with JS polyfill for Safari)
+            // ============================================================
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href');
+                    if (targetId === '#') return;
+                    const target = document.querySelector(targetId);
+                    if (target) {
+                        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                });
+            });
+
+            // ============================================================
+            // 4. SCROLL SPY — highlight active nav link based on scroll position
+            // ============================================================
+            function updateActiveNavLink() {
+                const sections = document.querySelectorAll('section[id]');
+                const scrollPos = window.scrollY + 150;
+
+                let currentSection = '';
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop;
+                    const sectionHeight = section.offsetHeight;
+                    if (scrollPos >= sectionTop && scrollPos < sectionTop + sectionHeight) {
+                        currentSection = section.getAttribute('id');
+                    }
+                });
+
+                navLinks.querySelectorAll('a').forEach(link => {
+                    link.classList.remove('active');
+                    if (link.getAttribute('href') === `#${currentSection}`) {
+                        link.classList.add('active');
+                    }
+                });
+            }
+
+            // ============================================================
+            // 5. NAVBAR SHADOW ON SCROLL + BACK-TO-TOP VISIBILITY
+            // ============================================================
+            function onScroll() {
+                // Navbar shadow
+                if (window.scrollY > 50) {
+                    navbar.classList.add('scrolled');
+                } else {
+                    navbar.classList.remove('scrolled');
+                }
+
+                // Back-to-top button
+                if (window.scrollY > 500) {
+                    backToTopBtn.classList.add('visible');
+                } else {
+                    backToTopBtn.classList.remove('visible');
+                }
+
+                updateActiveNavLink();
+            }
+
+            window.addEventListener('scroll', onScroll, { passive: true });
+
+            // Back-to-top click
+            backToTopBtn.addEventListener('click', () => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+
+            // ============================================================
+            // 6. TOAST NOTIFICATION HELPER
+            // ============================================================
+            let toastTimer;
+
+            function showToast(message, duration = 3000) {
+                clearTimeout(toastTimer);
+                toast.textContent = message;
+                toast.classList.add('show');
+                toastTimer = setTimeout(() => {
+                    toast.classList.remove('show');
+                }, duration);
+            }
+
+            // ============================================================
+            // 7. CONTACT FORM — validation + simulated submission
+            // ============================================================
+            contactForm.addEventListener('submit', function (e) {
+                e.preventDefault();
+
+                const nameInput = document.getElementById('contactName');
+                const emailInput = document.getElementById('contactEmail');
+                const messageInput = document.getElementById('contactMessage');
+
+                let isValid = true;
+
+                // Remove previous error states
+                [nameInput, emailInput, messageInput].forEach(input => {
+                    input.classList.remove('error');
+                });
+
+                // Validate name
+                if (!nameInput.value.trim()) {
+                    nameInput.classList.add('error');
+                    isValid = false;
+                }
+
+                // Validate email (basic format check)
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailInput.value.trim() || !emailRegex.test(emailInput.value.trim())) {
+                    emailInput.classList.add('error');
+                    isValid = false;
+                }
+
+                // Validate message
+                if (!messageInput.value.trim()) {
+                    messageInput.classList.add('error');
+                    isValid = false;
+                }
+
+                if (!isValid) {
+                    // Show error toast
+                    const errorMsg = currentLang === 'zh'
+                        ? translations.zh['toast-error']
+                        : translations.en['toast-error'];
+                    showToast(errorMsg);
+                    return;
+                }
+
+                // Simulate form submission
+                const successMsg = currentLang === 'zh'
+                    ? translations.zh['toast-success']
+                    : translations.en['toast-success'];
+                showToast(successMsg, 4000);
+                contactForm.reset();
+
+                // Remove error states on input focus
+                [nameInput, emailInput, messageInput].forEach(input => {
+                    input.addEventListener('focus', function handler() {
+                        input.classList.remove('error');
+                        input.removeEventListener('focus', handler);
+                    }, { once: true });
+                });
+            });
+
+            // ============================================================
+            // INITIAL SCROLL CHECK (in case page loads scrolled)
+            // ============================================================
+            onScroll();
+
+        })();
+    </script>
+</body>
+
+</html>
