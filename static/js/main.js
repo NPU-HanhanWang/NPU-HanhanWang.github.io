@@ -97,6 +97,89 @@
     }
 
     // ============================================================
+    // CODE BLOCK COPY BUTTONS
+    // ============================================================
+    function setupCodeCopyButtons() {
+        const contentAreas = document.querySelectorAll('.md-content');
+        contentAreas.forEach(function (area) {
+            const pres = area.querySelectorAll('pre');
+            pres.forEach(function (pre) {
+                if (pre.closest('.code-block-wrapper')) return;
+                const wrapper = document.createElement('div');
+                wrapper.className = 'code-block-wrapper';
+                pre.parentNode.insertBefore(wrapper, pre);
+                wrapper.appendChild(pre);
+
+                const btn = document.createElement('button');
+                btn.className = 'code-copy-btn';
+                btn.setAttribute('aria-label', 'Copy code');
+                btn.innerHTML = '<i class="fas fa-copy"></i><span>Copy</span>';
+
+                btn.addEventListener('click', function () {
+                    const codeEl = pre.querySelector('code') || pre;
+                    const text = codeEl.textContent;
+                    if (navigator.clipboard && navigator.clipboard.writeText) {
+                        navigator.clipboard.writeText(text).then(function () {
+                            btn.classList.add('copied');
+                            btn.innerHTML = '<i class="fas fa-check"></i><span>Copied!</span>';
+                            setTimeout(function () {
+                                btn.classList.remove('copied');
+                                btn.innerHTML = '<i class="fas fa-copy"></i><span>Copy</span>';
+                            }, 2000);
+                        }).catch(function () {
+                            fallbackCopy(text, btn);
+                        });
+                    } else {
+                        fallbackCopy(text, btn);
+                    }
+                });
+
+                wrapper.appendChild(btn);
+            });
+        });
+    }
+
+    function fallbackCopy(text, btn) {
+        var ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.left = '-9999px';
+        ta.style.top = '-9999px';
+        document.body.appendChild(ta);
+        ta.focus();
+        ta.select();
+        try {
+            var ok = document.execCommand('copy');
+            if (ok) {
+                btn.classList.add('copied');
+                btn.innerHTML = '<i class="fas fa-check"></i><span>Copied!</span>';
+                setTimeout(function () {
+                    btn.classList.remove('copied');
+                    btn.innerHTML = '<i class="fas fa-copy"></i><span>Copy</span>';
+                }, 2000);
+            }
+        } catch (_) { /* ignore */ }
+        document.body.removeChild(ta);
+    }
+
+    // ============================================================
+    // TABLE SCROLL WRAPPERS (mobile)
+    // ============================================================
+    function setupTableWrappers() {
+        const contentAreas = document.querySelectorAll('.md-content');
+        contentAreas.forEach(function (area) {
+            const tables = area.querySelectorAll('table');
+            tables.forEach(function (table) {
+                if (table.closest('.table-wrapper')) return;
+                const wrapper = document.createElement('div');
+                wrapper.className = 'table-wrapper';
+                table.parentNode.insertBefore(wrapper, table);
+                wrapper.appendChild(table);
+            });
+        });
+    }
+
+    // ============================================================
     // READING PROGRESS BAR
     // ============================================================
     function updateReadingProgress() {
@@ -178,6 +261,12 @@
 
         // ---- Scroll handler ----
         window.addEventListener('scroll', onScroll, { passive: true });
+
+        // ---- Code copy buttons ----
+        setupCodeCopyButtons();
+
+        // ---- Table scroll wrappers ----
+        setupTableWrappers();
 
         // Initial scroll state
         onScroll();

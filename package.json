@@ -13,12 +13,18 @@
     "fs-extra": "^11.2.0",
     "glob": "^11.0.0",
     "gray-matter": "^4.0.3",
+    "highlight.js": "^11.11.1",
     "marked": "^14.1.0",
+    "marked-highlight": "^2.2.4",
     "nunjucks": "^3.2.4"
   },
   "devDependencies": {
     "serve": "^14.2.4"
   },
-  "keywords": ["static-site-generator", "knowledge-base", "github-pages"],
+  "keywords": [
+    "static-site-generator",
+    "knowledge-base",
+    "github-pages"
+  ],
   "license": "MIT"
 }

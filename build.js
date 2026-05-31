@@ -22,6 +22,8 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import matter from 'gray-matter';
 import { marked } from 'marked';
+import { markedHighlight } from 'marked-highlight';
+import hljs from 'highlight.js';
 import nunjucks from 'nunjucks';
 
 // ─── Paths ───────────────────────────────────────────────────────────────────
@@ -54,12 +56,25 @@ const SITE_CONFIG = {
 };
 
 // ─── Marked setup ────────────────────────────────────────────────────────────
+marked.use(
+  markedHighlight({
+    langPrefix: 'hljs language-',
+    highlight: function (code, lang) {
+      if (lang && hljs.getLanguage(lang)) {
+        return hljs.highlight(code, { language: lang }).value;
+      }
+      return hljs.highlightAuto(code).value;
+    },
+  })
+);
+
 marked.setOptions({
   gfm: true,
   breaks: false,
   headerIds: true,
   mangle: false,
 });
+
 
 // ─── Nunjucks setup ──────────────────────────────────────────────────────────
 const nunjucksEnv = nunjucks.configure(TEMPLATES_DIR, {
@@ -795,15 +810,15 @@ async function buildAll(content) {
   }, 'blog/index.html');
 
   for (const post of content.blog) {
-      renderPage('blog-post.html', {
-        pageType: 'blog-post',
-        page: post,
-        breadcrumbs: [
-          { href: '/blog/', label: { en: 'Blog', zh: '博客' } },
-          { href: null, label: post.title },
-        ],
-      }, `blog/${post.slug}.html`);
-    }
+    renderPage('blog-post.html', {
+      pageType: 'blog-post',
+      page: post,
+      breadcrumbs: [
+        { href: '/blog/', label: { en: 'Blog', zh: '博客' } },
+        { href: null, label: post.title },
+      ],
+    }, `blog/${post.slug}.html`);
+  }
 
   // ── 404 page ──
   renderPage('base.html', {

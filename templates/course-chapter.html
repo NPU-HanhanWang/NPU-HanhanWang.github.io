@@ -29,27 +29,35 @@ CONTENT PAGE
         <div class="content-with-sidebar">
             <!-- Sidebar: Chapter Navigation -->
             <aside class="content-sidebar">
-                <h3>章节导航</h3>
+                <h3 class="sidebar-toggle" onclick="this.parentElement.classList.toggle('collapsed')">
+                    章节导航
+                    <span class="toggle-icon"><i class="fas fa-chevron-down"></i></span>
+                </h3>
+                <div class="sidebar-collapse">
+                <a href="{{ SITE.baseUrl }}/courses/{{ course.slug }}/" class="back-to-course">
+                    ← 返回首页
+                </a>
                 {% for ch in course.chapters %}
                 <a href="{{ SITE.baseUrl }}/courses/{{ course.slug }}/{{ ch.slug }}.html"
-                   class="chapter-nav-item{% if ch.slug == page.slug %} active{% endif %}">
+                    class="chapter-nav-item{% if ch.slug == page.slug %} active{% endif %}">
                     <span class="chapter-number">{{ '%02d' | format(loop.index) }}</span>
                     <span>{{ ch.title.zh or ch.title.en }}</span>
                 </a>
                 {% endfor %}
+                </div>
             </aside>
 
             <!-- Main Content Area -->
             <main class="content-main">
                 <!-- Chapter Content -->
                 {% if page.bi %}
-                    {% if page.bi.zh %}
-                    <div class="md-content">{{ page.bi.zh.html | safe }}</div>
-                    {% elif page.bi.fallback %}
-                    <div class="md-content">{{ page.bi.fallback.html | safe }}</div>
-                    {% elif page.bi.en %}
-                    <div class="md-content">{{ page.bi.en.html | safe }}</div>
-                    {% endif %}
+                {% if page.bi.zh %}
+                <div class="md-content">{{ page.bi.zh.html | safe }}</div>
+                {% elif page.bi.fallback %}
+                <div class="md-content">{{ page.bi.fallback.html | safe }}</div>
+                {% elif page.bi.en %}
+                <div class="md-content">{{ page.bi.en.html | safe }}</div>
+                {% endif %}
                 {% endif %}
 
                 <!-- Prev / Next Navigation -->

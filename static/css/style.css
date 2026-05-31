@@ -26,8 +26,11 @@
     --border-color: #e9ecef;
     --code-bg: #f0edff;
     --code-color: #5a52d5;
-    --pre-bg: #1e1e2e;
+    --pre-bg: #221f3a;
     --pre-color: #cdd6f4;
+    --pre-bg-gradient: linear-gradient(160deg, #221f3a 0%, #1d1b35 100%);
+    --pre-border: rgba(108, 99, 255, 0.15);
+    --pre-accent: #6c63ff;
     --blockquote-bg: #f8f7ff;
     --blockquote-border: #6c63ff;
     --tag-bg: #f0edff;
@@ -69,8 +72,11 @@
     --border-color: #2a2a4a;
     --code-bg: #2a2a4a;
     --code-color: #a9a3ff;
-    --pre-bg: #0d0d1a;
+    --pre-bg: #13112a;
     --pre-color: #cdd6f4;
+    --pre-bg-gradient: linear-gradient(160deg, #13112a 0%, #100e24 100%);
+    --pre-border: rgba(139, 131, 255, 0.12);
+    --pre-accent: #8b83ff;
     --blockquote-bg: #1e1e3a;
     --blockquote-border: #8b83ff;
     --tag-bg: #2a2a4a;
@@ -688,6 +694,68 @@ nav .container {
     margin-bottom: 15px;
 }
 
+.sidebar-toggle {
+    cursor: pointer;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 4px;
+    border-radius: var(--border-radius-sm);
+    transition: background 0.2s ease, color 0.2s ease;
+}
+
+.sidebar-toggle:hover {
+    color: var(--primary);
+    background: var(--tag-bg);
+}
+
+.toggle-icon {
+    opacity: 0.5;
+    transition: transform 0.3s ease, opacity 0.2s ease;
+}
+
+.sidebar-toggle:hover .toggle-icon {
+    opacity: 1;
+}
+
+.content-sidebar.collapsed .toggle-icon {
+    transform: rotate(-90deg);
+}
+
+.sidebar-collapse {
+    overflow: hidden;
+    max-height: 2000px;
+    opacity: 1;
+    transition: max-height 0.35s ease, opacity 0.25s ease, margin 0.25s ease;
+}
+
+.content-sidebar.collapsed .sidebar-collapse {
+    max-height: 0;
+    opacity: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+.back-to-course {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    margin-bottom: 12px;
+    border-radius: var(--border-radius-sm);
+    font-size: 0.85rem;
+    color: var(--primary);
+    border: 1px dashed var(--primary);
+    transition: var(--transition);
+}
+
+.back-to-course:hover {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+}
+
 .content-main {
     flex: 1;
     min-width: 0;
@@ -935,20 +1003,79 @@ nav .container {
     margin-bottom: 0;
 }
 
-.md-content pre {
-    background: var(--pre-bg);
-    color: var(--pre-color);
-    border-radius: var(--border-radius-sm);
-    padding: 20px 24px;
-    overflow-x: auto;
+/* ── Code Block Wrapper ── */
+.code-block-wrapper {
+    position: relative;
     margin: 20px 0;
-    font-size: 0.9rem;
-    line-height: 1.6;
+    border-radius: var(--border-radius-sm);
+    overflow: hidden;
+    border: 1px solid var(--pre-border);
+    box-shadow: 0 2px 12px rgba(108, 99, 255, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.03);
 }
 
+.md-content pre {
+    background: var(--pre-bg-gradient);
+    color: var(--pre-color);
+    padding: 20px 24px;
+    overflow-x: auto;
+    margin: 0;
+    font-size: 0.9rem;
+    line-height: 1.7;
+    border-radius: 0;
+    border-left: 3px solid var(--pre-accent);
+    -webkit-font-smoothing: auto;
+    -moz-osx-font-smoothing: auto;
+    text-rendering: optimizeLegibility;
+}
+
+/* ── Copy Button ── */
+.code-copy-btn {
+    position: absolute;
+    top: 10px;
+    right: 12px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 10px;
+    font-size: 0.75rem;
+    font-family: inherit;
+    color: rgba(255, 255, 255, 0.55);
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 5px;
+    cursor: pointer;
+    opacity: 0;
+    transform: translateY(-2px);
+    transition: opacity 0.2s ease, transform 0.2s ease, color 0.2s ease, background 0.2s ease;
+    z-index: 2;
+}
+
+.code-block-wrapper:hover .code-copy-btn {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.code-copy-btn:hover {
+    color: rgba(255, 255, 255, 0.9);
+    background: rgba(255, 255, 255, 0.12);
+}
+
+.code-copy-btn.copied {
+    color: #7ef7b0;
+    background: rgba(126, 247, 176, 0.12);
+    border-color: rgba(126, 247, 176, 0.3);
+}
+
+.code-copy-btn i {
+    font-size: 0.75rem;
+}
+
+/* ── Inline Code ── */
 .md-content code {
     font-family: 'Cascadia Code', 'Fira Code', 'JetBrains Mono', Consolas, monospace;
     font-size: 0.9em;
+    -webkit-font-smoothing: auto;
+    -moz-osx-font-smoothing: auto;
 }
 
 .md-content :not(pre) > code {
@@ -962,6 +1089,45 @@ nav .container {
     background: none;
     color: inherit;
     padding: 0;
+    font-size: inherit;
+}
+
+/* ── Ensure hljs background matches our theme ── */
+.md-content .hljs {
+    background: transparent;
+    color: var(--pre-color);
+}
+
+/* ── MathJax / LaTeX formulas ── */
+/* Base: inherit text color, constrain width */
+.md-content mjx-container,
+.md-content .MathJax,
+.md-content .MathJax_Display {
+    color: var(--text);
+    max-width: 100%;
+}
+
+/* Display (block) formulas — centered with spacing */
+.md-content mjx-container[display="true"],
+.md-content .MathJax_Display {
+    display: block;
+    margin: 22px 0;
+    text-align: center;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Inline formulas */
+.md-content mjx-container:not([display="true"]),
+.md-content .MathJax:not(.MathJax_Display) {
+    display: inline;
+    white-space: nowrap;
+}
+
+/* Dark mode: ensure formulas are visible */
+[data-theme="dark"] .md-content mjx-container {
+    color: #e0e0e0;
 }
 
 .md-content img {
@@ -974,12 +1140,70 @@ nav .container {
     width: 100%;
     border-collapse: collapse;
     margin: 20px 0;
+    font-family: inherit;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    display: table;
 }
 
-.md-content th, .md-content td {
+/* Scrollable wrapper for narrow screens */
+.md-content .table-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin: 20px 0;
+}
+
+.md-content .table-wrapper table {
+    margin: 0;
+    min-width: 500px;
+}
+
+.md-content thead {
+    border-bottom: 2px solid var(--primary);
+}
+
+.md-content th {
     border: 1px solid var(--border-color);
-    padding: 10px 14px;
+    padding: 11px 14px;
     text-align: left;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--text-heading);
+    background: var(--blockquote-bg);
+    white-space: nowrap;
+}
+
+.md-content td {
+    border: 1px solid var(--border-color);
+    padding: 9px 14px;
+    text-align: left;
+    vertical-align: middle;
+}
+
+/* Zebra stripe for readability */
+.md-content tbody tr:nth-child(even) {
+    background: rgba(108, 99, 255, 0.02);
+}
+
+.md-content tbody tr:hover {
+    background: rgba(108, 99, 255, 0.05);
+}
+
+/* Code inside tables — keep monospace but match visual weight */
+.md-content td code,
+.md-content th code {
+    font-size: 0.875em;
+    padding: 2px 7px;
+    white-space: nowrap;
+}
+
+/* Dark mode table adjustments */
+[data-theme="dark"] .md-content tbody tr:nth-child(even) {
+    background: rgba(139, 131, 255, 0.04);
+}
+
+[data-theme="dark"] .md-content tbody tr:hover {
+    background: rgba(139, 131, 255, 0.08);
 }
 
 .md-content th {
@@ -999,9 +1223,11 @@ nav .container {
     color: var(--text-heading);
 }
 
-/* Inline LaTeX-style math (if any) */
+/* Inline math formulas */
 .md-content .katex,
-.md-content .math {
+.md-content .math,
+.md-content .MathJax:not([display="true"]),
+.md-content mjx-container:not([display="true"]) {
     font-size: 1.05em;
 }
 

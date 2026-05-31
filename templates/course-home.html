@@ -30,7 +30,11 @@ CONTENT PAGE
             <!-- Sidebar: Chapter List -->
             {% if page.chapters | length > 0 %}
             <aside class="content-sidebar">
-                <h3>章节导航</h3>
+                <h3 class="sidebar-toggle" onclick="this.parentElement.classList.toggle('collapsed')">
+                    章节导航
+                    <span class="toggle-icon"><i class="fas fa-chevron-down"></i></span>
+                </h3>
+                <div class="sidebar-collapse">
                 {% for ch in page.chapters %}
                 <a href="{{ SITE.baseUrl }}/courses/{{ page.slug }}/{{ ch.slug }}.html"
                    class="chapter-nav-item">
@@ -38,6 +42,7 @@ CONTENT PAGE
                     <span>{{ ch.title.zh or ch.title.en }}</span>
                 </a>
                 {% endfor %}
+                </div>
             </aside>
             {% endif %}
 
