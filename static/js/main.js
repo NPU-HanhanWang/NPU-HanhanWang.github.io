@@ -32,6 +32,14 @@
         document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
         updateThemeIcon(isDark);
         setTheme(theme);
+        swapHighlightTheme(isDark);
+    }
+
+    function swapHighlightTheme(isDark) {
+        var lightEl = document.getElementById('hljs-theme');
+        var darkEl = document.getElementById('hljs-theme-dark');
+        if (lightEl) lightEl.disabled = isDark;
+        if (darkEl) darkEl.disabled = !isDark;
     }
 
     function updateThemeIcon(isDark) {

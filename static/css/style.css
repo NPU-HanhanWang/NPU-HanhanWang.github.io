@@ -24,13 +24,13 @@
     --nav-bg: rgba(255, 255, 255, 0.92);
     --nav-shadow: 0 2px 20px rgba(0, 0, 0, 0.06);
     --border-color: #e9ecef;
-    --code-bg: #f0edff;
-    --code-color: #5a52d5;
-    --pre-bg: #221f3a;
-    --pre-color: #cdd6f4;
-    --pre-bg-gradient: linear-gradient(160deg, #221f3a 0%, #1d1b35 100%);
-    --pre-border: rgba(108, 99, 255, 0.15);
-    --pre-accent: #6c63ff;
+    --code-bg: #eff1f3;
+    --code-color: #24292f;
+    --pre-bg: #f6f8fa;
+    --pre-color: #24292f;
+    --pre-bg-gradient: #f6f8fa;
+    --pre-border: #d0d7de;
+    --pre-accent: #0969da;
     --blockquote-bg: #f8f7ff;
     --blockquote-border: #6c63ff;
     --tag-bg: #f0edff;
@@ -70,13 +70,13 @@
     --nav-bg: rgba(26, 26, 46, 0.92);
     --nav-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
     --border-color: #2a2a4a;
-    --code-bg: #2a2a4a;
-    --code-color: #a9a3ff;
-    --pre-bg: #13112a;
-    --pre-color: #cdd6f4;
-    --pre-bg-gradient: linear-gradient(160deg, #13112a 0%, #100e24 100%);
-    --pre-border: rgba(139, 131, 255, 0.12);
-    --pre-accent: #8b83ff;
+    --code-bg: #2a303b;
+    --code-color: #adbac7;
+    --pre-bg: #22272e;
+    --pre-color: #adbac7;
+    --pre-bg-gradient: #22272e;
+    --pre-border: #444c56;
+    --pre-accent: #539bf5;
     --blockquote-bg: #1e1e3a;
     --blockquote-border: #8b83ff;
     --tag-bg: #2a2a4a;
@@ -1010,7 +1010,7 @@ nav .container {
     border-radius: var(--border-radius-sm);
     overflow: hidden;
     border: 1px solid var(--pre-border);
-    box-shadow: 0 2px 12px rgba(108, 99, 255, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.03);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
 }
 
 .md-content pre {
@@ -1039,9 +1039,9 @@ nav .container {
     padding: 5px 10px;
     font-size: 0.75rem;
     font-family: inherit;
-    color: rgba(255, 255, 255, 0.55);
-    background: rgba(255, 255, 255, 0.06);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--text-muted);
+    background: var(--code-bg);
+    border: 1px solid var(--pre-border);
     border-radius: 5px;
     cursor: pointer;
     opacity: 0;
@@ -1056,18 +1056,36 @@ nav .container {
 }
 
 .code-copy-btn:hover {
-    color: rgba(255, 255, 255, 0.9);
-    background: rgba(255, 255, 255, 0.12);
+    color: var(--text);
+    background: var(--pre-border);
 }
 
 .code-copy-btn.copied {
-    color: #7ef7b0;
-    background: rgba(126, 247, 176, 0.12);
-    border-color: rgba(126, 247, 176, 0.3);
+    color: #1a7f37;
+    background: #dafbe1;
+    border-color: #8ddb8d;
 }
 
 .code-copy-btn i {
     font-size: 0.75rem;
+}
+
+/* Dark-theme copy button overrides */
+[data-theme="dark"] .code-copy-btn {
+    color: #8b949e;
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .code-copy-btn:hover {
+    color: #c9d1d9;
+    background: rgba(255, 255, 255, 0.12);
+}
+
+[data-theme="dark"] .code-copy-btn.copied {
+    color: #7ee787;
+    background: rgba(87, 215, 112, 0.15);
+    border-color: rgba(87, 215, 112, 0.3);
 }
 
 /* ── Inline Code ── */
@@ -1092,10 +1110,9 @@ nav .container {
     font-size: inherit;
 }
 
-/* ── Ensure hljs background matches our theme ── */
+/* ── Ensure hljs background is transparent (our <pre> provides the background) ── */
 .md-content .hljs {
     background: transparent;
-    color: var(--pre-color);
 }
 
 /* ── MathJax / LaTeX formulas ── */
