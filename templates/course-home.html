@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block title %}{{ page.title.zh or page.title.en }}{% endblock %}
+{% block description %}{{ page.description.zh or page.description.en or '' }}{% endblock %}
+
+{% block content %}
+<!-- ============================================================
+CONTENT PAGE
+============================================================ -->
+<section class="content-page">
+    <div class="container">
+        <!-- Breadcrumbs -->
+        {% if breadcrumbs %}
+        <div class="breadcrumb">
+            <a href="{{ SITE.baseUrl }}/">首页</a>
+            {% for crumb in breadcrumbs %}
+            <span class="separator">/</span>
+            {% if crumb.href %}
+            <a href="{{ crumb.href | baseUrl }}">
+                {{ crumb.label.zh or crumb.label.en or crumb.label }}
+            </a>
+            {% else %}
+            <span>{{ crumb.label.zh or crumb.label.en or crumb.label }}</span>
+            {% endif %}
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="content-with-sidebar">
+            <!-- Sidebar: Chapter List -->
+            {% if page.chapters | length > 0 %}
+            <aside class="content-sidebar">
+                <h3>章节导航</h3>
+                {% for ch in page.chapters %}
+                <a href="{{ SITE.baseUrl }}/courses/{{ page.slug }}/{{ ch.slug }}.html"
+                   class="chapter-nav-item">
+                    <span class="chapter-number">{{ '%02d' | format(loop.index) }}</span>
+                    <span>{{ ch.title.zh or ch.title.en }}</span>
+                </a>
+                {% endfor %}
+            </aside>
+            {% endif %}
+
+            <!-- Main Content Area -->
+            <main class="content-main">
+                <!-- Course Tags -->
+                {% if page.tags | length > 0 %}
+                <div class="card-tags" style="margin-bottom:25px">
+                    {% for tag in page.tags %}
+                    <span>{{ tag }}</span>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <!-- Course Content (from index.md) -->
+                {% if page.bi %}
+                    {% if page.bi.zh %}
+                    <div class="md-content">{{ page.bi.zh.html | safe }}</div>
+                    {% elif page.bi.fallback %}
+                    <div class="md-content">{{ page.bi.fallback.html | safe }}</div>
+                    {% elif page.bi.en %}
+                    <div class="md-content">{{ page.bi.en.html | safe }}</div>
+                    {% endif %}
+                {% endif %}
+            </main>
+        </div>
+    </div>
+</section>
+{% endblock %}

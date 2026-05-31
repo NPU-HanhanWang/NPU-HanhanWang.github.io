@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block title %}首页{% endblock %}
+{% block description %}{{ (page.description.zh or page.description.en or SITE.description) | striptags }}{% endblock %}
+
+{% block content %}
+<!-- ============================================================
+HERO SECTION
+============================================================ -->
+<section class="hero" id="home">
+    <div class="container hero-content">
+        <div class="hero-text">
+            {% if page.title.zh %}
+            <h1>{{ page.title.zh | safe }}</h1>
+            {% elif page.title.en %}
+            <h1>{{ page.title.en | safe }}</h1>
+            {% else %}
+            <h1>你好，我是 <span class="highlight">王汉翰</span></h1>
+            {% endif %}
+
+            {% if page.description.zh or page.description.en %}
+            <div class="subtitle">{{ (page.description.zh or page.description.en) | safe }}</div>
+            {% endif %}
+
+            <p class="hero-desc">专注于深度学习与强化学习的研究生。热衷于将研究成果转化为可落地的项目，用代码解决实际问题。</p>
+
+            <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                <a href="{{ SITE.baseUrl }}/courses/" class="btn">📖 课程学习</a>
+                <a href="{{ SITE.baseUrl }}/projects/" class="btn btn-outline">🚀 项目作品</a>
+            </div>
+        </div>
+        <div class="hero-image" aria-label="个人头像占位">
+            <i class="fas fa-user-graduate"></i>
+        </div>
+    </div>
+</section>
+
+<!-- ============================================================
+HOME CONTENT (from content/home.md)
+============================================================ -->
+{% if page.bi %}
+<section class="section section-alt" id="home-content">
+    <div class="container">
+        {% if page.bi.zh %}
+        <div class="md-content content-main-no-sidebar">
+            {{ page.bi.zh.html | safe }}
+        </div>
+        {% elif page.bi.fallback %}
+        <div class="md-content content-main-no-sidebar">
+            {{ page.bi.fallback.html | safe }}
+        </div>
+        {% elif page.bi.en %}
+        <div class="md-content content-main-no-sidebar">
+            {{ page.bi.en.html | safe }}
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endif %}
+
+<!-- ============================================================
+CONTACT SECTION
+============================================================ -->
+<section class="section" id="contact">
+    <div class="container">
+        <h2 class="section-title">联系我</h2>
+        <p class="section-subtitle">有学术合作或其他问题？欢迎联系！</p>
+        <div class="contact-info"
+            style="display:flex;justify-content:center;gap:40px;flex-wrap:wrap;max-width:700px;margin:0 auto;">
+            <div class="info-item"
+                style="display:flex;align-items:center;gap:12px;padding:18px 24px;background:var(--card-bg);border-radius:var(--border-radius-sm);box-shadow:var(--card-shadow);">
+                <div class="info-icon"
+                    style="width:42px;height:42px;border-radius:50%;background:var(--tag-bg);display:flex;align-items:center;justify-content:center;color:var(--primary);">
+                    <i class="fas fa-envelope"></i>
+                </div>
+                <span><a href="mailto:wanghanhan_nwpu@163.com">wanghanhan_nwpu@163.com</a></span>
+            </div>
+            <div class="info-item"
+                style="display:flex;align-items:center;gap:12px;padding:18px 24px;background:var(--card-bg);border-radius:var(--border-radius-sm);box-shadow:var(--card-shadow);">
+                <div class="info-icon"
+                    style="width:42px;height:42px;border-radius:50%;background:var(--tag-bg);display:flex;align-items:center;justify-content:center;color:var(--primary);">
+                    <i class="fas fa-map-marker-alt"></i>
+                </div>
+                <span>中国北京</span>
+            </div>
+            <div class="info-item"
+                style="display:flex;align-items:center;gap:12px;padding:18px 24px;background:var(--card-bg);border-radius:var(--border-radius-sm);box-shadow:var(--card-shadow);">
+                <div class="info-icon"
+                    style="width:42px;height:42px;border-radius:50%;background:var(--tag-bg);display:flex;align-items:center;justify-content:center;color:var(--primary);">
+                    <i class="fas fa-university"></i>
+                </div>
+                <span>西北工业大学</span>
+            </div>
+            <div class="info-item"
+                style="display:flex;align-items:center;gap:12px;padding:18px 24px;background:var(--card-bg);border-radius:var(--border-radius-sm);box-shadow:var(--card-shadow);">
+                <div class="info-icon"
+                    style="width:42px;height:42px;border-radius:50%;background:var(--tag-bg);display:flex;align-items:center;justify-content:center;color:var(--primary);">
+                    <i class="fas fa-university"></i>
+                </div>
+                <span>北京航空航天大学</span>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

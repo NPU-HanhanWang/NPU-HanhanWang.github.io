@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block title %}{{ page.title.zh or page.title.en }}{% endblock %}
+{% block description %}{{ page.title.zh or page.title.en }}{% endblock %}
+
+{% block content %}
+<!-- ============================================================
+CONTENT PAGE
+============================================================ -->
+<section class="content-page">
+    <div class="container">
+        <!-- Breadcrumbs -->
+        {% if breadcrumbs %}
+        <div class="breadcrumb">
+            <a href="{{ SITE.baseUrl }}/">首页</a>
+            {% for crumb in breadcrumbs %}
+            <span class="separator">/</span>
+            {% if crumb.href %}
+            <a href="{{ crumb.href | baseUrl }}">
+                {{ crumb.label.zh or crumb.label.en or crumb.label }}
+            </a>
+            {% else %}
+            <span>{{ crumb.label.zh or crumb.label.en or crumb.label }}</span>
+            {% endif %}
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="content-with-sidebar">
+            <!-- Sidebar: Chapter Navigation -->
+            <aside class="content-sidebar">
+                <h3>章节导航</h3>
+                {% for ch in course.chapters %}
+                <a href="{{ SITE.baseUrl }}/courses/{{ course.slug }}/{{ ch.slug }}.html"
+                   class="chapter-nav-item{% if ch.slug == page.slug %} active{% endif %}">
+                    <span class="chapter-number">{{ '%02d' | format(loop.index) }}</span>
+                    <span>{{ ch.title.zh or ch.title.en }}</span>
+                </a>
+                {% endfor %}
+            </aside>
+
+            <!-- Main Content Area -->
+            <main class="content-main">
+                <!-- Chapter Content -->
+                {% if page.bi %}
+                    {% if page.bi.zh %}
+                    <div class="md-content">{{ page.bi.zh.html | safe }}</div>
+                    {% elif page.bi.fallback %}
+                    <div class="md-content">{{ page.bi.fallback.html | safe }}</div>
+                    {% elif page.bi.en %}
+                    <div class="md-content">{{ page.bi.en.html | safe }}</div>
+                    {% endif %}
+                {% endif %}
+
+                <!-- Prev / Next Navigation -->
+                <div class="prev-next-nav">
+                    {% if prev %}
+                    <a href="{{ SITE.baseUrl }}/courses/{{ course.slug }}/{{ prev.slug }}.html" class="prev-chapter">
+                        <span class="nav-label">← 上一章</span>
+                        <span class="nav-title">{{ prev.title.zh or prev.title.en }}</span>
+                    </a>
+                    {% else %}
+                    <div></div>
+                    {% endif %}
+
+                    {% if next %}
+                    <a href="{{ SITE.baseUrl }}/courses/{{ course.slug }}/{{ next.slug }}.html" class="next-chapter">
+                        <span class="nav-label">下一章 →</span>
+                        <span class="nav-title">{{ next.title.zh or next.title.en }}</span>
+                    </a>
+                    {% else %}
+                    <div></div>
+                    {% endif %}
+                </div>
+            </main>
+        </div>
+    </div>
+</section>
+{% endblock %}

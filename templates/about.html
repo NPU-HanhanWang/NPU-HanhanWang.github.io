@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}{{ page.title.zh or page.title.en or '关于' }}{% endblock %}
+{% block description %}{{ page.description.zh or page.description.en or '' }}{% endblock %}
+
+{% block content %}
+<!-- ============================================================
+PAGE HEADER
+============================================================ -->
+<section class="page-header">
+    <div class="container">
+        <h1>{{ page.title.zh or page.title.en or '关于' }}</h1>
+    </div>
+</section>
+
+<!-- ============================================================
+ABOUT CONTENT
+============================================================ -->
+<section class="section">
+    <div class="container">
+        {% if page.bi %}
+            {% if page.bi.zh %}
+            <div class="content-main-no-sidebar">
+                <div class="md-content">{{ page.bi.zh.html | safe }}</div>
+            </div>
+            {% elif page.bi.fallback %}
+            <div class="content-main-no-sidebar">
+                <div class="md-content">{{ page.bi.fallback.html | safe }}</div>
+            </div>
+            {% elif page.bi.en %}
+            <div class="content-main-no-sidebar">
+                <div class="md-content">{{ page.bi.en.html | safe }}</div>
+            </div>
+            {% endif %}
+        {% else %}
+        <div class="empty-state">
+            <p>暂无关于页面内容。</p>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block title %}{{ page.title.zh or page.title.en }}{% endblock %}
+{% block description %}{{ page.description.zh or page.description.en or '' }}{% endblock %}
+
+{% block content %}
+<!-- ============================================================
+CONTENT PAGE
+============================================================ -->
+<section class="content-page">
+    <div class="container">
+        <!-- Breadcrumbs -->
+        {% if breadcrumbs %}
+        <div class="breadcrumb">
+            <a href="{{ SITE.baseUrl }}/">首页</a>
+            {% for crumb in breadcrumbs %}
+            <span class="separator">/</span>
+            {% if crumb.href %}
+            <a href="{{ crumb.href | baseUrl }}">
+                {{ crumb.label.zh or crumb.label.en or crumb.label }}
+            </a>
+            {% else %}
+            <span>{{ crumb.label.zh or crumb.label.en or crumb.label }}</span>
+            {% endif %}
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="content-with-sidebar">
+            <!-- Sidebar: Subpages List -->
+            {% if page.subpages | length > 0 %}
+            <aside class="content-sidebar">
+                <h3>子页面</h3>
+                {% for sub in page.subpages %}
+                <a href="{{ SITE.baseUrl }}/projects/{{ page.slug }}/{{ sub.slug }}.html"
+                   class="chapter-nav-item">
+                    <span class="chapter-number">{{ '%02d' | format(loop.index) }}</span>
+                    <span>{{ sub.title.zh or sub.title.en }}</span>
+                </a>
+                {% endfor %}
+            </aside>
+            {% endif %}
+
+            <!-- Main Content Area -->
+            <main class="content-main">
+                <!-- Project Meta -->
+                <div class="project-meta">
+                    {% if page.tags | length > 0 %}
+                    <div class="card-tags">
+                        {% for tag in page.tags %}
+                        <span>{{ tag }}</span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Project Links -->
+                {% if page.links and (page.links.github or page.links.demo) %}
+                <div class="project-links" style="margin-bottom:25px">
+                    {% if page.links.github %}
+                    <a href="{{ page.links.github }}" target="_blank" rel="noopener">
+                        <i class="fab fa-github"></i> GitHub
+                    </a>
+                    {% endif %}
+                    {% if page.links.demo %}
+                    <a href="{{ page.links.demo }}" target="_blank" rel="noopener">
+                        <i class="fas fa-external-link-alt"></i> Demo
+                    </a>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                <!-- Project Content (from index.md) -->
+                {% if page.bi %}
+                    {% if page.bi.zh %}
+                    <div class="md-content">{{ page.bi.zh.html | safe }}</div>
+                    {% elif page.bi.fallback %}
+                    <div class="md-content">{{ page.bi.fallback.html | safe }}</div>
+                    {% elif page.bi.en %}
+                    <div class="md-content">{{ page.bi.en.html | safe }}</div>
+                    {% endif %}
+                {% endif %}
+            </main>
+        </div>
+    </div>
+</section>
+{% endblock %}

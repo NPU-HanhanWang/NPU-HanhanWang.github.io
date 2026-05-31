@@ -1,0 +1,24 @@
+{
+  "name": "hanhanwang-knowledge-base",
+  "type": "module",
+  "version": "2.0.0",
+  "description": "Personal knowledge base — add Markdown, auto-build static site. Zero manual list maintenance.",
+  "scripts": {
+    "build": "node build.js",
+    "clean": "rm -rf public/",
+    "dev": "node build.js && echo '💡 Use: npx serve public/  or  python3 -m http.server -d public/  to preview'",
+    "preview": "npx serve public/"
+  },
+  "dependencies": {
+    "fs-extra": "^11.2.0",
+    "glob": "^11.0.0",
+    "gray-matter": "^4.0.3",
+    "marked": "^14.1.0",
+    "nunjucks": "^3.2.4"
+  },
+  "devDependencies": {
+    "serve": "^14.2.4"
+  },
+  "keywords": ["static-site-generator", "knowledge-base", "github-pages"],
+  "license": "MIT"
+}

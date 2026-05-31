@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}博客{% endblock %}
+{% block description %}博客文章与笔记{% endblock %}
+
+{% block content %}
+<!-- ============================================================
+PAGE HEADER
+============================================================ -->
+<section class="page-header">
+    <div class="container">
+        <h1>博客</h1>
+        <p class="subtitle">文章、笔记与思考</p>
+    </div>
+</section>
+
+<!-- ============================================================
+BLOG POST LIST
+============================================================ -->
+<section class="section">
+    <div class="container">
+        {% if page.posts | length > 0 %}
+        <div class="blog-list">
+            {% for post in page.posts %}
+            <a href="{{ SITE.baseUrl }}/blog/{{ post.slug }}.html" class="blog-item">
+                {% if post.date %}
+                <div class="blog-item-date">
+                    <span class="day">{{ post.date | date('D') }}</span>
+                    <span class="month-year">{{ post.date | date('MMM YYYY') }}</span>
+                </div>
+                {% endif %}
+                <div class="blog-item-content">
+                    <h3>{{ post.title.zh or post.title.en }}</h3>
+                    <p>{{ (post.description.zh or post.description.en) | truncate(150) }}</p>
+                    <div class="blog-item-meta">
+                        {% if post.tags | length > 0 %}
+                        <div class="card-tags" style="margin-bottom:0">
+                            {% for tag in post.tags %}
+                            <span>{{ tag }}</span>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <p>暂无博客文章。将 Markdown 文件添加到 content/blog/ 即可开始。</p>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

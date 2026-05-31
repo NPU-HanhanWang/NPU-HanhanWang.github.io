@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}项目{% endblock %}
+{% block description %}科研项目与实践作品{% endblock %}
+
+{% block content %}
+<!-- ============================================================
+PAGE HEADER
+============================================================ -->
+<section class="page-header">
+    <div class="container">
+        <h1>项目作品</h1>
+        <p class="subtitle">科研项目与实践作品</p>
+    </div>
+</section>
+
+<!-- ============================================================
+PROJECT CARDS
+============================================================ -->
+<section class="section">
+    <div class="container">
+        {% if page.projects | length > 0 %}
+        <div class="card-grid">
+            {% for proj in page.projects %}
+            <a href="{{ SITE.baseUrl }}/projects/{{ proj.slug }}/" class="card">
+                <div class="card-img img-{{ loop.index % 6 + 1 }}">
+                    <i class="fas fa-code"></i>
+                    {% if proj.featured %}
+                    <span class="card-featured-badge">★ 精选</span>
+                    {% endif %}
+                </div>
+                <div class="card-info">
+                    <h4>{{ proj.title.zh or proj.title.en }}</h4>
+                    <p>{{ (proj.description.zh or proj.description.en) | truncate(120) }}</p>
+                    {% if proj.tags | length > 0 %}
+                    <div class="card-tags">
+                        {% for tag in proj.tags %}
+                        <span>{{ tag }}</span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    {% if proj.links %}
+                    <div class="card-links">
+                        {% if proj.links.github %}
+                        <span><i class="fab fa-github"></i> GitHub</span>
+                        {% endif %}
+                        {% if proj.links.demo %}
+                        <span><i class="fas fa-external-link-alt"></i> Demo</span>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <p>暂无项目。将 Markdown 文件添加到 content/projects/ 即可开始。</p>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

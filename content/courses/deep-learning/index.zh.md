@@ -1,4 +1,4 @@
-# 深度学习
+# 11-785 深度学习
 
 ## 课程简介
 
@@ -15,11 +15,15 @@
 
 1. *Deep Learning* — Ian Goodfellow, Yoshua Bengio, Aaron Courville
 2. *动手学深度学习* — 李沐等
-
+3.
 ## 环境配置
 
 ```bash
-conda create -n dl python=3.9
+conda create -n dl python=3.10
 conda activate dl
 pip install torch torchvision torchaudio numpy matplotlib jupyter
 ```
+
+
+
+# [11-785 Introduction to Deep Learning Spring 2026](https://deeplearning.cs.cmu.edu/S26/index.html)

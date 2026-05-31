@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Inline script: apply saved theme BEFORE page render to prevent flash -->
+    <script>
+    (function(){var t=localStorage.getItem("site-theme");if(!t&&window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches)t="dark";if(!t)t="light";document.documentElement.setAttribute("data-theme",t)})();
+    </script>
+    <title>{% block title %}{{ page.title.zh or page.title.en or SITE.title }}{% endblock %} — {{ SITE.title }}</title>
+    <meta name="description" content="{% block description %}{{ page.description.zh or page.description.en or SITE.description }}{% endblock %}">
+    <meta name="generator" content="HanhanWang Static Site Generator">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="{{ (page.title.zh or page.title.en or SITE.title) | striptags }}">
+    <meta property="og:description" content="{{ (page.description.zh or page.description.en or SITE.description) | striptags }}">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="{{ SITE.title }}">
+
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Main Stylesheet -->
+    <link rel="stylesheet" href="{{ SITE.baseUrl }}/css/style.css">
+
+    {% block head %}{% endblock %}
+</head>
+<body>
+    <!-- Reading Progress Bar -->
+    <div class="reading-progress" id="readingProgress"></div>
+
+    <!-- ============================================================
+    NAVIGATION
+    ============================================================ -->
+    <nav id="navbar">
+        <div class="container">
+            <a href="{{ SITE.baseUrl }}/" class="logo">{{ SITE.title }}</a>
+            <ul class="nav-links" id="navLinks">
+                {% for item in SITE.nav %}
+                <li><a href="{{ item.href | baseUrl }}"
+                       {% if pageType == item.i18nKey %}class="active"{% endif %}>
+                    {{ item.label }}
+                </a></li>
+                {% endfor %}
+            </ul>
+            <div class="nav-actions">
+                <button class="theme-toggle" id="themeToggle" aria-label="切换暗色模式">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <div class="hamburger" id="hamburger" aria-label="Toggle navigation menu" role="button" tabindex="0">
+                    <span></span><span></span><span></span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ============================================================
+    MAIN CONTENT
+    ============================================================ -->
+    {% block content %}{% endblock %}
+
+    <!-- ============================================================
+    FOOTER
+    ============================================================ -->
+    <footer>
+        <div class="container">
+            <div class="social-links">
+                {% for link in SITE.footer.socialLinks %}
+                <a href="{{ link.href }}" target="_blank" rel="noopener" aria-label="{{ link.label }}">
+                    <i class="fab fa-{{ link.icon }}"></i>
+                </a>
+                {% endfor %}
+            </div>
+            <p>© {{ currentYear }} Hanhan Wang. Built with ❤️ and Markdown.</p>
+        </div>
+    </footer>
+
+    <!-- Back to Top Button -->
+    <button class="back-to-top" id="backToTop" aria-label="回到顶部">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <!-- Site JavaScript -->
+    <script src="{{ SITE.baseUrl }}/js/main.js"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

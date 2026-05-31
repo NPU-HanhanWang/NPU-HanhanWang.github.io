@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block title %}{{ page.title.zh or page.title.en }}{% endblock %}
+{% block description %}{{ page.title.zh or page.title.en }}{% endblock %}
+
+{% block content %}
+<!-- ============================================================
+CONTENT PAGE
+============================================================ -->
+<section class="content-page">
+    <div class="container">
+        <!-- Breadcrumbs -->
+        {% if breadcrumbs %}
+        <div class="breadcrumb">
+            <a href="{{ SITE.baseUrl }}/">首页</a>
+            {% for crumb in breadcrumbs %}
+            <span class="separator">/</span>
+            {% if crumb.href %}
+            <a href="{{ crumb.href | baseUrl }}">
+                {{ crumb.label.zh or crumb.label.en or crumb.label }}
+            </a>
+            {% else %}
+            <span>{{ crumb.label.zh or crumb.label.en or crumb.label }}</span>
+            {% endif %}
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="content-with-sidebar">
+            <!-- Sidebar: Subpage Navigation -->
+            {% if project.subpages | length > 0 %}
+            <aside class="content-sidebar">
+                <h3>子页面</h3>
+                {% for sub in project.subpages %}
+                <a href="{{ SITE.baseUrl }}/projects/{{ project.slug }}/{{ sub.slug }}.html"
+                   class="chapter-nav-item{% if sub.slug == page.slug %} active{% endif %}">
+                    <span class="chapter-number">{{ '%02d' | format(loop.index) }}</span>
+                    <span>{{ sub.title.zh or sub.title.en }}</span>
+                </a>
+                {% endfor %}
+            </aside>
+            {% endif %}
+
+            <!-- Main Content Area -->
+            <main class="content-main">
+                <!-- Back to project home -->
+                <a href="{{ SITE.baseUrl }}/projects/{{ project.slug }}/" class="back-to-project" style="display:inline-flex;align-items:center;gap:6px;color:var(--primary);font-weight:500;font-size:0.95rem;margin-bottom:20px;transition:var(--transition)">
+                    <i class="fas fa-arrow-left"></i>
+                    返回 {{ project.title.zh or project.title.en }}
+                </a>
+
+                <!-- Subpage Content -->
+                {% if page.bi %}
+                    {% if page.bi.zh %}
+                    <div class="md-content">{{ page.bi.zh.html | safe }}</div>
+                    {% elif page.bi.fallback %}
+                    <div class="md-content">{{ page.bi.fallback.html | safe }}</div>
+                    {% elif page.bi.en %}
+                    <div class="md-content">{{ page.bi.en.html | safe }}</div>
+                    {% endif %}
+                {% endif %}
+            </main>
+        </div>
+    </div>
+</section>
+{% endblock %}

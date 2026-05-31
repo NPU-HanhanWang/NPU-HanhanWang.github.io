@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block title %}课程{% endblock %}
+{% block description %}课程笔记与学习记录{% endblock %}
+
+{% block content %}
+<!-- ============================================================
+PAGE HEADER
+============================================================ -->
+<section class="page-header">
+    <div class="container">
+        <h1>课程学习</h1>
+        <p class="subtitle">课程笔记与学习记录</p>
+    </div>
+</section>
+
+<!-- ============================================================
+COURSE CARDS
+============================================================ -->
+<section class="section">
+    <div class="container">
+        {% if page.courses | length > 0 %}
+        <div class="card-grid">
+            {% for course in page.courses %}
+            <a href="{{ SITE.baseUrl }}/courses/{{ course.slug }}/" class="card">
+                <div class="card-img img-{{ loop.index % 6 + 1 }}">
+                    <i class="fas fa-book"></i>
+                </div>
+                <div class="card-info">
+                    <h4>{{ course.title.zh or course.title.en }}</h4>
+                    <p>{{ (course.description.zh or course.description.en) | truncate(120) }}</p>
+                    {% if course.tags | length > 0 %}
+                    <div class="card-tags">
+                        {% for tag in course.tags %}
+                        <span>{{ tag }}</span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    <div class="card-links">
+                        <span>
+                            {{ course.chapters | length }} 个章节
+                            <i class="fas fa-arrow-right" style="margin-left:4px"></i>
+                        </span>
+                    </div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <p>暂无课程。将 Markdown 文件添加到 content/courses/ 即可开始。</p>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}
