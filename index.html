@@ -122,19 +122,18 @@
         }
 
         /* ============================================================
-           LANGUAGE SWITCH — fixed top-right
+           LANGUAGE SWITCH — integrated into the nav bar
            ============================================================ */
         .lang-switch {
-            position: fixed;
-            top: 18px;
-            right: 100px;
-            /* leave room so it doesn't overlap hamburger on mobile */
-            z-index: 1002;
+            display: flex;
+            align-items: center;
             background: var(--white);
             border-radius: 30px;
             padding: 4px;
             box-shadow: var(--card-shadow);
-            display: flex;
+            flex-shrink: 0;
+            margin-left: 30px;
+            margin-right: 10px;
         }
 
         .lang-btn {
@@ -813,7 +812,7 @@
             }
 
             .lang-switch {
-                right: 80px;
+                margin-left: 20px;
             }
         }
 
@@ -831,10 +830,10 @@
                 font-size: 2rem;
             }
 
-            /* Language switch — move to avoid hamburger */
+            /* Language switch — sit to the left of hamburger in nav bar */
             .lang-switch {
-                top: 12px;
-                right: 65px;
+                margin-left: auto;
+                margin-right: 15px;
                 padding: 3px;
             }
 
@@ -969,8 +968,7 @@
             }
 
             .lang-switch {
-                right: 55px;
-                top: 14px;
+                margin-right: 10px;
             }
 
             .lang-btn {
@@ -982,14 +980,6 @@
 </head>
 
 <body>
-    <!-- ============================================================
-    LANGUAGE TOGGLE — Top-right corner, fixed
-    ============================================================ -->
-    <div class="lang-switch" aria-label="Language switcher">
-        <button class="lang-btn active" data-lang="zh" aria-pressed="true">中文</button>
-        <button class="lang-btn" data-lang="en" aria-pressed="false">EN</button>
-    </div>
-
     <!-- ============================================================
     NAVIGATION BAR — Fixed top, glassmorphism
     ============================================================ -->
@@ -1007,6 +997,12 @@
                 <li><a href="#projects" data-i18n="nav-projects">项目</a></li>
                 <li><a href="#contact" data-i18n="nav-contact">联系</a></li>
             </ul>
+
+            <!-- Language Toggle — integrated into nav -->
+            <div class="lang-switch" aria-label="Language switcher">
+                <button class="lang-btn active" data-lang="zh" aria-pressed="true">中文</button>
+                <button class="lang-btn" data-lang="en" aria-pressed="false">EN</button>
+            </div>
 
             <!-- Hamburger menu (mobile only) -->
             <div class="hamburger" id="hamburger" aria-label="Toggle navigation menu" role="button" tabindex="0">
