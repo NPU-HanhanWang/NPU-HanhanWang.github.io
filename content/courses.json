@@ -82,6 +82,58 @@
           "filename": "chapter-02"
         }
       ]
+    },
+    {
+      "slug": "AI_Coding",
+      "title": {
+        "zh": "AI 编程",
+        "en": "AI Coding"
+      },
+      "shortDesc": {
+        "zh": "CMU 15-113: AI 辅助高效编程",
+        "en": "CMU 15-113: Effective Coding with AI"
+      },
+      "tags": ["AI", "LLM", "Prompt Engineering", "Coding"],
+      "order": 3
+    },
+    {
+      "slug": "CMU10-714",
+      "title": {
+        "zh": "深度学习系统",
+        "en": "Deep Learning Systems"
+      },
+      "shortDesc": {
+        "zh": "CMU 10-714: 深度学习系统设计与实现",
+        "en": "CMU 10-714: Deep Learning Systems Design & Implementation"
+      },
+      "tags": ["Deep Learning", "Systems", "PyTorch", "MLSys"],
+      "order": 4
+    },
+    {
+      "slug": "CSAPP",
+      "title": {
+        "zh": "计算机系统导论",
+        "en": "CSAPP"
+      },
+      "shortDesc": {
+        "zh": "CMU 15-213: 计算机系统导论",
+        "en": "CMU 15-213: Introduction to Computer Systems"
+      },
+      "tags": ["C", "Assembly", "Computer Systems", "Linux"],
+      "order": 5
+    },
+    {
+      "slug": "OS",
+      "title": {
+        "zh": "操作系统",
+        "en": "Operating Systems"
+      },
+      "shortDesc": {
+        "zh": "MIT 6.1810 / Stanford CS111: 操作系统原理与工程",
+        "en": "MIT 6.1810 / Stanford CS111: OS Principles & Engineering"
+      },
+      "tags": ["Operating Systems", "C", "xv6", "Kernel"],
+      "order": 6
     }
   ]
 }

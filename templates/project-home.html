@@ -80,6 +80,14 @@ CONTENT PAGE
                     <div class="md-content">{{ page.bi.en.html | safe }}</div>
                     {% endif %}
                 {% endif %}
+
+                <!-- Back to projects list -->
+                <div style="margin-top:40px;padding-top:25px;border-top:1px solid var(--border-color)">
+                    <a href="{{ SITE.baseUrl }}/projects/" style="display:inline-flex;align-items:center;gap:6px;color:var(--primary);font-weight:500;transition:var(--transition)">
+                        <i class="fas fa-arrow-left"></i>
+                        返回项目列表
+                    </a>
+                </div>
             </main>
         </div>
     </div>

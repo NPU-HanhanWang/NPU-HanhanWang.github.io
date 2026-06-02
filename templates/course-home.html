@@ -67,6 +67,14 @@ CONTENT PAGE
                     <div class="md-content">{{ page.bi.en.html | safe }}</div>
                     {% endif %}
                 {% endif %}
+
+                <!-- Back to courses list -->
+                <div style="margin-top:40px;padding-top:25px;border-top:1px solid var(--border-color)">
+                    <a href="{{ SITE.baseUrl }}/courses/" style="display:inline-flex;align-items:center;gap:6px;color:var(--primary);font-weight:500;transition:var(--transition)">
+                        <i class="fas fa-arrow-left"></i>
+                        返回课程列表
+                    </a>
+                </div>
             </main>
         </div>
     </div>
