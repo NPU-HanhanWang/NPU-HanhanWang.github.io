@@ -1357,6 +1357,30 @@ nav .container {
 }
 
 /* ============================================================
+   MERMAID DIAGRAMS
+   ============================================================ */
+/* Pre-rendered <pre class="mermaid"> (mermaid.run() will replace content with SVG) */
+.md-content pre.mermaid {
+    background: transparent;
+    border-left: none;
+    padding: 16px 0;
+    overflow-x: auto;
+    display: flex;
+    justify-content: center;
+}
+
+/* Rendered SVG inside the mermaid container */
+.md-content pre.mermaid svg {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Mermaid dark mode: 'neutral' theme works on both light & dark backgrounds,
+   but if color inversion is needed, uncomment:
+   [data-theme="dark"] .md-content pre.mermaid svg { filter: invert(0.85) hue-rotate(180deg); }
+*/
+
+/* ============================================================
    PROJECT DETAIL PAGE
    ============================================================ */
 .project-meta {

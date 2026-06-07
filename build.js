@@ -60,6 +60,10 @@ marked.use(
   markedHighlight({
     langPrefix: 'hljs language-',
     highlight: function (code, lang) {
+      // Mermaid diagrams: return raw code so mermaid.js can render them
+      if (lang && lang.toLowerCase() === 'mermaid') {
+        return code;
+      }
       if (lang && hljs.getLanguage(lang)) {
         return hljs.highlight(code, { language: lang }).value;
       }

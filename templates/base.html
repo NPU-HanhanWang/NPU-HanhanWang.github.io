@@ -25,6 +25,16 @@
     <!-- Main Stylesheet -->
     <link rel="stylesheet" href="{{ SITE.baseUrl }}/css/style.css">
 
+    <!-- Mermaid: diagram rendering from markdown code blocks -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+    <script>
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: 'neutral',
+      securityLevel: 'sandbox',
+    });
+    </script>
+
     <!-- MathJax v3: LaTeX formula rendering with AMS STIX-Web font -->
     <script>
     MathJax = {
