@@ -34,5 +34,6 @@ pip install torch torchvision torchaudio numpy matplotlib jupyter
 | Lecture 13–16 | [序列模型与 RNN](lec13-16)           |
 | Lecture 17–20 | [Transformer 与注意力机制](lec17-20) |
 | Lecture 21–24 | [深度生成模型](lec21-24)             |
-| Lecture 25–26 | [深度强化学习](lec25-26)             |
+| Lecture 25    | [图神经网络](lec25)                  |
+| Lecture 26    | [深度强化学习](lec26)                |
 | Lecture 27–28 | [前沿专题与总结](lec27-28)           |
