@@ -1,4 +1,4 @@
-# CS:APP Data Lab
+# Data Lab
 
 ## 一、实验概述
 
