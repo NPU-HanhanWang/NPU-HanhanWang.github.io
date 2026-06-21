@@ -27,9 +27,9 @@
 
 ## 1.3 编译驱动过程
 
-```
-linux> gcc -Og -o prog main.c sum.c
-linux> ./prog
+``` linux
+gcc -Og -o prog main.c sum.c
+./prog
 ```
 
 编译器驱动程序（Compiler Driver）自动调用：
