@@ -2410,6 +2410,7 @@ footer p {
    GITHUB CONTRIBUTION HEATMAP
    ============================================================ */
 .ghcal-card {
+    position: relative;
     background: var(--card-bg);
     border: 1px solid var(--border-color);
     border-radius: calc(var(--border-radius) + 6px);
@@ -2417,11 +2418,61 @@ footer p {
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
+    overflow: hidden;
+}
+/* Subtle blue gradient glow border (Apple-tech accent) */
+.ghcal-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(135deg, rgba(41, 151, 255, 0.55), rgba(41, 151, 255, 0.04) 45%, rgba(41, 151, 255, 0) 70%);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+}
+/* Overview stat strip */
+.ghcal-overview {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 22px;
+}
+.ghcal-stat {
+    background: linear-gradient(155deg, rgba(41, 151, 255, 0.12), rgba(41, 151, 255, 0.02));
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    padding: 14px 10px;
+    text-align: center;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+.ghcal-stat:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(41, 151, 255, 0.18);
+}
+.ghcal-stat-num {
+    display: block;
+    font-size: 1.7rem;
+    font-weight: 700;
+    line-height: 1.1;
+    color: var(--primary);
+    font-variant-numeric: tabular-nums;
+}
+.ghcal-stat-label {
+    display: block;
+    margin-top: 5px;
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    letter-spacing: 0.01em;
 }
 .ghcal-scroll {
     overflow-x: auto;
     overflow-y: hidden;
     padding-bottom: 6px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-color) transparent;
 }
 .ghcal-wrap { display: inline-block; min-width: 100%; }
 .ghcal-svg { display: block; }
@@ -2431,30 +2482,33 @@ footer p {
 .gh-month { fill: var(--text-muted); font-size: 9px; font-weight: 500; }
 .gh-wd { fill: var(--text-muted); font-size: 9px; }
 .ghcal-svg rect {
-    transition: transform 0.12s ease;
+    transition: transform 0.12s ease, filter 0.12s ease;
     transform-box: fill-box;
     transform-origin: center;
     cursor: pointer;
 }
-.ghcal-svg rect:hover { transform: scale(1.4); }
-/* 5-level blue scale (Apple system-blue aligned) */
-.gh-l0 { fill: #dde3ee; }
-.gh-l1 { fill: #b6d4ff; }
-.gh-l2 { fill: #5b9bff; }
-.gh-l3 { fill: #1f6feb; }
+.ghcal-svg rect:hover {
+    transform: scale(1.5);
+    filter: drop-shadow(0 0 4px rgba(41, 151, 255, 0.95));
+}
+/* 5-level blue scale (Apple system-blue aligned) — clearer gradient */
+.gh-l0 { fill: #e9edf4; }
+.gh-l1 { fill: #c7e0ff; }
+.gh-l2 { fill: #66a8ff; }
+.gh-l3 { fill: #2f7df0; }
 .gh-l4 { fill: #0a47c2; }
-[data-theme="dark"] .gh-l0 { fill: #1b2233; }
+[data-theme="dark"] .gh-l0 { fill: #161c28; }
 [data-theme="dark"] .gh-l1 { fill: #1f4f8f; }
 [data-theme="dark"] .gh-l2 { fill: #2f6fd0; }
 [data-theme="dark"] .gh-l3 { fill: #4f8ff5; }
 [data-theme="dark"] .gh-l4 { fill: #79b0ff; }
 /* Legend dots are HTML <i> elements, so they need background-color, not fill. */
-.gh-dot.gh-l0 { background-color: #dde3ee; }
-.gh-dot.gh-l1 { background-color: #b6d4ff; }
-.gh-dot.gh-l2 { background-color: #5b9bff; }
-.gh-dot.gh-l3 { background-color: #1f6feb; }
+.gh-dot.gh-l0 { background-color: #e9edf4; }
+.gh-dot.gh-l1 { background-color: #c7e0ff; }
+.gh-dot.gh-l2 { background-color: #66a8ff; }
+.gh-dot.gh-l3 { background-color: #2f7df0; }
 .gh-dot.gh-l4 { background-color: #0a47c2; }
-[data-theme="dark"] .gh-dot.gh-l0 { background-color: #1b2233; }
+[data-theme="dark"] .gh-dot.gh-l0 { background-color: #161c28; }
 [data-theme="dark"] .gh-dot.gh-l1 { background-color: #1f4f8f; }
 [data-theme="dark"] .gh-dot.gh-l2 { background-color: #2f6fd0; }
 [data-theme="dark"] .gh-dot.gh-l3 { background-color: #4f8ff5; }
@@ -2472,6 +2526,11 @@ footer p {
 .ghcal-total i { color: var(--primary); margin-right: 6px; font-size: 0.7rem; }
 .ghcal-scale { display: inline-flex; align-items: center; gap: 5px; }
 .gh-dot { display: inline-block; width: 11px; height: 11px; border-radius: 2.6px; }
+@media (max-width: 560px) {
+    .ghcal-overview { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .ghcal-stat-num { font-size: 1.45rem; }
+    .ghcal-card { padding: 22px 18px 18px; }
+}
 .ghcal-empty {
     text-align: center;
     padding: 34px 20px;

@@ -1038,6 +1038,8 @@ async function fetchGitHubStats() {
         if (cal) {
           result.contributions = cal.totalContributions || 0;
           result.calendarSvg = buildContributionSvg(cal);
+          const st = computeContributionStats(cal);
+          if (st) Object.assign(result, st);
         }
       } else {
         console.warn('  ⚠ GitHub GraphQL responded', cRes.status, '(check GH_CONTRIB_TOKEN scope/validity)');
@@ -1100,6 +1102,37 @@ function buildContributionSvg(calendar) {
   const width = leftPad + cols * step + 6;
   const height = topPad + 7 * step + 2;
   return `<svg class="ghcal-svg" viewBox="0 0 ${width} ${height}" width="${width}" height="${height}" role="img" aria-label="GitHub 贡献热力图（过去一年）">${monthLabels}${wdLabels}${rects}</svg>`;
+}
+
+// Derive human-friendly streak stats from the contribution calendar.
+// Returns { activeDays, currentStreak, longestStreak }. All build-time, no API.
+function computeContributionStats(calendar) {
+  if (!calendar || !Array.isArray(calendar.weeks)) return null;
+  const days = [];
+  calendar.weeks.forEach((w) => (w.contributionDays || []).forEach((d) => days.push(d)));
+  if (days.length === 0) return null;
+  days.sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
+  const activeDays = days.filter((d) => d.contributionCount > 0).length;
+  // Longest run of consecutive active days.
+  let longest = 0, run = 0;
+  for (const d of days) {
+    if (d.contributionCount > 0) { run++; if (run > longest) longest = run; }
+    else run = 0;
+  }
+  // Current streak: count back from the most recent active day.
+  let lastActive = -1;
+  for (let i = days.length - 1; i >= 0; i--) {
+    if (days[i].contributionCount > 0) { lastActive = i; break; }
+  }
+  let current = 0;
+  if (lastActive >= 0) {
+    current = 1;
+    for (let i = lastActive - 1; i >= 0; i--) {
+      if (days[i].contributionCount > 0) current++;
+      else break;
+    }
+  }
+  return { activeDays, currentStreak: current, longestStreak: longest };
 }
 
 // ─── Main ────────────────────────────────────────────────────────────────────
