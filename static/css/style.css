@@ -614,7 +614,7 @@ nav .container {
 
 .hero-image {
     flex-shrink: 0;
-    width: 230px;
+    width: 260px;
     border-radius: calc(var(--border-radius) + 6px);
     background: var(--card-bg);
     border: 1px solid var(--border-color);
@@ -1706,7 +1706,7 @@ footer p {
     }
 
     .hero-image {
-        width: 210px;
+        width: 230px;
         font-size: 4.5rem;
     }
 
@@ -1803,7 +1803,7 @@ footer p {
     }
 
     .hero-image {
-        width: 170px;
+        width: 185px;
         font-size: 3.8rem;
     }
 
@@ -1872,7 +1872,7 @@ footer p {
     }
 
     .hero-image {
-        width: 140px;
+        width: 155px;
         font-size: 3rem;
     }
 
