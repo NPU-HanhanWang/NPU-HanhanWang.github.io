@@ -7,7 +7,7 @@
 <!-- ============================================================
 HERO SECTION
 ============================================================ -->
-<section class="hero" id="home">
+<section class="hero" id="home" data-nav="首页">
     <div class="hero-aurora" aria-hidden="true"></div>
     <div class="hero-orb o1" aria-hidden="true"></div>
     <div class="hero-orb o2" aria-hidden="true"></div>
@@ -48,26 +48,28 @@ STATS STRIP — animated counters (Apple keynote vibe)
             <span class="stat-label">篇文章</span>
         </div>
         <div class="stat">
-            <span class="stat-number" data-count="{{ stats.courses }}">0</span>
-            <span class="stat-label">门课程</span>
-        </div>
-        <div class="stat">
             <span class="stat-number" data-count="{{ stats.chapters }}">0</span>
-            <span class="stat-label">篇笔记</span>
+            <span class="stat-label">课程章节</span>
         </div>
         <div class="stat">
-            <span class="stat-number" data-count="{{ stats.projects }}">0</span>
-            <span class="stat-label">个项目</span>
+            <span class="stat-number" data-count="{{ stats.github.repos }}">0</span>
+            <span class="stat-label">GitHub 仓库</span>
         </div>
+        {% if stats.github.contributions > 0 %}
+        <div class="stat">
+            <span class="stat-number" data-count="{{ stats.github.contributions }}">0</span>
+            <span class="stat-label">年度贡献</span>
+        </div>
+        {% endif %}
     </div>
 </section>
 
 <!-- ============================================================
 RECENT POSTS — horizontal scroll-snap cards
 ============================================================ -->
-<section class="section" id="recent-posts">
+<section class="section" id="recent-posts" data-nav="文章">
     <div class="container">
-        <h2 class="section-title">最近文章</h2>
+        <h2 class="section-title"><span class="parallax">最近文章</span></h2>
         <p class="section-subtitle">最新的技术笔记与思考</p>
         <div class="h-scroll">
             {% for post in recentPosts %}
@@ -97,9 +99,9 @@ RECENT POSTS — horizontal scroll-snap cards
 FEATURED PROJECTS — horizontal scroll-snap cards
 ============================================================ -->
 {% if featuredProjects | length > 0 %}
-<section class="section section-alt" id="featured-projects">
+<section class="section section-alt" id="featured-projects" data-nav="项目">
     <div class="container">
-        <h2 class="section-title">精选项目</h2>
+        <h2 class="section-title"><span class="parallax">精选项目</span></h2>
         <p class="section-subtitle">我正在做与做过的一些事情</p>
         <div class="h-scroll">
             {% for proj in featuredProjects %}
@@ -131,9 +133,9 @@ FEATURED PROJECTS — horizontal scroll-snap cards
 COURSES OVERVIEW — grid with progress
 ============================================================ -->
 {% if courses | length > 0 %}
-<section class="section" id="courses-overview">
+<section class="section" id="courses-overview" data-nav="课程">
     <div class="container">
-        <h2 class="section-title">课程进度</h2>
+        <h2 class="section-title"><span class="parallax">课程进度</span></h2>
         <p class="section-subtitle">持续整理的课程笔记</p>
         <div class="card-grid">
             {% for course in courses %}
@@ -175,9 +177,9 @@ TECH STACK MARQUEE
 <!-- ============================================================
 CONTACT SECTION
 ============================================================ -->
-<section class="section" id="contact">
+<section class="section" id="contact" data-nav="联系">
     <div class="container">
-        <h2 class="section-title">联系我</h2>
+        <h2 class="section-title"><span class="parallax">联系我</span></h2>
         <p class="section-subtitle">有学术合作或其他问题？欢迎联系！</p>
         <div class="contact-info">
             <!-- 邮箱 -->
@@ -211,4 +213,9 @@ CONTACT SECTION
         </div>
     </div>
 </section>
+
+<!-- ============================================================
+STICKY SECTION NAV — dot nav + scroll progress (built by main.js)
+============================================================ -->
+<nav class="section-nav" id="sectionNav" aria-label="章节导航"></nav>
 {% endblock %}

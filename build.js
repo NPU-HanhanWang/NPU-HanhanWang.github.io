@@ -756,6 +756,7 @@ async function buildAll(content) {
         chapters: totalChapters,
         projects: content.projects.length,
         maxChapters,
+        github: content.github,
       },
     }, 'index.html');
   }
@@ -922,6 +923,53 @@ function generateSitemap(content) {
   console.log(`  ✓ sitemap.xml (${urls.length} URLs)`);
 }
 
+// ─── GitHub stats (build-time, zero runtime dependency) ──────────────────────
+// Repo count uses the public REST API (no token needed, rate-limited).
+// Contribution count (last year) requires a token via GraphQL — when
+// GH_CONTRIB_TOKEN is absent it gracefully stays 0 and the counter is hidden.
+const GITHUB_USER = 'NPU-HanhanWang';
+
+async function fetchGitHubStats() {
+  const result = { repos: 0, contributions: 0, available: false };
+  const token = process.env.GH_CONTRIB_TOKEN;
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 6000);
+  try {
+    const userRes = await fetch(`https://api.github.com/users/${GITHUB_USER}`, {
+      headers: { 'User-Agent': 'static-site-builder', Accept: 'application/vnd.github+json' },
+      signal: controller.signal,
+    });
+    if (userRes.ok) {
+      const u = await userRes.json();
+      result.repos = u.public_repos || 0;
+      result.available = true;
+    }
+    if (token) {
+      const query = `query($login:String!){user(login:$login){contributionsCollection{contributionCalendar{totalContributions}}}}`;
+      const cRes = await fetch('https://api.github.com/graphql', {
+        method: 'POST',
+        headers: {
+          Authorization: `bearer ${token}`,
+          'Content-Type': 'application/json',
+          'User-Agent': 'static-site-builder',
+        },
+        body: JSON.stringify({ query, variables: { login: GITHUB_USER } }),
+        signal: controller.signal,
+      });
+      if (cRes.ok) {
+        const d = await cRes.json();
+        const cal = d?.data?.user?.contributionsCollection?.contributionCalendar;
+        if (cal) result.contributions = cal.totalContributions || 0;
+      }
+    }
+  } catch (e) {
+    console.warn('  ⚠ GitHub stats skipped:', e.name === 'AbortError' ? 'timeout' : e.message);
+  } finally {
+    clearTimeout(timer);
+  }
+  return result;
+}
+
 // ─── Main ────────────────────────────────────────────────────────────────────
 
 async function main() {
@@ -935,6 +983,13 @@ async function main() {
   console.log(`   courses:    ${content.courses.length} course(s)`);
   console.log(`   projects:   ${content.projects.length} project(s)`);
   console.log(`   blog:       ${content.blog.length} post(s)`);
+
+  // GitHub stats — repos via public API; contributions need GH_CONTRIB_TOKEN
+  const github = await fetchGitHubStats();
+  content.github = github;
+  console.log(`   github:     repos=${github.repos}` +
+    (github.contributions ? `, contributions=${github.contributions}` : '') +
+    (github.available ? '' : ' (offline/skipped)'));
 
   console.log('\n📄 Rendering pages ...');
   await buildAll(content);

@@ -272,6 +272,16 @@
             return !el.closest('.h-scroll');
         });
         if (targets.length === 0) return;
+        // Staggered entrance: siblings animate in sequence (Apple vibe)
+        const groups = {};
+        targets.forEach(function (el) {
+            const p = el.parentElement;
+            const key = p ? (p.className || p.tagName) + (p.id || '') : 'none';
+            groups[key] = groups[key] || [];
+            const idx = groups[key].length;
+            groups[key].push(el);
+            if (idx > 0) el.style.transitionDelay = (idx * 70) + 'ms';
+        });
         const io = new IntersectionObserver(function (entries) {
             entries.forEach(function (entry) {
                 if (entry.isIntersecting) {
@@ -414,6 +424,113 @@
                 el.style.setProperty('--my', (((e.clientY - r.top) / r.height) * 100) + '%');
             });
         });
+
+        // ── Card 3D tilt (subtle, strengthens the glass cards on the portal) ──
+        document.querySelectorAll('.card').forEach(function (el) {
+            el.addEventListener('mousemove', function (e) {
+                const r = el.getBoundingClientRect();
+                const px = (e.clientX - r.left) / r.width - 0.5;
+                const py = (e.clientY - r.top) / r.height - 0.5;
+                el.style.transform =
+                    'perspective(900px) rotateX(' + (-py * 4) + 'deg) rotateY(' + (px * 4) + 'deg)';
+            });
+            el.addEventListener('mouseleave', function () {
+                el.style.transform = '';
+            });
+        });
+    }
+
+    // ============================================================
+    // PARALLAX — subtle scroll-linked drift on section titles
+    // Gated to hover devices & no reduced-motion preference.
+    // ============================================================
+    function setupParallax() {
+        const reduce = window.matchMedia &&
+            window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const noHover = window.matchMedia &&
+            window.matchMedia('(hover: none)').matches;
+        if (reduce || noHover) return;
+        const items = document.querySelectorAll('.parallax');
+        if (items.length === 0) return;
+        let raf = null;
+        function update() {
+            const vh = window.innerHeight;
+            items.forEach(function (el) {
+                const r = el.getBoundingClientRect();
+                const center = r.top + r.height / 2;
+                const off = (center - vh / 2) / vh; // ~ -0.5 .. 0.5
+                const y = Math.max(-18, Math.min(18, off * -24));
+                el.style.transform = 'translate3d(0, ' + y + 'px, 0)';
+            });
+            raf = null;
+        }
+        window.addEventListener('scroll', function () {
+            if (!raf) raf = requestAnimationFrame(update);
+        }, { passive: true });
+        update();
+    }
+
+    // ============================================================
+    // STICKY SECTION NAV — dot nav + scroll progress bar
+    // Built from every <section[id]> on the page (home-only).
+    // ============================================================
+    function setupSectionNav() {
+        const nav = document.getElementById('sectionNav');
+        if (!nav) return;
+        const sections = Array.prototype.slice.call(document.querySelectorAll('section[id]'));
+        if (sections.length < 2) { nav.style.display = 'none'; return; }
+
+        const track = document.createElement('div');
+        track.className = 'track';
+        const fill = document.createElement('div');
+        fill.className = 'fill';
+        track.appendChild(fill);
+
+        const dots = document.createElement('div');
+        dots.className = 'dots';
+        const dotEls = sections.map(function (sec) {
+            const dot = document.createElement('button');
+            dot.className = 'dot';
+            dot.type = 'button';
+            dot.setAttribute('aria-label', sec.dataset.nav || sec.id);
+            const tip = document.createElement('span');
+            tip.className = 'tip';
+            tip.textContent = sec.dataset.nav || sec.id;
+            dot.appendChild(tip);
+            dot.addEventListener('click', function () {
+                sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            });
+            dots.appendChild(dot);
+            return dot;
+        });
+
+        nav.appendChild(track);
+        nav.appendChild(dots);
+
+        // Active section highlight
+        const io = new IntersectionObserver(function (entries) {
+            entries.forEach(function (entry) {
+                if (entry.isIntersecting) {
+                    const idx = sections.indexOf(entry.target);
+                    dotEls.forEach(function (d, i) { d.classList.toggle('active', i === idx); });
+                }
+            });
+        }, { threshold: 0.5, rootMargin: '-20% 0px -45% 0px' });
+        sections.forEach(function (s) { io.observe(s); });
+        // Make the first dot active by default
+        if (dotEls[0]) dotEls[0].classList.add('active');
+
+        // Scroll progress fill
+        function updateFill() {
+            const docH = document.documentElement.scrollHeight - window.innerHeight;
+            const p = docH > 0 ? Math.min(window.scrollY / docH, 1) : 0;
+            fill.style.height = (p * 100) + '%';
+        }
+        let raf = null;
+        window.addEventListener('scroll', function () {
+            if (!raf) raf = requestAnimationFrame(function () { updateFill(); raf = null; });
+        }, { passive: true });
+        updateFill();
     }
 
     // ============================================================
@@ -434,6 +551,12 @@
 
         // Cool effects: parallax, cursor glow, magnetic, spotlight
         setupCoolEffects();
+
+        // Sticky section nav + scroll progress (home only)
+        setupSectionNav();
+
+        // Subtle parallax on section titles
+        setupParallax();
 
         // ---- Hamburger menu ----
         const hamburger = document.getElementById('hamburger');
