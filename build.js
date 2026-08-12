@@ -182,6 +182,75 @@ function extractFirstParagraph(md) {
   return null;
 }
 
+/**
+ * Strip markdown syntax to plain text for excerpt / counting.
+ * Removes code fences, headings, images, links (keeps text), tables,
+ * list markers, blockquote markers.
+ */
+function stripForText(md) {
+  return md
+    .replace(/^---[\s\S]*?---\n*/, '')
+    .replace(/```[\s\S]*?```/g, ' ')
+    .replace(/`[^`]*`/g, ' ')
+    .replace(/^#+\s+.+$/gm, ' ')
+    .replace(/!\[.*?\]\(.*?\)/g, ' ')
+    .replace(/\[([^\]]*)\]\(.*?\)/g, '$1')
+    .replace(/^\s*\|.*\|\s*$/gm, ' ')
+    .replace(/^\s*[-*+]\s+/gm, ' ')
+    .replace(/^\s*>\s?/gm, ' ')
+    .replace(/\*\*([^*]+)\*\*/g, '$1')
+    .replace(/\*([^*]+)\*/g, '$1')
+    .replace(/__([^_]+)__/g, '$1')
+    .replace(/_([^_]+)_/g, '$1')
+    .replace(/~~([^~]+)~~/g, '$1')
+    .replace(/^\s*[-*+]\s+/gm, ' ')
+    .replace(/\n{2,}/g, '\n')
+    .replace(/[ \t]{2,}/g, ' ')
+    .trim();
+}
+
+/**
+ * Derive display metadata for a course chapter: a short excerpt, the
+ * character/word count, an estimated reading time (minutes) and an optional
+ * date from frontmatter. Picks the best available language (zh > en > fallback).
+ */
+function computeChapterMeta(bi) {
+  const lang = bi?.zh || bi?.en || bi?.fallback;
+  const raw = lang?.raw || '';
+  const fm = lang?.frontmatter || {};
+
+  // Excerpt: first meaningful paragraph (>=40 chars), capped ~140 chars.
+  let excerpt = null;
+  const cleaned = stripForText(raw);
+  const paragraphs = cleaned.split(/\n+/).map(l => l.trim()).filter(Boolean);
+  let chosenPara = paragraphs.find(p => p.length >= 40) || paragraphs[0] || null;
+  if (chosenPara) {
+    chosenPara = chosenPara.replace(/\s+/g, ' ').trim();
+    excerpt = chosenPara.length > 140 ? chosenPara.slice(0, 140) + '…' : chosenPara;
+  }
+
+  // Word / character count (whitespace-insensitive).
+  const text = raw.replace(/\s+/g, '');
+  const cjk = (text.match(/[㐀-鿿぀-ヿ]/g) || []).length;
+  const latin = text.replace(/[㐀-鿿぀-ヿ]/g, '');
+  const words = (latin.match(/[A-Za-z0-9]+/g) || []).length;
+  const wordCount = cjk + words;
+
+  // Reading time: ~300 CJK chars/min, ~200 English words/min, min 1 min.
+  const readingTime = Math.max(1, Math.ceil(cjk / 300 + words / 200));
+
+  // Date from frontmatter (Date object → ISO yyyy-mm-dd).
+  let date = fm.date || fm.created || fm.published || null;
+  if (date && typeof date !== 'string') {
+    try { date = new Date(date).toISOString().slice(0, 10); } catch { date = null; }
+  }
+  if (date && typeof date === 'string' && !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+    try { date = new Date(date).toISOString().slice(0, 10); } catch { /* keep as-is */ }
+  }
+
+  return { excerpt, wordCount, readingTime, date };
+}
+
 /** Try to parse a numeric prefix from filename like "01-intro" → 1 */
 function numericPrefix(filename) {
   const match = path.basename(filename, path.extname(filename)).match(/^(\d+)/);
@@ -464,6 +533,8 @@ async function scanAllContent() {
           ?? chBi?.zh?.frontmatter?.order
           ?? jsonChMeta?.order;
 
+        const chMeta = computeChapterMeta(chBi);
+
         chapters.push({
           slug: slugify(chBase),
           filename: chBase,
@@ -471,6 +542,10 @@ async function scanAllContent() {
           order: chOrder,
           bi: chBi,
           isBilingual: chBi ? isBilingual(chBi) : false,
+          excerpt: chMeta.excerpt,
+          wordCount: chMeta.wordCount,
+          readingTime: chMeta.readingTime,
+          date: chMeta.date,
         });
       }
 
