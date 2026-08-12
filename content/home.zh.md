@@ -1,6 +1,6 @@
 ---
 title: "你好，我是 <span class=\"highlight\">王汉翰</span>"
-description: "🎓 教育背景<br><span class=\"edu-line\">西北工业大学 · 统计学 (2020–2024)</span><br><span class=\"edu-line\">北京航空航天大学 · 统计学 (2025–2028)</span>"
+description: "🎓 教育背景<span class=\"edu-line\">西北工业大学 · 统计学 (2020–2024)</span><span class=\"edu-line\">北京航空航天大学 · 统计学 (2025–2028)</span>"
 order: 1
 ---
 
