@@ -1,3 +1,10 @@
+---
+title: "FlashAttention：榨干 GPU 显存带宽的注意力机制优化"
+date: 2026-04-12
+tags: ["深度学习", "GPU", "Attention", "性能优化"]
+description: "FlashAttention 如何通过 IO-Aware 设计减少 HBM 读写，榨干 GPU 显存带宽"
+---
+
 # FlashAttention：榨干 GPU 显存带宽的注意力机制优化
 
 > 如果你还在用标准的 Self-Attention，你的 GPU 有一半时间都在发呆等待数据传输。

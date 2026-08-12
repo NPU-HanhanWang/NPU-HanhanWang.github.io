@@ -36,6 +36,7 @@ const PUBLIC_DIR = path.join(__dirname, 'public');
 // ─── Configuration ───────────────────────────────────────────────────────────
 const SITE_CONFIG = {
   baseUrl: (process.env.BASE_URL || '').replace(/\/+$/, ''),
+  siteUrl: (process.env.SITE_URL || 'https://npu-hanhanwang.github.io').replace(/\/+$/, ''),
   title: 'Wang Hanhan',
   description: 'Personal knowledge base — courses, projects & blog',
   lang: 'zh-CN',
@@ -250,6 +251,9 @@ function deriveBilingualTitle(biContent, defaultTitle) {
   // Try frontmatter from each language
   if (biContent.en?.frontmatter?.title) title.en = biContent.en.frontmatter.title;
   if (biContent.zh?.frontmatter?.title) title.zh = biContent.zh.frontmatter.title;
+  // Try fallback (single-language) frontmatter
+  if (!title.en && biContent.fallback?.frontmatter?.title) title.en = biContent.fallback.frontmatter.title;
+  if (!title.zh && biContent.fallback?.frontmatter?.title) title.zh = biContent.fallback.frontmatter.title;
 
   // Try first heading from rendered HTML
   if (!title.en && biContent.en?.raw) {
@@ -280,6 +284,8 @@ function deriveBilingualDescription(biContent) {
   const desc = { en: '', zh: '' };
   if (biContent.en?.frontmatter?.description) desc.en = biContent.en.frontmatter.description;
   if (biContent.zh?.frontmatter?.description) desc.zh = biContent.zh.frontmatter.description;
+  if (!desc.en && biContent.fallback?.frontmatter?.description) desc.en = biContent.fallback.frontmatter.description;
+  if (!desc.zh && biContent.fallback?.frontmatter?.description) desc.zh = biContent.fallback.frontmatter.description;
 
   if (!desc.en && biContent.en?.raw) {
     desc.en = extractFirstParagraph(biContent.en.raw) || '';
@@ -837,8 +843,56 @@ async function buildAll(content) {
     },
   }, '404.html');
 
+  // ── sitemap.xml ──
+  generateSitemap(content);
+
   // ── Empty index for directories that need redirects ──
   // (GitHub Pages serves index.html for directory URLs)
+}
+
+/**
+ * Generate sitemap.xml from all built pages.
+ * Uses SITE.siteUrl + SITE.baseUrl as the origin.
+ */
+function generateSitemap(content) {
+  const origin = SITE_CONFIG.siteUrl + SITE_CONFIG.baseUrl;
+  const urls = [{ loc: `${origin}/`, priority: '1.0' }];
+
+  if (content.about) urls.push({ loc: `${origin}/about/`, priority: '0.8' });
+
+  if (content.courses.length > 0) {
+    urls.push({ loc: `${origin}/courses/`, priority: '0.9' });
+    for (const c of content.courses) {
+      urls.push({ loc: `${origin}/courses/${c.slug}/`, priority: '0.8' });
+      for (const ch of c.chapters) {
+        urls.push({ loc: `${origin}/courses/${c.slug}/${ch.slug}.html`, priority: '0.6' });
+      }
+    }
+  }
+
+  if (content.projects.length > 0) {
+    urls.push({ loc: `${origin}/projects/`, priority: '0.9' });
+    for (const p of content.projects) {
+      urls.push({ loc: `${origin}/projects/${p.slug}/`, priority: '0.8' });
+      for (const sub of p.subpages) {
+        urls.push({ loc: `${origin}/projects/${p.slug}/${sub.slug}.html`, priority: '0.6' });
+      }
+    }
+  }
+
+  urls.push({ loc: `${origin}/blog/`, priority: '0.9' });
+  for (const post of content.blog) {
+    urls.push({ loc: `${origin}/blog/${post.slug}.html`, priority: '0.7' });
+  }
+
+  const today = new Date().toISOString().split('T')[0];
+  const xml = `<?xml version="1.0" encoding="UTF-8"?>\n` +
+    `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n` +
+    urls.map(u => `  <url>\n    <loc>${u.loc}</loc>\n    <lastmod>${today}</lastmod>\n    <priority>${u.priority}</priority>\n  </url>`).join('\n') +
+    `\n</urlset>\n`;
+
+  fs.writeFileSync(path.join(PUBLIC_DIR, 'sitemap.xml'), xml, 'utf-8');
+  console.log(`  ✓ sitemap.xml (${urls.length} URLs)`);
 }
 
 // ─── Main ────────────────────────────────────────────────────────────────────

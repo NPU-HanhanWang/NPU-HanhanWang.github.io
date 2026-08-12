@@ -75,7 +75,13 @@
             const href = link.getAttribute('href');
             if (!href) return;
             const resolved = new URL(href, window.location.origin).pathname;
-            link.classList.toggle('active', resolved === currentPath);
+            let active = resolved === currentPath;
+            // Sub-page matching: highlight section on detail pages
+            // e.g. /courses/foo/bar.html → 课程; /blog/post.html → 博客
+            if (!active && resolved !== '/' && currentPath.startsWith(resolved)) {
+                active = true;
+            }
+            link.classList.toggle('active', active);
         });
     }
 
