@@ -2134,6 +2134,8 @@ footer p {
     align-items: center;
     gap: 12px;
     pointer-events: none;
+    width: auto;
+    left: auto;
 }
 .section-nav .track {
     position: relative;
