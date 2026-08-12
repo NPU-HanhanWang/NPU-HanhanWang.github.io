@@ -24,16 +24,4 @@ conda activate dl
 pip install torch torchvision torchaudio numpy matplotlib jupyter
 ```
 
-## 课程笔记
-
-| 课时          | 内容                                 |
-| :------------ | :----------------------------------- |
-| Lecture 1–2   | [深度网络的理论基础](lec01-02)       |
-| Lecture 3–8   | [训练理论与优化算法](lec03-08)       |
-| Lecture 9–12  | [卷积神经网络](lec09-12)             |
-| Lecture 13–16 | [序列模型与 RNN](lec13-16)           |
-| Lecture 17–20 | [Transformer 与注意力机制](lec17-20) |
-| Lecture 21–24 | [深度生成模型](lec21-24)             |
-| Lecture 25    | [图神经网络](lec25)                  |
-| Lecture 26    | [深度强化学习](lec26)                |
-| Lecture 27–28 | [前沿专题与总结](lec27-28)           |
+<!-- 课程笔记索引由模板统一渲染（卡片列表），无需在此手写表格 -->
