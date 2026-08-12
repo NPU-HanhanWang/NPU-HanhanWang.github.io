@@ -12,6 +12,7 @@ HERO SECTION
     <div class="hero-orb o1" aria-hidden="true"></div>
     <div class="hero-orb o2" aria-hidden="true"></div>
     <div class="hero-grid" aria-hidden="true"></div>
+    <canvas class="hero-stars" aria-hidden="true"></canvas>
     <div class="container hero-content">
         <div class="hero-text">
             {% if page.title.zh %}
@@ -67,6 +68,36 @@ STATS STRIP — animated counters (Apple keynote vibe)
             <span class="stat-label">年度贡献</span>
         </div>
         {% endif %}
+    </div>
+</section>
+
+<!-- ============================================================
+GITHUB ACTIVITY — contribution heatmap (build-time inline SVG)
+============================================================ -->
+<section class="section ghcal-section" id="github-activity" data-nav="GitHub">
+    <div class="container">
+        <h2 class="section-title"><span class="parallax">GitHub 活跃度</span></h2>
+        <p class="section-subtitle">过去一年的代码贡献</p>
+        <div class="ghcal-card">
+            {% if stats.github.calendarSvg %}
+            <div class="ghcal-scroll">
+                <div class="ghcal-wrap">{{ stats.github.calendarSvg | safe }}</div>
+            </div>
+            <div class="ghcal-legend">
+                <span class="ghcal-total"><i class="fas fa-circle"></i> {{ stats.github.contributions }} 次贡献 · 过去一年</span>
+                <span class="ghcal-scale">少
+                    <i class="gh-dot gh-l0"></i><i class="gh-dot gh-l1"></i><i class="gh-dot gh-l2"></i><i class="gh-dot gh-l3"></i><i class="gh-dot gh-l4"></i>
+                    多
+                </span>
+            </div>
+            {% else %}
+            <div class="ghcal-empty">
+                <i class="fab fa-github"></i>
+                <p>配置 <code>GH_CONTRIB_TOKEN</code> 后将自动生成 GitHub 贡献热力图</p>
+                <a href="https://github.com/NPU-HanhanWang" target="_blank" rel="noopener" class="btn btn-outline">前往 GitHub 主页 →</a>
+            </div>
+            {% endif %}
+        </div>
     </div>
 </section>
 

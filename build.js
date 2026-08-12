@@ -930,10 +930,10 @@ function generateSitemap(content) {
 const GITHUB_USER = 'NPU-HanhanWang';
 
 async function fetchGitHubStats() {
-  const result = { repos: 0, contributions: 0, available: false };
+  const result = { repos: 0, contributions: 0, calendarSvg: '', available: false };
   const token = process.env.GH_CONTRIB_TOKEN;
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), 6000);
+  const timer = setTimeout(() => controller.abort(), 8000);
   try {
     const userRes = await fetch(`https://api.github.com/users/${GITHUB_USER}`, {
       headers: { 'User-Agent': 'static-site-builder', Accept: 'application/vnd.github+json' },
@@ -945,7 +945,8 @@ async function fetchGitHubStats() {
       result.available = true;
     }
     if (token) {
-      const query = `query($login:String!){user(login:$login){contributionsCollection{contributionCalendar{totalContributions}}}}`;
+      // Full contribution calendar → used to render the inline heatmap SVG.
+      const query = `query($login:String!){user(login:$login){contributionsCollection{contributionCalendar{totalContributions weeks{contributionDays{contributionCount date weekday}}}}}}`;
       const cRes = await fetch('https://api.github.com/graphql', {
         method: 'POST',
         headers: {
@@ -959,7 +960,12 @@ async function fetchGitHubStats() {
       if (cRes.ok) {
         const d = await cRes.json();
         const cal = d?.data?.user?.contributionsCollection?.contributionCalendar;
-        if (cal) result.contributions = cal.totalContributions || 0;
+        if (cal) {
+          result.contributions = cal.totalContributions || 0;
+          result.calendarSvg = buildContributionSvg(cal);
+        }
+      } else {
+        console.warn('  ⚠ GitHub GraphQL responded', cRes.status, '(check GH_CONTRIB_TOKEN scope/validity)');
       }
     }
   } catch (e) {
@@ -968,6 +974,57 @@ async function fetchGitHubStats() {
     clearTimeout(timer);
   }
   return result;
+}
+
+// Build a self-contained inline SVG contribution heatmap (365-day calendar).
+// Rectangles use class gh-l0..gh-l4 so fill colors follow the site's light/dark
+// theme via CSS. No runtime dependency — works fully offline once built.
+function buildContributionSvg(calendar) {
+  if (!calendar || !Array.isArray(calendar.weeks) || calendar.weeks.length === 0) return '';
+  const weeks = calendar.weeks;
+  const cell = 11, gap = 3, step = cell + gap;
+  const leftPad = 34, topPad = 20;
+  const cols = weeks.length;
+  const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const level = (c) => {
+    if (c <= 0) return 0;
+    if (c <= 3) return 1;
+    if (c <= 6) return 2;
+    if (c <= 9) return 3;
+    return 4;
+  };
+  let rects = '';
+  let monthLabels = '';
+  let lastMonth = -1;
+  let lastLabelCol = -3;
+  const wdNames = ['', 'Mon', '', 'Wed', '', 'Fri', ''];
+  weeks.forEach((week, ci) => {
+    const x = leftPad + ci * step;
+    const first = week.contributionDays && week.contributionDays[0];
+    if (first) {
+      const m = new Date(first.date + 'T00:00:00').getMonth();
+      if (m !== lastMonth) {
+        if (ci - lastLabelCol >= 3) {
+          monthLabels += `<text x="${x}" y="12" class="gh-month">${monthNames[m]}</text>`;
+          lastLabelCol = ci;
+        }
+        lastMonth = m;
+      }
+    }
+    (week.contributionDays || []).forEach((day) => {
+      const row = day.weekday; // 0=Sun .. 6=Sat
+      const y = topPad + row * step;
+      const lvl = level(day.contributionCount);
+      rects += `<rect class="gh-l${lvl}" x="${x}" y="${y}" width="${cell}" height="${cell}" rx="2.6"><title>${day.date} · ${day.contributionCount} 次贡献</title></rect>`;
+    });
+  });
+  let wdLabels = '';
+  [1, 3, 5].forEach((r) => {
+    wdLabels += `<text x="0" y="${topPad + r * step + cell - 1.5}" class="gh-wd">${wdNames[r]}</text>`;
+  });
+  const width = leftPad + cols * step + 6;
+  const height = topPad + 7 * step + 2;
+  return `<svg class="ghcal-svg" viewBox="0 0 ${width} ${height}" width="${width}" height="${height}" role="img" aria-label="GitHub 贡献热力图（过去一年）">${monthLabels}${wdLabels}${rects}</svg>`;
 }
 
 // ─── Main ────────────────────────────────────────────────────────────────────
@@ -989,6 +1046,7 @@ async function main() {
   content.github = github;
   console.log(`   github:     repos=${github.repos}` +
     (github.contributions ? `, contributions=${github.contributions}` : '') +
+    (github.calendarSvg ? ', heatmap=✓' : '') +
     (github.available ? '' : ' (offline/skipped)'));
 
   console.log('\n📄 Rendering pages ...');

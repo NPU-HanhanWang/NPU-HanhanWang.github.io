@@ -267,7 +267,7 @@
         if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
         // Exclude cards inside horizontal scroll rows — they can sit off-screen
         // horizontally and would otherwise never trigger the reveal.
-        const all = document.querySelectorAll('.card, .blog-item, .info-item, .chapter-item, .section-title, .stat');
+        const all = document.querySelectorAll('.card, .blog-item, .info-item, .chapter-item, .section-title, .stat, .ghcal-card');
         const targets = Array.prototype.filter.call(all, function (el) {
             return !el.closest('.h-scroll');
         });
@@ -471,6 +471,137 @@
     }
 
 // ============================================================
+// STARFIELD — lightweight canvas particle backdrop in the hero
+// (Apple/tech vibe: drifting nodes + faint connective lines)
+// Gated to hover devices & no reduced-motion preference; pauses
+// when the hero scrolls out of view for performance.
+// ============================================================
+function setupStarfield() {
+    const canvas = document.querySelector('.hero-stars');
+    if (!canvas) return;
+    const reduce = window.matchMedia &&
+        window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const noHover = window.matchMedia &&
+        window.matchMedia('(hover: none)').matches;
+    if (reduce || noHover) return;
+
+    const hero = canvas.parentElement;
+    const ctx = canvas.getContext('2d');
+    let w = 0, h = 0, dpr = 1, particles = [], raf = null;
+
+    function initParticles() {
+        const count = Math.max(28, Math.min(90, Math.floor((w * h) / 15000)));
+        particles = [];
+        for (let i = 0; i < count; i++) {
+            particles.push({
+                x: Math.random() * w,
+                y: Math.random() * h,
+                vx: (Math.random() - 0.5) * 0.22,
+                vy: (Math.random() - 0.5) * 0.22,
+                r: Math.random() * 1.6 + 0.5,
+            });
+        }
+    }
+
+    function resize() {
+        const r = hero.getBoundingClientRect();
+        if (r.width === 0 || r.height === 0) return;
+        dpr = Math.min(window.devicePixelRatio || 1, 2);
+        w = r.width; h = r.height;
+        canvas.width = Math.floor(w * dpr);
+        canvas.height = Math.floor(h * dpr);
+        canvas.style.width = w + 'px';
+        canvas.style.height = h + 'px';
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        initParticles();
+    }
+
+    function draw() {
+        ctx.clearRect(0, 0, w, h);
+        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        const rgb = isDark ? '255,255,255' : '0,113,227';
+        for (let i = 0; i < particles.length; i++) {
+            const p = particles[i];
+            p.x += p.vx; p.y += p.vy;
+            if (p.x < 0) p.x = w; else if (p.x > w) p.x = 0;
+            if (p.y < 0) p.y = h; else if (p.y > h) p.y = 0;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(' + rgb + ',0.55)';
+            ctx.fill();
+            for (let j = i + 1; j < particles.length; j++) {
+                const q = particles[j];
+                const dx = p.x - q.x, dy = p.y - q.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                if (dist < 110) {
+                    ctx.beginPath();
+                    ctx.moveTo(p.x, p.y);
+                    ctx.lineTo(q.x, q.y);
+                    ctx.strokeStyle = 'rgba(' + rgb + ',' + (0.14 * (1 - dist / 110)) + ')';
+                    ctx.lineWidth = 0.6;
+                    ctx.stroke();
+                }
+            }
+        }
+    }
+
+    function loop() { draw(); raf = requestAnimationFrame(loop); }
+    function start() { if (raf === null) loop(); }
+    function stop() { if (raf !== null) { cancelAnimationFrame(raf); raf = null; } }
+
+    resize();
+    start();
+    window.addEventListener('resize', resize, { passive: true });
+
+    // Pause animation when the hero is off-screen (save battery/CPU)
+    if ('IntersectionObserver' in window) {
+        const io = new IntersectionObserver(function (entries) {
+            entries.forEach(function (en) {
+                if (en.isIntersecting) start(); else stop();
+            });
+        }, { threshold: 0 });
+        io.observe(hero);
+    }
+}
+
+// ============================================================
+// HERO TITLE — split into per-character spans for a staggered
+// keynote-style reveal. The .highlight name stays one animated unit.
+// Gated to no reduced-motion; falls back to the static gradient.
+// ============================================================
+function setupHeroTitle() {
+    const h1 = document.querySelector('.hero-text h1');
+    if (!h1) return;
+    const reduce = window.matchMedia &&
+        window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduce) return;
+
+    const nodes = Array.prototype.slice.call(h1.childNodes);
+    h1.innerHTML = '';
+    let idx = 0;
+    const STEP = 0.045;
+    nodes.forEach(function (node) {
+        if (node.nodeType === 3) { // text node
+            const text = node.textContent;
+            for (const ch of text) {
+                const span = document.createElement('span');
+                span.className = 'char';
+                span.textContent = (ch === ' ') ? ' ' : ch;
+                span.style.animationDelay = (idx * STEP) + 's';
+                h1.appendChild(span);
+                idx++;
+            }
+        } else if (node.nodeType === 1) { // element (e.g. .highlight)
+            node.classList.add('char-unit');
+            node.style.animationDelay = (idx * STEP) + 's';
+            h1.appendChild(node);
+            idx += Math.max(1, node.textContent.length);
+        }
+    });
+    h1.classList.add('chars-split');
+}
+
+// ============================================================
 // TYPEWRITER — rotating tagline in the hero (Apple hero vibe)
 // ============================================================
 function setupTypewriter() {
@@ -541,6 +672,9 @@ function setupHeroScroll() {
         // Apply theme
         applyTheme(getTheme());
 
+        // Split hero title into per-character spans (staggered reveal)
+        setupHeroTitle();
+
         // Update nav active state
         updateNavActive();
 
@@ -555,6 +689,9 @@ function setupHeroScroll() {
 
         // Subtle parallax on section titles
         setupParallax();
+
+        // Canvas starfield backdrop in the hero
+        setupStarfield();
 
         // Typewriter tagline + hero scroll scale/fade
         setupTypewriter();

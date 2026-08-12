@@ -177,6 +177,29 @@ ul {
 
 .section {
     padding: 100px 0;
+    position: relative;
+}
+
+/* Flowing gradient divider between sections (Apple vibe) */
+.section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(880px, 86%);
+    height: 1.5px;
+    background: linear-gradient(90deg, transparent, var(--primary-light), var(--primary), var(--primary-light), transparent);
+    background-size: 200% 100%;
+    opacity: 0.4;
+    animation: divider-flow 4.5s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+    .section::before { animation: none; opacity: 0.3; }
+}
+@keyframes divider-flow {
+    from { background-position: 0% 0; }
+    to   { background-position: 200% 0; }
 }
 
 .section-alt {
@@ -340,9 +363,21 @@ nav {
 }
 
 nav.scrolled {
-    background: var(--nav-bg);
-    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.06), 0 1px 12px rgba(0, 0, 0, 0.04);
+    background: rgba(255, 255, 255, 0.72);
+    backdrop-filter: saturate(200%) blur(30px);
+    -webkit-backdrop-filter: saturate(200%) blur(30px);
+    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.05), 0 10px 36px rgba(0, 0, 0, 0.10);
 }
+[data-theme="dark"] nav.scrolled {
+    background: rgba(22, 22, 24, 0.72);
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.06), 0 10px 36px rgba(0, 0, 0, 0.45);
+}
+nav.scrolled .logo {
+    font-size: 1.3rem;
+    letter-spacing: -0.03em;
+}
+nav.scrolled .nav-links { gap: 28px; }
+nav.scrolled .nav-links a { font-size: 0.9rem; }
 
 nav .container {
     display: flex;
@@ -356,7 +391,7 @@ nav .container {
     font-weight: 600;
     color: var(--text-heading);
     letter-spacing: -0.02em;
-    transition: color 0.2s ease;
+    transition: color 0.2s ease, font-size 0.3s ease, letter-spacing 0.3s ease;
 }
 
 .logo:hover {
@@ -373,7 +408,7 @@ nav .container {
     position: relative;
     padding: 5px 0;
     font-size: 0.95rem;
-    transition: color 0.3s ease;
+    transition: color 0.3s ease, font-size 0.3s ease;
     color: var(--text);
 }
 
@@ -468,6 +503,16 @@ nav .container {
 [data-theme="dark"] .hero-grid {
     background-image: radial-gradient(circle, rgba(var(--glow-color), 0.30) 1px, transparent 1.4px);
     opacity: 0.72;
+}
+
+/* Canvas particle starfield — sits above the dot-grid, below content */
+.hero-stars {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
 }
 
 /* ============================================================
@@ -584,10 +629,40 @@ nav .container {
 
 .hero-text h1 .highlight {
     background: linear-gradient(120deg, #0071e3 0%, #8e44ad 100%);
+    background-size: 220% auto;
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
     color: var(--primary);
+}
+
+/* Per-character staggered reveal (added by main.js) — replaces the
+   whole-title entrance while keeping the flowing gradient shimmer. */
+.hero-text h1.chars-split {
+    animation: none;
+    background: none;
+    -webkit-text-fill-color: inherit;
+}
+.hero-text h1 .char {
+    display: inline-block;
+    background: linear-gradient(100deg, var(--primary) 0%, var(--primary-light) 28%, #8e44ad 60%, var(--primary) 100%);
+    background-size: 220% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+    animation: hero-char-rise 0.62s cubic-bezier(0.22, 1, 0.36, 1) both,
+               hero-text-shimmer 7s ease-in-out infinite;
+    will-change: transform, opacity;
+}
+.hero-text h1 .char-unit {
+    display: inline-block;
+    animation: hero-char-rise 0.62s cubic-bezier(0.22, 1, 0.36, 1) both,
+               hero-text-shimmer 7s ease-in-out infinite;
+}
+@keyframes hero-char-rise {
+    from { opacity: 0; transform: translateY(0.5em) scale(0.92); filter: blur(3px); }
+    to   { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
 }
 
 .hero-text .subtitle {
@@ -2219,4 +2294,75 @@ footer p {
     display: inline-block;
     will-change: transform;
 }
+
+/* ============================================================
+   GITHUB CONTRIBUTION HEATMAP
+   ============================================================ */
+.ghcal-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: calc(var(--border-radius) + 6px);
+    padding: 28px 30px 22px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+}
+.ghcal-scroll {
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-bottom: 6px;
+}
+.ghcal-wrap { display: inline-block; min-width: 100%; }
+.ghcal-svg { display: block; }
+.ghcal-svg text {
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro", "PingFang SC", sans-serif;
+}
+.gh-month { fill: var(--text-muted); font-size: 9px; font-weight: 500; }
+.gh-wd { fill: var(--text-muted); font-size: 9px; }
+.ghcal-svg rect {
+    transition: transform 0.12s ease;
+    transform-box: fill-box;
+    transform-origin: center;
+    cursor: pointer;
+}
+.ghcal-svg rect:hover { transform: scale(1.4); }
+/* 5-level blue scale (Apple system-blue aligned) */
+.gh-l0 { fill: #dde3ee; }
+.gh-l1 { fill: #b6d4ff; }
+.gh-l2 { fill: #5b9bff; }
+.gh-l3 { fill: #1f6feb; }
+.gh-l4 { fill: #0a47c2; }
+[data-theme="dark"] .gh-l0 { fill: #1b2233; }
+[data-theme="dark"] .gh-l1 { fill: #1f4f8f; }
+[data-theme="dark"] .gh-l2 { fill: #2f6fd0; }
+[data-theme="dark"] .gh-l3 { fill: #4f8ff5; }
+[data-theme="dark"] .gh-l4 { fill: #79b0ff; }
+.ghcal-legend {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 16px;
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    flex-wrap: wrap;
+    gap: 10px;
+}
+.ghcal-total i { color: var(--primary); margin-right: 6px; font-size: 0.7rem; }
+.ghcal-scale { display: inline-flex; align-items: center; gap: 5px; }
+.gh-dot { display: inline-block; width: 11px; height: 11px; border-radius: 2.6px; }
+.ghcal-empty {
+    text-align: center;
+    padding: 34px 20px;
+    color: var(--text-muted);
+}
+.ghcal-empty i.fab { font-size: 2.6rem; color: var(--text-muted); margin-bottom: 12px; display: block; }
+.ghcal-empty p { margin-bottom: 16px; }
+.ghcal-empty code {
+    background: rgba(0, 0, 0, 0.06);
+    padding: 2px 7px;
+    border-radius: 6px;
+    font-size: 0.85em;
+    color: var(--primary);
+}
+[data-theme="dark"] .ghcal-empty code { background: rgba(255, 255, 255, 0.08); }
 
