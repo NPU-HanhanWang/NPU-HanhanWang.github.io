@@ -614,11 +614,12 @@ nav .container {
 
 .hero-image {
     flex-shrink: 0;
-    width: 180px;
-    border-radius: var(--border-radius);
-    background: transparent;
-    border: none;
-    box-shadow: none;
+    width: 230px;
+    aspect-ratio: 3 / 4;
+    border-radius: calc(var(--border-radius) + 6px);
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -627,9 +628,11 @@ nav .container {
 
 .hero-image img {
     width: 100%;
-    height: auto;
+    height: 100%;
+    object-fit: cover;
+    object-position: center top;
     display: block;
-    border-radius: var(--border-radius);
+    border-radius: inherit;
 }
 
 /* ============================================================
