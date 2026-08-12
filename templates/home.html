@@ -11,6 +11,7 @@ HERO SECTION
     <div class="hero-aurora" aria-hidden="true"></div>
     <div class="hero-orb o1" aria-hidden="true"></div>
     <div class="hero-orb o2" aria-hidden="true"></div>
+    <div class="hero-grid" aria-hidden="true"></div>
     <div class="container hero-content">
         <div class="hero-text">
             {% if page.title.zh %}
@@ -26,6 +27,11 @@ HERO SECTION
             {% endif %}
 
             <p class="hero-desc">专注于深度学习与强化学习的研究生。热衷于将研究成果转化为可落地的项目，用代码解决实际问题。</p>
+
+            <div class="hero-typed" aria-hidden="true">
+                <span class="typed-label">正在探索</span>
+                <span class="typewriter" id="typewriter"></span><span class="typed-cursor"></span>
+            </div>
 
             <div style="display: flex; gap: 15px; flex-wrap: wrap;">
                 <a href="{{ SITE.baseUrl }}/courses/" class="btn">📖 课程学习</a>

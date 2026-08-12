@@ -316,7 +316,8 @@ ul {
     top: 0;
     left: 0;
     height: 3px;
-    background: linear-gradient(90deg, var(--primary), var(--primary-light));
+    background: linear-gradient(90deg, var(--primary), var(--primary-light), #8e44ad);
+    box-shadow: 0 0 12px rgba(var(--glow-color), 0.7);
     z-index: 1001;
     transition: width 0.1s linear;
     border-radius: 0 2px 2px 0;
@@ -448,6 +449,25 @@ nav .container {
     align-items: center;
     justify-content: flex-start;
     gap: 30px;
+    transform-origin: center;
+}
+
+/* Precision dot-grid backdrop — Apple/tech vibe */
+.hero-grid {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background-image: radial-gradient(circle, rgba(var(--glow-color), 0.16) 1px, transparent 1.4px);
+    background-size: 28px 28px;
+    -webkit-mask-image: radial-gradient(ellipse 78% 58% at 50% 36%, #000 0%, transparent 78%);
+            mask-image: radial-gradient(ellipse 78% 58% at 50% 36%, #000 0%, transparent 78%);
+    opacity: 0.55;
+    pointer-events: none;
+}
+
+[data-theme="dark"] .hero-grid {
+    background-image: radial-gradient(circle, rgba(var(--glow-color), 0.30) 1px, transparent 1.4px);
+    opacity: 0.72;
 }
 
 /* ============================================================
@@ -549,7 +569,17 @@ nav .container {
     font-size: 3.5rem;
     line-height: 1.2;
     margin-bottom: 18px;
-    color: var(--text-heading);
+    background: linear-gradient(100deg, var(--primary) 0%, var(--primary-light) 28%, #8e44ad 60%, var(--primary) 100%);
+    background-size: 220% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: hero-text-shimmer 7s ease-in-out infinite;
+}
+
+@keyframes hero-text-shimmer {
+    0%, 100% { background-position: 0% center; }
+    50%      { background-position: 100% center; }
 }
 
 .hero-text h1 .highlight {
@@ -632,6 +662,41 @@ nav .container {
     border-radius: inherit;
 }
 
+/* Typewriter rotating tagline (Apple hero vibe) */
+.hero-typed {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 30px;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-heading);
+    min-height: 1.6em;
+}
+.hero-typed .typed-label {
+    color: var(--text-muted);
+    font-weight: 500;
+}
+.hero-typed .typewriter {
+    background: linear-gradient(100deg, var(--primary), #8e44ad);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+.hero-typed .typed-cursor {
+    display: inline-block;
+    width: 2px;
+    height: 1.05em;
+    background: var(--primary);
+    margin-left: 2px;
+    border-radius: 2px;
+    animation: typed-blink 1s steps(2, start) infinite;
+}
+@keyframes typed-blink {
+    0%, 50%   { opacity: 1; }
+    50.01%, 100% { opacity: 0; }
+}
+
 /* ============================================================
    PAGE HEADER — for list & content pages
    ============================================================ */
@@ -700,6 +765,40 @@ nav .container {
 .card:hover::before,
 .blog-item:hover::before {
     opacity: 1;
+}
+
+/* Flowing gradient border on hover (Apple tech glow) */
+@property --card-angle {
+    syntax: '<angle>';
+    initial-value: 0deg;
+    inherits: false;
+}
+.card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1.6px;
+    background: conic-gradient(from var(--card-angle),
+        transparent 0deg,
+        var(--primary) 70deg,
+        var(--primary-light) 120deg,
+        #8e44ad 165deg,
+        transparent 220deg);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+            mask-composite: exclude;
+    opacity: 0;
+    transition: opacity 0.35s ease;
+    pointer-events: none;
+    z-index: 2;
+}
+.card:hover::after {
+    opacity: 1;
+    animation: card-border-spin 2.6s linear infinite;
+}
+@keyframes card-border-spin {
+    to { --card-angle: 360deg; }
 }
 
 .card-img,

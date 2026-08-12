@@ -470,10 +470,74 @@
         update();
     }
 
-    // ============================================================
-    // STICKY SECTION NAV — dot nav + scroll progress bar
-    // Built from every <section[id]> on the page (home-only).
-    // ============================================================
+// ============================================================
+// TYPEWRITER — rotating tagline in the hero (Apple hero vibe)
+// ============================================================
+function setupTypewriter() {
+    const el = document.getElementById('typewriter');
+    if (!el) return;
+    const reduce = window.matchMedia &&
+        window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const words = ['深度学习', '强化学习', '开源项目', 'AI 基础设施', '可落地的科研'];
+    if (reduce) {
+        el.textContent = words[0];
+        return;
+    }
+    let w = 0, c = 0, deleting = false;
+    function tick() {
+        const word = words[w];
+        if (!deleting) {
+            c++;
+            el.textContent = word.slice(0, c);
+            if (c === word.length) {
+                deleting = true;
+                setTimeout(tick, 1500);
+                return;
+            }
+        } else {
+            c--;
+            el.textContent = word.slice(0, c);
+            if (c === 0) {
+                deleting = false;
+                w = (w + 1) % words.length;
+            }
+        }
+        setTimeout(tick, deleting ? 55 : 105);
+    }
+    tick();
+}
+
+// ============================================================
+// HERO SCROLL — scale & fade hero content as you scroll past it
+// (classic Apple product-page scroll effect)
+// ============================================================
+function setupHeroScroll() {
+    const hero = document.querySelector('.hero');
+    const content = document.querySelector('.hero-content');
+    if (!hero || !content) return;
+    const reduce = window.matchMedia &&
+        window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const noHover = window.matchMedia &&
+        window.matchMedia('(hover: none)').matches;
+    if (reduce || noHover) return;
+    let raf = null;
+    function update() {
+        const rect = hero.getBoundingClientRect();
+        const p = Math.min(Math.max(-rect.top / rect.height, 0), 1);
+        content.style.transform = 'scale(' + (1 - p * 0.12) + ')';
+        content.style.opacity = String(1 - p * 0.85);
+        raf = null;
+    }
+    window.addEventListener('scroll', function () {
+        if (!raf) raf = requestAnimationFrame(update);
+    }, { passive: true });
+    update();
+}
+
+// ============================================================
+// STICKY SECTION NAV — dot nav + scroll progress bar
+// Built from every <section[id]> on the page (home-only).
+// ============================================================
     function setupSectionNav() {
         const nav = document.getElementById('sectionNav');
         if (!nav) return;
@@ -557,6 +621,10 @@
 
         // Subtle parallax on section titles
         setupParallax();
+
+        // Typewriter tagline + hero scroll scale/fade
+        setupTypewriter();
+        setupHeroScroll();
 
         // ---- Hamburger menu ----
         const hamburger = document.getElementById('hamburger');
