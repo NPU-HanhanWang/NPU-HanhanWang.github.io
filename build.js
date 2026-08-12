@@ -728,9 +728,36 @@ async function buildAll(content) {
     console.log('  ✓ content/assets/ → public/assets/');
   }
 
-  // ── Home ──
+  // ── Home (dynamic portal) ──
   if (content.home) {
-    renderPage('home.html', { page: content.home, pageType: 'home' }, 'index.html');
+    const totalChapters = content.courses.reduce((s, c) => s + c.chapters.length, 0);
+    const maxChapters = content.courses.reduce((m, c) => Math.max(m, c.chapters.length), 0);
+    const allTags = [
+      ...content.blog.flatMap(p => p.tags || []),
+      ...content.courses.flatMap(c => c.tags || []),
+      ...content.projects.flatMap(p => p.tags || []),
+    ];
+    const uniqueTags = [...new Set(allTags)];
+    const featuredProjects = content.projects.filter(p => p.featured).slice(0, 3);
+    const recentPosts = content.blog.slice(0, 3);
+    // Only surface courses that actually have chapters on the homepage overview
+    const coursesOverview = content.courses.filter(c => c.chapters.length > 0);
+
+    renderPage('home.html', {
+      page: content.home,
+      pageType: 'home',
+      recentPosts,
+      featuredProjects,
+      courses: coursesOverview,
+      allTags: uniqueTags,
+      stats: {
+        posts: content.blog.length,
+        courses: content.courses.length,
+        chapters: totalChapters,
+        projects: content.projects.length,
+        maxChapters,
+      },
+    }, 'index.html');
   }
 
   // ── About ──

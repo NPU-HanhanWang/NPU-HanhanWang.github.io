@@ -39,24 +39,135 @@ HERO SECTION
 </section>
 
 <!-- ============================================================
-HOME CONTENT (from content/home.md)
+STATS STRIP — animated counters (Apple keynote vibe)
 ============================================================ -->
-{% if page.bi %}
-<section class="section section-alt" id="home-content">
+<section class="stats-strip">
+    <div class="container stats-grid">
+        <div class="stat">
+            <span class="stat-number" data-count="{{ stats.posts }}">0</span>
+            <span class="stat-label">篇文章</span>
+        </div>
+        <div class="stat">
+            <span class="stat-number" data-count="{{ stats.courses }}">0</span>
+            <span class="stat-label">门课程</span>
+        </div>
+        <div class="stat">
+            <span class="stat-number" data-count="{{ stats.chapters }}">0</span>
+            <span class="stat-label">篇笔记</span>
+        </div>
+        <div class="stat">
+            <span class="stat-number" data-count="{{ stats.projects }}">0</span>
+            <span class="stat-label">个项目</span>
+        </div>
+    </div>
+</section>
+
+<!-- ============================================================
+RECENT POSTS — horizontal scroll-snap cards
+============================================================ -->
+<section class="section" id="recent-posts">
     <div class="container">
-        {% if page.bi.zh %}
-        <div class="md-content content-main-no-sidebar">
-            {{ page.bi.zh.html | safe }}
+        <h2 class="section-title">最近文章</h2>
+        <p class="section-subtitle">最新的技术笔记与思考</p>
+        <div class="h-scroll">
+            {% for post in recentPosts %}
+            <a href="{{ SITE.baseUrl }}/blog/{{ post.slug }}.html" class="card post-card">
+                <div class="card-info">
+                    {% if post.date %}
+                    <span class="card-date">{{ post.date | date('MMM YYYY') }}</span>
+                    {% endif %}
+                    <h4>{{ post.title.zh or post.title.en }}</h4>
+                    <p>{{ (post.description.zh or post.description.en) | truncate(110) }}</p>
+                    {% if post.tags | length > 0 %}
+                    <div class="card-tags">
+                        {% for tag in post.tags %}<span>{{ tag }}</span>{% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+            </a>
+            {% endfor %}
         </div>
-        {% elif page.bi.fallback %}
-        <div class="md-content content-main-no-sidebar">
-            {{ page.bi.fallback.html | safe }}
+        <div class="section-more">
+            <a href="{{ SITE.baseUrl }}/blog/" class="btn btn-outline">查看全部文章 →</a>
         </div>
-        {% elif page.bi.en %}
-        <div class="md-content content-main-no-sidebar">
-            {{ page.bi.en.html | safe }}
+    </div>
+</section>
+
+<!-- ============================================================
+FEATURED PROJECTS — horizontal scroll-snap cards
+============================================================ -->
+{% if featuredProjects | length > 0 %}
+<section class="section section-alt" id="featured-projects">
+    <div class="container">
+        <h2 class="section-title">精选项目</h2>
+        <p class="section-subtitle">我正在做与做过的一些事情</p>
+        <div class="h-scroll">
+            {% for proj in featuredProjects %}
+            <div class="card project-card">
+                <div class="card-info">
+                    <h4><a href="{{ SITE.baseUrl }}/projects/{{ proj.slug }}/" class="card-title-link">{{ proj.title.zh or proj.title.en }}</a></h4>
+                    <p>{{ (proj.description.zh or proj.description.en) | truncate(120) }}</p>
+                    {% if proj.tags | length > 0 %}
+                    <div class="card-tags">
+                        {% for tag in proj.tags %}<span>{{ tag }}</span>{% endfor %}
+                    </div>
+                    {% endif %}
+                    <div class="card-links">
+                        {% if proj.links.github %}<a href="{{ proj.links.github }}" target="_blank" rel="noopener"><i class="fab fa-github"></i> GitHub</a>{% endif %}
+                        {% if proj.links.demo %}<a href="{{ proj.links.demo }}" target="_blank" rel="noopener">🔗 Demo</a>{% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
         </div>
-        {% endif %}
+        <div class="section-more">
+            <a href="{{ SITE.baseUrl }}/projects/" class="btn btn-outline">查看全部项目 →</a>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- ============================================================
+COURSES OVERVIEW — grid with progress
+============================================================ -->
+{% if courses | length > 0 %}
+<section class="section" id="courses-overview">
+    <div class="container">
+        <h2 class="section-title">课程进度</h2>
+        <p class="section-subtitle">持续整理的课程笔记</p>
+        <div class="card-grid">
+            {% for course in courses %}
+            <a href="{{ SITE.baseUrl }}/courses/{{ course.slug }}/" class="card course-card">
+                <div class="card-info">
+                    <h4>{{ course.title.zh or course.title.en }}</h4>
+                    <p>{{ (course.description.zh or course.description.en) | truncate(80) }}</p>
+                    <div class="course-progress">
+                        <div class="course-progress-bar">
+                            <span style="width: {{ ((course.chapters | length) * 100 / stats.maxChapters) | round }}%"></span>
+                        </div>
+                        <span class="course-progress-label">已整理 {{ course.chapters | length }} 章</span>
+                    </div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+        <div class="section-more">
+            <a href="{{ SITE.baseUrl }}/courses/" class="btn btn-outline">浏览全部课程 →</a>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- ============================================================
+TECH STACK MARQUEE
+============================================================ -->
+{% if allTags | length > 0 %}
+<section class="tech-marquee-section" aria-label="技术栈">
+    <div class="tech-marquee">
+        <div class="marquee-track">
+            {% for tag in allTags %}<span class="marquee-item">{{ tag }}</span>{% endfor %}
+            {% for tag in allTags %}<span class="marquee-item" aria-hidden="true">{{ tag }}</span>{% endfor %}
+        </div>
     </div>
 </section>
 {% endif %}
@@ -76,7 +187,7 @@ CONTACT SECTION
                 </div>
                 <span><a href="mailto:wanghanhan_nwpu@163.com">wanghanhan_nwpu@163.com</a></span>
             </div>
-            <!-- 所在地（位置标签，不暴露具体地址） -->
+            <!-- 所在地 -->
             <div class="info-item">
                 <div class="info-icon">
                     <i class="fas fa-map-marker-alt"></i>

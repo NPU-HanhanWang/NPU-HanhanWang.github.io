@@ -265,7 +265,12 @@
     function setupScrollReveal() {
         if (!('IntersectionObserver' in window)) return;
         if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-        const targets = document.querySelectorAll('.card, .blog-item, .info-item, .chapter-item, .section-title');
+        // Exclude cards inside horizontal scroll rows — they can sit off-screen
+        // horizontally and would otherwise never trigger the reveal.
+        const all = document.querySelectorAll('.card, .blog-item, .info-item, .chapter-item, .section-title, .stat');
+        const targets = Array.prototype.filter.call(all, function (el) {
+            return !el.closest('.h-scroll');
+        });
         if (targets.length === 0) return;
         const io = new IntersectionObserver(function (entries) {
             entries.forEach(function (entry) {
@@ -279,6 +284,48 @@
             el.classList.add('reveal');
             io.observe(el);
         });
+    }
+
+    // ============================================================
+    // NUMBER COUNTERS — count up when scrolled into view (keynote vibe)
+    // ============================================================
+    function animateCount(el) {
+        const target = parseFloat(el.getAttribute('data-count')) || 0;
+        const duration = 1500;
+        const start = performance.now();
+        function tick(now) {
+            const p = Math.min((now - start) / duration, 1);
+            const eased = 1 - Math.pow(1 - p, 3); // easeOutCubic
+            el.textContent = Math.round(target * eased);
+            if (p < 1) {
+                requestAnimationFrame(tick);
+            } else {
+                el.textContent = target;
+            }
+        }
+        requestAnimationFrame(tick);
+    }
+
+    function setupCounters() {
+        const nums = document.querySelectorAll('.stat-number[data-count]');
+        if (nums.length === 0) return;
+        const reduce = window.matchMedia &&
+            window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if (reduce || !('IntersectionObserver' in window)) {
+            nums.forEach(function (el) {
+                el.textContent = el.getAttribute('data-count');
+            });
+            return;
+        }
+        const io = new IntersectionObserver(function (entries) {
+            entries.forEach(function (entry) {
+                if (entry.isIntersecting) {
+                    animateCount(entry.target);
+                    io.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.5 });
+        nums.forEach(function (el) { io.observe(el); });
     }
 
     // ============================================================
@@ -381,6 +428,9 @@
 
         // Scroll reveal animations
         setupScrollReveal();
+
+        // Number counters (stats strip)
+        setupCounters();
 
         // Cool effects: parallax, cursor glow, magnetic, spotlight
         setupCoolEffects();
