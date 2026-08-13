@@ -518,7 +518,11 @@ function setupStarfield() {
         window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const noHover = window.matchMedia &&
         window.matchMedia('(hover: none)').matches;
-    if (reduce || noHover) return;
+    // Perf gate: skip the full-viewport canvas on small/low-power screens
+    const finePointer = window.matchMedia &&
+        window.matchMedia('(pointer: fine)').matches;
+    const largeScreen = window.innerWidth >= 1024;
+    if (reduce || noHover || !finePointer || !largeScreen) return;
 
     const hero = canvas.parentElement;
     const ctx = canvas.getContext('2d');

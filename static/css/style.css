@@ -68,7 +68,7 @@
     /* ── 玻璃拟态 & 光效 ── */
     --card-bg-rgb: 255, 255, 255;
     --glow-color: 0, 113, 227;       /* Apple 系统蓝 */
-    --glow-color-2: 142, 68, 173;    /* 紫，用于极光 */
+    --glow-color-2: 90, 200, 250;    /* 青，用于极光/光晕（与蓝色同系） */
 }
 
 /* ============================================================
@@ -137,14 +137,6 @@
     background: linear-gradient(135deg, #26262a, #1d1d1f);
 }
 
-[data-theme="dark"] img {
-    opacity: 0.85;
-}
-
-[data-theme="dark"] .md-content img {
-    opacity: 0.9;
-}
-
 /* ============================================================
    RESET & BASE
    ============================================================ */
@@ -191,6 +183,17 @@ img {
 
 ul {
     list-style: none;
+}
+
+/* Keyboard focus ring (accessibility) — only for keyboard nav, not mouse */
+:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 3px;
+    border-radius: 6px;
+}
+/* Suppress the default ring on mouse click while preserving it for keyboard */
+:focus:not(:focus-visible) {
+    outline: none;
 }
 
 /* ============================================================
@@ -377,7 +380,7 @@ ul {
     top: 0;
     left: 0;
     height: 3px;
-    background: linear-gradient(90deg, var(--primary), var(--primary-light), #8e44ad);
+    background: linear-gradient(90deg, var(--primary), var(--primary-light), #5ac8fa);
     box-shadow: 0 0 12px rgba(var(--glow-color), 0.7);
     z-index: 1001;
     transition: width 0.1s linear;
@@ -652,7 +655,7 @@ nav .container {
     font-size: 3.5rem;
     line-height: 1.2;
     margin-bottom: 18px;
-    background: linear-gradient(100deg, var(--primary) 0%, var(--primary-light) 28%, #8e44ad 60%, var(--primary) 100%);
+    background: linear-gradient(100deg, var(--primary) 0%, var(--primary-light) 28%, #5ac8fa 60%, var(--primary) 100%);
     background-size: 220% auto;
     -webkit-background-clip: text;
     background-clip: text;
@@ -666,7 +669,7 @@ nav .container {
 }
 
 .hero-text h1 .highlight {
-    background: linear-gradient(120deg, #0071e3 0%, #8e44ad 100%);
+    background: linear-gradient(120deg, #0071e3 0%, #5ac8fa 100%);
     background-size: 220% auto;
     -webkit-background-clip: text;
     background-clip: text;
@@ -683,7 +686,7 @@ nav .container {
 }
 .hero-text h1 .char {
     display: inline-block;
-    background: linear-gradient(100deg, var(--primary) 0%, var(--primary-light) 28%, #8e44ad 60%, var(--primary) 100%);
+    background: linear-gradient(100deg, var(--primary) 0%, var(--primary-light) 28%, #5ac8fa 60%, var(--primary) 100%);
     background-size: 220% auto;
     -webkit-background-clip: text;
     background-clip: text;
@@ -800,7 +803,7 @@ nav .container {
     font-weight: 500;
 }
 .hero-typed .typewriter {
-    background: linear-gradient(100deg, var(--primary), #8e44ad);
+    background: linear-gradient(100deg, var(--primary), #5ac8fa);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -869,7 +872,6 @@ nav .container {
 .card:hover {
     transform: translateY(-6px);
     box-shadow: var(--card-shadow-hover);
-    will-change: transform;
 }
 
 /* Cursor-following spotlight (--mx/--my set by JS) */
@@ -908,7 +910,7 @@ nav .container {
         transparent 0deg,
         var(--primary) 70deg,
         var(--primary-light) 120deg,
-        #8e44ad 165deg,
+        #5ac8fa 165deg,
         transparent 220deg);
     -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
     -webkit-mask-composite: xor;
@@ -2391,7 +2393,7 @@ footer p {
     display: block;
     height: 100%;
     border-radius: 99px;
-    background: linear-gradient(90deg, var(--primary), #8e44ad);
+    background: linear-gradient(90deg, var(--primary), #5ac8fa);
     transition: width 1.1s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .course-progress-label {
