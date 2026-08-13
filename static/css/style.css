@@ -2409,25 +2409,29 @@ footer p {
 /* ============================================================
    GITHUB CONTRIBUTION HEATMAP
    ============================================================ */
+/* Card — refined frosted glass with layered depth */
 .ghcal-card {
     position: relative;
     background: var(--card-bg);
     border: 1px solid var(--border-color);
-    border-radius: calc(var(--border-radius) + 6px);
-    padding: 28px 30px 22px;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
+    border-radius: calc(var(--border-radius) + 8px);
+    padding: 30px 32px 26px;
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.55),
+        0 18px 50px -22px rgba(0, 0, 0, 0.28),
+        0 6px 18px -10px rgba(0, 0, 0, 0.18);
+    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
     overflow: hidden;
 }
-/* Subtle blue gradient glow border (Apple-tech accent) */
+/* Soft layered gradient glow border (Apple-tech accent) */
 .ghcal-card::before {
     content: "";
     position: absolute;
     inset: 0;
     border-radius: inherit;
     padding: 1px;
-    background: linear-gradient(135deg, rgba(41, 151, 255, 0.55), rgba(41, 151, 255, 0.04) 45%, rgba(41, 151, 255, 0) 70%);
+    background: linear-gradient(150deg, rgba(41, 151, 255, 0.5), rgba(41, 151, 255, 0.06) 42%, rgba(142, 68, 173, 0.14) 78%, rgba(41, 151, 255, 0) 100%);
     -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
     -webkit-mask-composite: xor;
     mask-composite: exclude;
@@ -2437,99 +2441,128 @@ footer p {
 .ghcal-overview {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 12px;
-    margin-bottom: 22px;
+    gap: 14px;
+    margin-bottom: 24px;
 }
 .ghcal-stat {
-    background: linear-gradient(155deg, rgba(41, 151, 255, 0.12), rgba(41, 151, 255, 0.02));
+    background: linear-gradient(160deg, rgba(0, 113, 227, 0.06), rgba(0, 113, 227, 0.012));
     border: 1px solid var(--border-color);
-    border-radius: 14px;
-    padding: 14px 10px;
+    border-radius: 16px;
+    padding: 16px 12px;
     text-align: center;
-    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.4s ease, background 0.4s ease;
 }
 .ghcal-stat:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 24px rgba(41, 151, 255, 0.18);
+    transform: translateY(-4px);
+    background: linear-gradient(160deg, rgba(0, 113, 227, 0.12), rgba(0, 113, 227, 0.03));
+    box-shadow: 0 14px 32px -14px rgba(0, 113, 227, 0.45);
 }
 .ghcal-stat-num {
     display: block;
-    font-size: 1.7rem;
+    font-size: 1.9rem;
     font-weight: 700;
-    line-height: 1.1;
-    color: var(--primary);
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--text-heading);
     font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum";
 }
 .ghcal-stat-label {
     display: block;
-    margin-top: 5px;
+    margin-top: 7px;
     font-size: 0.72rem;
     color: var(--text-muted);
-    letter-spacing: 0.01em;
+    letter-spacing: 0.012em;
+}
+/* Inner canvas panel — Apple widget feel */
+.ghcal-canvas {
+    background:
+        radial-gradient(130% 150% at 0% 0%, rgba(0, 113, 227, 0.05), transparent 55%),
+        rgba(0, 0, 0, 0.015);
+    border: 1px solid var(--border-color);
+    border-radius: 18px;
+    padding: 18px 16px 14px;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+[data-theme="dark"] .ghcal-canvas {
+    background:
+        radial-gradient(130% 150% at 0% 0%, rgba(41, 151, 255, 0.1), transparent 55%),
+        rgba(255, 255, 255, 0.02);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 .ghcal-scroll {
     overflow-x: auto;
     overflow-y: hidden;
-    padding-bottom: 6px;
+    padding-bottom: 4px;
     scrollbar-width: thin;
     scrollbar-color: var(--border-color) transparent;
 }
+.ghcal-scroll::-webkit-scrollbar { height: 6px; }
+.ghcal-scroll::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 999px; }
+.ghcal-scroll::-webkit-scrollbar-track { background: transparent; }
 .ghcal-wrap { display: inline-block; min-width: 100%; }
 .ghcal-svg { display: block; }
 .ghcal-svg text {
-    font-family: -apple-system, BlinkMacSystemFont, "SF Pro", "PingFang SC", sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", "Helvetica Neue", sans-serif;
 }
-.gh-month { fill: var(--text-muted); font-size: 9px; font-weight: 500; }
-.gh-wd { fill: var(--text-muted); font-size: 9px; }
+.gh-month { fill: var(--gray-light); font-size: 10px; font-weight: 500; letter-spacing: 0.03em; }
+.gh-wd { fill: var(--gray-light); font-size: 10px; }
 .ghcal-svg rect {
-    transition: transform 0.12s ease, filter 0.12s ease;
+    transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.18s ease;
     transform-box: fill-box;
     transform-origin: center;
     cursor: pointer;
 }
 .ghcal-svg rect:hover {
-    transform: scale(1.5);
-    filter: drop-shadow(0 0 4px rgba(41, 151, 255, 0.95));
+    transform: scale(1.32);
+    filter: drop-shadow(0 2px 6px rgba(41, 151, 255, 0.6));
 }
-/* 5-level blue scale (Apple system-blue aligned) — clearer gradient */
-.gh-l0 { fill: #e9edf4; }
-.gh-l1 { fill: #c7e0ff; }
-.gh-l2 { fill: #66a8ff; }
-.gh-l3 { fill: #2f7df0; }
-.gh-l4 { fill: #0a47c2; }
-[data-theme="dark"] .gh-l0 { fill: #161c28; }
-[data-theme="dark"] .gh-l1 { fill: #1f4f8f; }
-[data-theme="dark"] .gh-l2 { fill: #2f6fd0; }
-[data-theme="dark"] .gh-l3 { fill: #4f8ff5; }
-[data-theme="dark"] .gh-l4 { fill: #79b0ff; }
+.ghcal-svg rect.gh-today {
+    stroke: var(--primary);
+    stroke-width: 1.5;
+}
+/* 5-level blue scale — smooth Apple system-blue gradient */
+.gh-l0 { fill: #ebedf2; }
+.gh-l1 { fill: #bcdcff; }
+.gh-l2 { fill: #6fb0ff; }
+.gh-l3 { fill: #1f86f0; }
+.gh-l4 { fill: #0056d6; }
+[data-theme="dark"] .gh-l0 { fill: #21242b; }
+[data-theme="dark"] .gh-l1 { fill: #163a66; }
+[data-theme="dark"] .gh-l2 { fill: #1f5fae; }
+[data-theme="dark"] .gh-l3 { fill: #2f86f0; }
+[data-theme="dark"] .gh-l4 { fill: #4f9bff; }
 /* Legend dots are HTML <i> elements, so they need background-color, not fill. */
-.gh-dot.gh-l0 { background-color: #e9edf4; }
-.gh-dot.gh-l1 { background-color: #c7e0ff; }
-.gh-dot.gh-l2 { background-color: #66a8ff; }
-.gh-dot.gh-l3 { background-color: #2f7df0; }
-.gh-dot.gh-l4 { background-color: #0a47c2; }
-[data-theme="dark"] .gh-dot.gh-l0 { background-color: #161c28; }
-[data-theme="dark"] .gh-dot.gh-l1 { background-color: #1f4f8f; }
-[data-theme="dark"] .gh-dot.gh-l2 { background-color: #2f6fd0; }
-[data-theme="dark"] .gh-dot.gh-l3 { background-color: #4f8ff5; }
-[data-theme="dark"] .gh-dot.gh-l4 { background-color: #79b0ff; }
+.gh-dot.gh-l0 { background-color: #ebedf2; }
+.gh-dot.gh-l1 { background-color: #bcdcff; }
+.gh-dot.gh-l2 { background-color: #6fb0ff; }
+.gh-dot.gh-l3 { background-color: #1f86f0; }
+.gh-dot.gh-l4 { background-color: #0056d6; }
+[data-theme="dark"] .gh-dot.gh-l0 { background-color: #21242b; }
+[data-theme="dark"] .gh-dot.gh-l1 { background-color: #163a66; }
+[data-theme="dark"] .gh-dot.gh-l2 { background-color: #1f5fae; }
+[data-theme="dark"] .gh-dot.gh-l3 { background-color: #2f86f0; }
+[data-theme="dark"] .gh-dot.gh-l4 { background-color: #4f9bff; }
 .ghcal-legend {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-top: 16px;
+    margin-top: 18px;
     font-size: 0.82rem;
     color: var(--text-muted);
     flex-wrap: wrap;
     gap: 10px;
 }
-.ghcal-total i { color: var(--primary); margin-right: 6px; font-size: 0.7rem; }
-.ghcal-scale { display: inline-flex; align-items: center; gap: 5px; }
-.gh-dot { display: inline-block; width: 11px; height: 11px; border-radius: 2.6px; }
+.ghcal-total { display: inline-flex; align-items: center; }
+.ghcal-total i { color: var(--primary); margin-right: 7px; font-size: 0.7rem; }
+.ghcal-scale { display: inline-flex; align-items: center; gap: 6px; }
+.gh-dot { display: inline-block; width: 11px; height: 11px; border-radius: 3px; transition: transform 0.2s ease; }
+.ghcal-legend .gh-dot:hover { transform: scale(1.2); }
 @media (max-width: 560px) {
     .ghcal-overview { grid-template-columns: repeat(2, 1fr); gap: 10px; }
-    .ghcal-stat-num { font-size: 1.45rem; }
-    .ghcal-card { padding: 22px 18px 18px; }
+    .ghcal-stat-num { font-size: 1.55rem; }
+    .ghcal-card { padding: 24px 18px 20px; }
+    .ghcal-canvas { padding: 14px 10px 10px; }
 }
 .ghcal-empty {
     text-align: center;

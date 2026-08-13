@@ -1059,8 +1059,9 @@ async function fetchGitHubStats() {
 function buildContributionSvg(calendar) {
   if (!calendar || !Array.isArray(calendar.weeks) || calendar.weeks.length === 0) return '';
   const weeks = calendar.weeks;
-  const cell = 11, gap = 3, step = cell + gap;
-  const leftPad = 34, topPad = 20;
+  const cell = 13, gap = 4, step = cell + gap;
+  const leftPad = 32, topPad = 22;
+  const todayStr = new Date().toISOString().slice(0, 10);
   const cols = weeks.length;
   const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
   const level = (c) => {
@@ -1092,7 +1093,8 @@ function buildContributionSvg(calendar) {
       const row = day.weekday; // 0=Sun .. 6=Sat
       const y = topPad + row * step;
       const lvl = level(day.contributionCount);
-      rects += `<rect class="gh-l${lvl}" x="${x}" y="${y}" width="${cell}" height="${cell}" rx="2.6"><title>${day.date} · ${day.contributionCount} 次贡献</title></rect>`;
+      const isToday = day.date === todayStr;
+      rects += `<rect class="gh-l${lvl}${isToday ? ' gh-today' : ''}" x="${x}" y="${y}" width="${cell}" height="${cell}" rx="3.2"><title>${day.date} · ${day.contributionCount} 次贡献</title></rect>`;
     });
   });
   let wdLabels = '';

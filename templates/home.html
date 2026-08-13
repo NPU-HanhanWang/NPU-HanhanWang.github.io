@@ -98,8 +98,10 @@ GITHUB ACTIVITY — contribution heatmap (build-time inline SVG)
                     <span class="ghcal-stat-label">活跃天数</span>
                 </div>
             </div>
-            <div class="ghcal-scroll">
-                <div class="ghcal-wrap">{{ stats.github.calendarSvg | safe }}</div>
+            <div class="ghcal-canvas">
+                <div class="ghcal-scroll">
+                    <div class="ghcal-wrap">{{ stats.github.calendarSvg | safe }}</div>
+                </div>
             </div>
             <div class="ghcal-legend">
                 <span class="ghcal-total"><i class="fas fa-circle"></i> {{ stats.github.contributions or 0 }} 次贡献 · 过去一年</span>
