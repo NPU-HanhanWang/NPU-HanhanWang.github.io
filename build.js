@@ -724,12 +724,23 @@ async function scanAllContent() {
         || postBi.fallback?.frontmatter?.tags
         || [];
 
+      const postMeta = computeChapterMeta(postBi);
+      const postLang = postBi.zh || postBi.en || postBi.fallback;
+      const plainBody = stripForText(postLang?.raw || '');
+      const category = postBi.zh?.frontmatter?.category
+        || postBi.en?.frontmatter?.category
+        || postBi.fallback?.frontmatter?.category
+        || '博客';
+
       data.blog.push({
         slug: slugify(postBase),
         title,
         description,
         date,
         tags,
+        category,
+        readingTime: postMeta.readingTime,
+        body: plainBody,
         bi: postBi,
         isBilingual: postBi ? isBilingual(postBi) : false,
       });
@@ -1137,6 +1148,28 @@ function computeContributionStats(calendar) {
   return { activeDays, currentStreak: current, longestStreak: longest };
 }
 
+/**
+ * Build a client-side search index (public/search-index.json) from blog posts.
+ * Fields: slug, title, description, tags, category, date, readingTime, body.
+ * The search modal (⌘K) loads this and ranks by weighted field matches.
+ */
+function buildSearchIndex(content) {
+  const items = (content.blog || []).map(p => ({
+    slug: p.slug,
+    title: p.title.zh || p.title.en || '',
+    description: p.description.zh || p.description.en || '',
+    tags: p.tags || [],
+    category: p.category || '博客',
+    date: p.date || '',
+    readingTime: p.readingTime || 1,
+    body: p.body || '',
+  }));
+  const out = path.join(PUBLIC_DIR, 'search-index.json');
+  fs.ensureDirSync(path.dirname(out));
+  fs.writeFileSync(out, JSON.stringify(items), 'utf-8');
+  console.log(`  ✓ search-index.json (${items.length} posts)`);
+}
+
 // ─── Main ────────────────────────────────────────────────────────────────────
 
 async function main() {
@@ -1161,6 +1194,9 @@ async function main() {
 
   console.log('\n📄 Rendering pages ...');
   await buildAll(content);
+
+  console.log('\n🔎 Generating search index ...');
+  buildSearchIndex(content);
 
   console.log('\n✅ Build complete!  Output: public/\n');
   console.log('   Preview:  npx serve public/');

@@ -727,6 +727,12 @@ function setupHeroScroll() {
             themeToggle.addEventListener('click', toggleTheme);
         }
 
+        // ---- GitHub heatmap palette switcher ----
+        setupGhcalPalette();
+
+        // ---- Global ⌘K search ----
+        setupGlobalSearch();
+
         // ---- Back to top ----
         const backToTopBtn = document.getElementById('backToTop');
         if (backToTopBtn) {
@@ -749,6 +755,177 @@ function setupHeroScroll() {
 
         // Initial scroll state
         onScroll();
+    }
+
+    // ───────────────────────────────────────────────────────────
+    // GitHub heatmap palette switcher (blue / green / grape)
+    // ───────────────────────────────────────────────────────────
+    function setupGhcalPalette() {
+        const card = document.querySelector('.ghcal-card[data-ghcal-palette]');
+        if (!card) return;
+        const KEY = 'ghcal-palette';
+        const saved = localStorage.getItem(KEY);
+        if (saved) card.setAttribute('data-ghcal-palette', saved);
+        const sync = () => {
+            const cur = card.getAttribute('data-ghcal-palette');
+            card.querySelectorAll('.gh-pal-btn').forEach(b => {
+                b.classList.toggle('is-active', b.dataset.palette === cur);
+            });
+        };
+        sync();
+        card.querySelectorAll('.gh-pal-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                card.setAttribute('data-ghcal-palette', btn.dataset.palette);
+                localStorage.setItem(KEY, btn.dataset.palette);
+                sync();
+            });
+        });
+    }
+
+    // ───────────────────────────────────────────────────────────
+    // Global ⌘K search modal
+    // ───────────────────────────────────────────────────────────
+    function setupGlobalSearch() {
+        const overlay = document.getElementById('searchOverlay');
+        const trigger = document.getElementById('searchTrigger');
+        const input = document.getElementById('searchInput');
+        const resultsEl = document.getElementById('searchResults');
+        if (!overlay || !input || !resultsEl) return;
+
+        const WEIGHTS = { title: 10, tags: 6, category: 5, description: 4, body: 1 };
+        let index = null;
+        let activeIndex = -1;
+        let current = [];
+
+        const escapeHtml = (s) => String(s).replace(/[&<>"']/g, c =>
+            ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+        const highlight = (text, terms) => {
+            const esc = escapeHtml(text);
+            const safe = terms.map(t => t.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).filter(Boolean);
+            if (!safe.length) return esc;
+            return esc.replace(new RegExp('(' + safe.join('|') + ')', 'gi'), '<mark>$1</mark>');
+        };
+
+        function loadIndex() {
+            if (index) return Promise.resolve(index);
+            // Resolve the search index from the site root (user-pages deploy at "/").
+            const base = (window.SITE_BASE_URL || '/').replace(/\/+$/, '') + '/';
+            return fetch(base + 'search-index.json')
+                .then(r => r.ok ? r.json() : [])
+                .then(data => { index = Array.isArray(data) ? data : []; return index; })
+                .catch(() => { index = []; return index; });
+        }
+
+        function scorePost(post, terms) {
+            let score = 0;
+            const f = {
+                title: (post.title || '').toLowerCase(),
+                tags: (post.tags || []).join(' ').toLowerCase(),
+                category: (post.category || '').toLowerCase(),
+                description: (post.description || '').toLowerCase(),
+                body: (post.body || '').toLowerCase(),
+            };
+            terms.forEach(term => {
+                if (f.title.includes(term)) score += WEIGHTS.title * (f.title.startsWith(term) ? 2 : 1);
+                if (f.tags.includes(term)) score += WEIGHTS.tags;
+                if (f.category.includes(term)) score += WEIGHTS.category;
+                if (f.description.includes(term)) score += WEIGHTS.description;
+                if (f.body.includes(term)) score += WEIGHTS.body;
+            });
+            return score;
+        }
+
+        function matchesAll(post, terms) {
+            return terms.every(term =>
+                (post.title || '').toLowerCase().includes(term) ||
+                (post.tags || []).join(' ').toLowerCase().includes(term) ||
+                (post.category || '').toLowerCase().includes(term) ||
+                (post.description || '').toLowerCase().includes(term) ||
+                (post.body || '').toLowerCase().includes(term));
+        }
+
+        function render(query) {
+            const q = (query || '').trim().toLowerCase();
+            const terms = q.split(/\s+/).filter(Boolean);
+            let list;
+            if (!terms.length) {
+                list = (index || []).slice().sort((a, b) => (b.date || '').localeCompare(a.date || '')).slice(0, 6);
+            } else {
+                list = index.filter(p => matchesAll(p, terms))
+                    .map(p => ({ p, s: scorePost(p, terms) }))
+                    .sort((x, y) => y.s - x.s || (y.p.date || '').localeCompare(x.p.date || ''))
+                    .map(x => x.p);
+            }
+            current = list;
+            activeIndex = list.length ? 0 : -1;
+
+            if (!list.length) {
+                resultsEl.innerHTML = q
+                    ? '<div class="search-empty">没有匹配的结果。</div>'
+                    : '<div class="search-empty">暂无文章。</div>';
+                return;
+            }
+            resultsEl.innerHTML = list.map((p, i) => {
+                const cat = escapeHtml(p.category || '博客');
+                const title = highlight(p.title || '', terms);
+                const desc = highlight(p.description || '', terms);
+                const time = p.readingTime || 1;
+                return `<a class="result-item${i === activeIndex ? ' is-active' : ''}" href="/blog/${encodeURIComponent(p.slug)}.html" data-idx="${i}">
+                    <div class="result-head">
+                        <span class="result-cat">${cat}</span>
+                        <span class="result-time">${time} 分钟阅读</span>
+                    </div>
+                    <div class="result-title">${title}</div>
+                    <div class="result-desc">${desc}</div>
+                </a>`;
+            }).join('');
+        }
+
+        function open() {
+            overlay.classList.add('is-open');
+            overlay.setAttribute('aria-hidden', 'false');
+            loadIndex().then(() => render(input.value));
+            setTimeout(() => input.focus(), 60);
+        }
+        function close() {
+            overlay.classList.remove('is-open');
+            overlay.setAttribute('aria-hidden', 'true');
+        }
+        function isOpen() { return overlay.classList.contains('is-open'); }
+
+        trigger && trigger.addEventListener('click', open);
+        overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
+        input.addEventListener('input', () => render(input.value));
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                if (current.length) { activeIndex = (activeIndex + 1) % current.length; updateActive(); }
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                if (current.length) { activeIndex = (activeIndex - 1 + current.length) % current.length; updateActive(); }
+            } else if (e.key === 'Enter') {
+                e.preventDefault();
+                const el = resultsEl.querySelector('.result-item.is-active');
+                if (el) window.location.href = el.getAttribute('href');
+            }
+        });
+
+        function updateActive() {
+            resultsEl.querySelectorAll('.result-item').forEach(el => {
+                const on = Number(el.dataset.idx) === activeIndex;
+                el.classList.toggle('is-active', on);
+                if (on) el.scrollIntoView({ block: 'nearest' });
+            });
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+                e.preventDefault();
+                isOpen() ? close() : open();
+            } else if (e.key === 'Escape' && isOpen()) {
+                close();
+            }
+        });
     }
 
     // Run on DOM ready

@@ -7,6 +7,8 @@
     <script>
     (function(){var t=localStorage.getItem("site-theme");if(!t&&window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches)t="dark";if(!t)t="light";document.documentElement.setAttribute("data-theme",t)})();
     </script>
+    <!-- Expose site base URL for client-side scripts (search index, etc.) -->
+    <script>window.SITE_BASE_URL = "{{ SITE.baseUrl }}";</script>
     <title>{% block title %}{{ page.title.zh or page.title.en or SITE.title }}{% endblock %} — {{ SITE.title }}</title>
     <meta name="description" content="{% block description %}{{ page.description.zh or page.description.en or SITE.description }}{% endblock %}">
     <meta name="generator" content="HanhanWang Static Site Generator">
@@ -97,6 +99,10 @@
                 {% endfor %}
             </ul>
             <div class="nav-actions">
+                <button class="search-trigger" id="searchTrigger" aria-label="搜索" title="搜索 (⌘K)">
+                    <i class="fas fa-search"></i>
+                    <span class="search-trigger-kbd">⌘K</span>
+                </button>
                 <button class="theme-toggle" id="themeToggle" aria-label="切换暗色模式">
                     <i class="fas fa-moon"></i>
                 </button>
@@ -132,6 +138,25 @@
     <button class="back-to-top" id="backToTop" aria-label="回到顶部">
         <i class="fas fa-arrow-up"></i>
     </button>
+
+    <!-- ============================================================
+    GLOBAL SEARCH MODAL (⌘K)
+    ============================================================ -->
+    <div class="search-overlay" id="searchOverlay" aria-hidden="true">
+        <div class="search-modal" role="dialog" aria-modal="true" aria-label="站内搜索">
+            <div class="search-input-wrap">
+                <i class="fas fa-search search-input-icon"></i>
+                <input type="text" id="searchInput" class="search-input"
+                    placeholder="搜索标题、标签或正文…" autocomplete="off" spellcheck="false">
+                <kbd class="search-esc">Esc</kbd>
+            </div>
+            <div class="search-results" id="searchResults"></div>
+            <div class="search-footer">
+                <span><kbd>↑</kbd><kbd>↓</kbd> 选择 · <kbd>↵</kbd> 打开</span>
+                <span>按 Esc 关闭 · ⌘K 唤起全局搜索</span>
+            </div>
+        </div>
+    </div>
 
     <!-- Site JavaScript -->
     <script src="{{ SITE.baseUrl }}/js/main.js"></script>

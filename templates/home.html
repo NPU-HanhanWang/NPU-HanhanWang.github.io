@@ -78,8 +78,15 @@ GITHUB ACTIVITY — contribution heatmap (build-time inline SVG)
     <div class="container">
         <h2 class="section-title"><span class="parallax">GitHub 活跃度</span></h2>
         <p class="section-subtitle">过去一年的代码贡献</p>
-        <div class="ghcal-card">
+        <div class="ghcal-card" data-ghcal-palette="blue">
             {% if stats.github.calendarSvg %}
+            <div class="ghcal-toolbar">
+                <span class="ghcal-palettes" role="group" aria-label="配色方案">
+                    <button type="button" class="gh-pal-btn is-active" data-palette="blue" title="系统蓝" aria-label="系统蓝"></button>
+                    <button type="button" class="gh-pal-btn" data-palette="green" title="森林绿" aria-label="森林绿"></button>
+                    <button type="button" class="gh-pal-btn" data-palette="grape" title="葡萄紫" aria-label="葡萄紫"></button>
+                </span>
+            </div>
             <div class="ghcal-overview">
                 <div class="ghcal-stat">
                     <span class="ghcal-stat-num">{{ stats.github.contributions or 0 }}</span>
