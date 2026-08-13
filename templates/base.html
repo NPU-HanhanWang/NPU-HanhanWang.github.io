@@ -75,10 +75,13 @@
     <!-- ============================================================
     NAVIGATION
     ============================================================ -->
-    <nav id="navbar">
+    <nav id="navbar" aria-label="主导航">
         <div class="container">
-            <a href="{{ SITE.baseUrl }}/" class="logo">{{ SITE.title }}</a>
-            <ul class="nav-links" id="navLinks">
+            <a href="{{ SITE.baseUrl }}/" class="logo" aria-label="{{ SITE.title }} — 首页">
+                <span class="logo-mark" aria-hidden="true">王</span>
+                <span class="logo-text">{{ SITE.title }}</span>
+            </a>
+            <ul class="nav-links" id="navLinks" aria-label="栏目导航">
                 {% set activeNav = {
                     'home': '/',
                     'courses-list': '/courses/',
@@ -93,60 +96,34 @@
                 }[pageType] %}
                 {% for item in SITE.nav %}
                 <li><a href="{{ item.href | baseUrl }}"
-                       {% if item.href == activeNav %}class="active"{% endif %}>
+                       {% if item.href == activeNav %}class="active" aria-current="page"{% endif %}>
                     {{ item.label }}
                 </a></li>
                 {% endfor %}
             </ul>
+            <span class="nav-divider" aria-hidden="true"></span>
             <div class="nav-actions">
-                <button class="search-trigger" id="searchTrigger" aria-label="搜索" title="搜索 (⌘K)">
+                <button class="search-trigger" id="searchTrigger" aria-label="搜索" title="搜索">
                     <i class="fas fa-search"></i>
-                    <span class="search-trigger-kbd">⌘K</span>
+                    <span class="search-trigger-kbd" id="searchKbd">⌘K</span>
                 </button>
-                <button class="theme-toggle" id="themeToggle" aria-label="切换暗色模式">
-                    <i class="fas fa-moon"></i>
+                <button class="theme-toggle" id="themeToggle" aria-label="切换暗色模式" type="button">
+                    <i class="fas fa-moon" data-icon="moon"></i>
+                    <i class="fas fa-sun" data-icon="sun"></i>
                 </button>
-                <div class="hamburger" id="hamburger" aria-label="Toggle navigation menu" role="button" tabindex="0">
+                <button class="hamburger" id="hamburger" aria-label="打开导航菜单" aria-expanded="false" aria-controls="navLinks" type="button">
                     <span></span><span></span><span></span>
-                </div>
+                </button>
             </div>
         </div>
     </nav>
+    <!-- 移动端抽屉遮罩（点击空白处关闭） -->
+    <div class="nav-scrim" id="navScrim" aria-hidden="true"></div>
 
     <!-- ============================================================
     MAIN CONTENT
     ============================================================ -->
     {% block content %}{% endblock %}
-
-    <!-- ============================================================
-    FOOTER
-    ============================================================ -->
-    <footer>
-        <div class="container">
-            <div class="footer-grid">
-                <div class="footer-brand">
-                    <span class="footer-logo">{{ SITE.title }}</span>
-                    <p class="footer-tagline">深度学习 · 强化学习 · 可落地的科研</p>
-                </div>
-                <nav class="footer-nav" aria-label="站点地图">
-                    {% for item in SITE.nav %}
-                    <a href="{{ item.href | baseUrl }}">{{ item.label }}</a>
-                    {% endfor %}
-                </nav>
-                <div class="footer-social">
-                    <span class="footer-social-label">关注</span>
-                    <div class="social-links">
-                        {% for link in SITE.footer.socialLinks %}
-                        <a href="{{ link.href }}" target="_blank" rel="noopener" aria-label="{{ link.label }}">
-                            <i class="fab fa-{{ link.icon }}"></i>
-                        </a>
-                        {% endfor %}
-                    </div>
-                </div>
-            </div>
-            <p class="footer-copy">© {{ currentYear }} Hanhan Wang. Built with ❤️ and Markdown.</p>
-        </div>
-    </footer>
 
     <!-- Back to Top Button -->
     <button class="back-to-top" id="backToTop" aria-label="回到顶部">

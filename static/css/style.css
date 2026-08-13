@@ -22,8 +22,8 @@
     --card-bg: #ffffff;
     --card-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
     --card-shadow-hover: 0 12px 28px rgba(0, 0, 0, 0.10);
-    --nav-bg: rgba(255, 255, 255, 0.72);
-    --nav-shadow: 0 1px 0 rgba(0, 0, 0, 0.06), 0 1px 12px rgba(0, 0, 0, 0.04);
+    --nav-bg: rgba(255, 255, 255, 0.95);
+    --nav-shadow: 0 1px 0 rgba(0, 0, 0, 0.08), 0 2px 16px rgba(0, 0, 0, 0.06), 0 0 0 0.5px rgba(0, 0, 0, 0.04);
     --border-color: #e5e5ea;
     --code-bg: #f2f2f7;
     --code-color: #1d1d1f;
@@ -36,9 +36,6 @@
     --blockquote-border: #0071e3;
     --tag-bg: #e8f2ff;
     --tag-color: #0071e3;
-    --footer-bg: #1d1d1f;
-    --footer-text: rgba(255, 255, 255, 0.8);
-    --footer-muted: rgba(255, 255, 255, 0.5);
     /* transition: 用具体属性替代 `all`，避免触发 layout/paint（高帧率关键） */
     --transition: background-color 0.3s var(--ease-out-quint, ease),
         border-color 0.3s var(--ease-out-quint, ease),
@@ -47,7 +44,9 @@
         transform 0.3s var(--ease-out-quint, ease);
     --border-radius: 18px;
     --border-radius-sm: 12px;
-    --nav-height: 70px;
+    --nav-bar-h: 52px;                                                       /* visible pill/bar height */
+    --nav-float-gap: 14px;                                                   /* top gap when the pill floats */
+    --nav-height: calc(var(--nav-float-gap) + var(--nav-bar-h) + var(--nav-float-gap)); /* total top offset occupied by the nav */
 
     /* ── Apple 缓动令牌（高帧率 · 弹簧手感）── */
     --ease-spring: cubic-bezier(0.34, 1.4, 0.64, 1);       /* 轻微回弹 */
@@ -146,8 +145,8 @@
     --card-shadow: 0 2px 10px rgba(0, 0, 0, 0.45);
     --card-shadow-hover: 0 12px 28px rgba(0, 0, 0, 0.6);
 
-    --nav-bg: rgba(0, 0, 0, 0.72);
-    --nav-shadow: 0 1px 0 rgba(255, 255, 255, 0.08), 0 1px 12px rgba(0, 0, 0, 0.4);
+    --nav-bg: rgba(0, 0, 0, 0.88);
+    --nav-shadow: 0 1px 0 rgba(255, 255, 255, 0.10), 0 2px 16px rgba(0, 0, 0, 0.5);
 
     --border-color: #2c2c2e;
     --code-bg: #2c2c2e;
@@ -162,10 +161,6 @@
     --blockquote-border: #2997ff;
     --tag-bg: #1a2b3d;
     --tag-color: #64b5ff;
-
-    --footer-bg: #0a0a0a;
-    --footer-text: rgba(255, 255, 255, 0.7);
-    --footer-muted: rgba(255, 255, 255, 0.4);
 
     /* ── 玻璃拟态 & 光效 (暗色) ── */
     --card-bg-rgb: 29, 29, 31;
@@ -391,31 +386,48 @@ ul {
 .nav-actions {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 4px;
+    margin-left: auto; /* push the action group to the right end of the pill */
     flex-shrink: 0;
 }
 
+/* Thin vertical separator between the link group and the action group. */
+.nav-divider {
+    width: 1px;
+    height: 20px;
+    background: rgba(125, 125, 135, 0.22);
+    margin: 0 8px 0 6px;
+    flex-shrink: 0;
+}
+[data-theme="dark"] .nav-divider {
+    background: rgba(255, 255, 255, 0.10);
+}
+
 .theme-toggle {
-    background: var(--card-bg);
-    border: none;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border: 0;
+    border-radius: 10px;
+    background: rgba(125, 125, 135, 0.08);
+    color: var(--text);
     cursor: pointer;
-    font-size: 1.1rem;
+    font-size: 0.95rem;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: var(--card-shadow);
-    transition: var(--transition);
-    color: var(--text);
+    transition: background 0.2s ease, color 0.2s ease;
 }
 
 .theme-toggle:hover {
-    background: var(--tag-bg);
+    background: rgba(125, 125, 135, 0.18);
     color: var(--primary);
-    transform: scale(1.05);
 }
+
+/* 明暗图标由 [data-theme] 控制显隐，暗色首屏无需 JS 即可正确显示（消除 FOUC） */
+.theme-toggle .fa-sun { display: none; }
+[data-theme="dark"] .theme-toggle .fa-moon { display: none; }
+[data-theme="dark"] .theme-toggle .fa-sun { display: inline-block; }
 
 /* ============================================================
    READING PROGRESS BAR
@@ -433,126 +445,228 @@ ul {
 }
 
 /* ============================================================
-   NAVIGATION — fixed, glassmorphism effect
+   NAVIGATION — floating glassmorphic pill (Apple Safari / macOS vibe)
+   The outer <nav> is a transparent shell; the pill (#navbar .container)
+   is the visible capsule. Mobile falls back to a full-width bar.
    ============================================================ */
-nav {
+#navbar {
     position: fixed;
     top: 0;
     left: 0;
-    width: 100%;
-    background: var(--nav-bg);
-    backdrop-filter: saturate(180%) blur(20px);
-    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    right: 0;
     z-index: 1000;
-    box-shadow: var(--nav-shadow);
+    padding: var(--nav-float-gap) 0;
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    pointer-events: none; /* let the page receive clicks in the float gap */
     transition: var(--transition);
 }
 
-nav.scrolled {
-    background: rgba(255, 255, 255, 0.72);
-    backdrop-filter: saturate(200%) blur(30px);
-    -webkit-backdrop-filter: saturate(200%) blur(30px);
-    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.05), 0 10px 36px rgba(0, 0, 0, 0.10);
-}
-[data-theme="dark"] nav.scrolled {
-    background: rgba(22, 22, 24, 0.72);
-    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.06), 0 10px 36px rgba(0, 0, 0, 0.45);
-}
-nav.scrolled .logo {
-    font-size: 1.3rem;
-    letter-spacing: -0.03em;
-}
-nav.scrolled .nav-links { gap: 28px; }
-nav.scrolled .nav-links a { font-size: 0.9rem; }
 
-nav .container {
+/* 移动端抽屉遮罩（点击空白处关闭） */
+.nav-scrim {
+    position: fixed;
+    inset: 0;
+    z-index: 999;
+    background: rgba(0, 0, 0, 0.42);
+    -webkit-backdrop-filter: blur(3px);
+    backdrop-filter: blur(3px);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.35s ease, visibility 0.35s ease;
+}
+.nav-scrim.is-open {
+    opacity: 1;
+    visibility: visible;
+}
+@media (min-width: 769px) {
+    .nav-scrim { display: none; }
+}
+
+/* Fallback: 当 backdrop-filter 不支持时，把胶囊设为更高不透明度的实色 */
+@supports not (backdrop-filter: blur(1px)) {
+    #navbar .container {
+        background: rgba(255, 255, 255, 0.96);
+    }
+    [data-theme="dark"] #navbar .container {
+        background: rgba(28, 28, 30, 0.94);
+    }
+}
+
+/* 导航栏文字增强：微妙的 text-shadow 确保在半透明/毛玻璃背景上可读 */
+.logo-text {
+    text-shadow: 0 1px 2px rgba(255, 255, 255, 0.3);
+}
+[data-theme="dark"] .logo-text {
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+.nav-links a {
+    text-shadow: 0 1px 2px rgba(255, 255, 255, 0.25);
+}
+[data-theme="dark"] .nav-links a {
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+}
+
+/* Scrolled: the pill becomes slightly more opaque and lifts more. */
+#navbar.scrolled .container {
+    background: rgba(255, 255, 255, 0.86);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.6),
+        0 1px 2px rgba(0, 0, 0, 0.05),
+        0 12px 36px rgba(0, 0, 0, 0.12),
+        0 28px 70px rgba(0, 0, 0, 0.08);
+}
+[data-theme="dark"] #navbar.scrolled .container {
+    background: rgba(22, 22, 24, 0.78);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.08),
+        0 1px 2px rgba(0, 0, 0, 0.3),
+        0 12px 36px rgba(0, 0, 0, 0.55),
+        0 28px 70px rgba(0, 0, 0, 0.45);
+}
+
+/* The pill: a centered, rounded glassmorphic capsule that holds the nav. */
+#navbar .container {
+    pointer-events: auto;
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-start;
     align-items: center;
-    height: var(--nav-height);
+    gap: 2px;
+    height: var(--nav-bar-h);
+    max-width: 960px;
+    padding: 0 8px 0 12px;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.74);
+    -webkit-backdrop-filter: saturate(180%) blur(24px);
+    backdrop-filter: saturate(180%) blur(24px);
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.6),
+        0 1px 2px rgba(0, 0, 0, 0.04),
+        0 8px 28px rgba(0, 0, 0, 0.09),
+        0 24px 60px rgba(0, 0, 0, 0.06);
+    transition: background 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+}
+[data-theme="dark"] #navbar .container {
+    background: rgba(22, 22, 24, 0.66);
+    border-color: rgba(255, 255, 255, 0.08);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.08),
+        0 1px 2px rgba(0, 0, 0, 0.3),
+        0 8px 28px rgba(0, 0, 0, 0.5),
+        0 24px 60px rgba(0, 0, 0, 0.4);
 }
 
 .logo {
-    font-size: 1.45rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
     font-weight: 600;
     color: var(--text-heading);
-    letter-spacing: -0.02em;
-    transition: color 0.2s ease, font-size 0.3s ease, letter-spacing 0.3s ease;
+    letter-spacing: -0.015em;
+    padding: 0 4px 0 2px;
+    border-radius: 10px;
+    transition: color 0.2s ease;
 }
 
 .logo:hover {
     color: var(--primary);
 }
 
+/* 品牌字标：渐变方块 + 姓名首字，内高光 + 悬停微旋 */
+.logo-mark {
+    display: grid;
+    place-items: center;
+    width: 30px;
+    height: 30px;
+    flex-shrink: 0;
+    border-radius: 9px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    letter-spacing: 0;
+    color: #fff;
+    background: linear-gradient(135deg, var(--primary), var(--primary-light));
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.28),
+        0 2px 6px rgba(var(--glow-color), 0.38);
+    transition: transform 0.25s var(--ease-out-expo), box-shadow 0.25s ease;
+}
+.logo:hover .logo-mark {
+    transform: rotate(-4deg);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.32),
+        0 4px 12px rgba(var(--glow-color), 0.5);
+}
+
+.logo-text {
+    font-size: 1.05rem;
+    line-height: 1;
+    letter-spacing: -0.01em;
+    transition: color 0.2s ease;
+}
+
+/* 干净的链接列表 —— 取消下划线，激活态用圆角底色 */
 .nav-links {
     display: flex;
-    gap: 35px;
+    gap: 2px;
+    margin: 0 4px 0 6px;
 }
 
 .nav-links a {
     font-weight: 500;
-    position: relative;
-    padding: 5px 0;
-    font-size: 0.95rem;
-    transition: color 0.3s ease, font-size 0.3s ease;
+    font-size: 0.9rem;
+    padding: 6px 12px;
+    border-radius: 9px;
     color: var(--text);
+    text-shadow: none; /* pill 自带底色，无需 text-shadow 提亮 */
+    transition: color 0.2s ease, background 0.2s ease;
 }
 
-.nav-links a:hover,
+.nav-links a:hover {
+    color: var(--text-heading);
+    background: rgba(125, 125, 135, 0.10);
+}
+
 .nav-links a.active {
     color: var(--primary);
+    background: rgba(var(--glow-color), 0.12);
 }
 
-.nav-links a::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 2px;
-    background: var(--primary);
-    transform: scaleX(0);
-    transform-origin: left center;
-    transition: transform 0.42s var(--ease-out-expo);
-}
+.nav-links a::after { content: none; }
 
-.nav-links a:hover::after,
-.nav-links a.active::after {
-    transform: scaleX(1);
-}
-
-/* Hamburger menu icon */
+/* 汉堡按钮：与主题切换、搜索触发保持一致的 36×36 圆角方块 */
 .hamburger {
     display: none;
+    width: 36px;
+    height: 36px;
+    align-items: center;
+    justify-content: center;
     flex-direction: column;
+    gap: 5px;
     cursor: pointer;
-    gap: 6px;
-    padding: 5px;
+    background: rgba(125, 125, 135, 0.08);
+    border: 0;
+    border-radius: 10px;
+    margin: 0;
     z-index: 1003;
+    transition: background 0.2s ease;
 }
-
+.hamburger:hover { background: rgba(125, 125, 135, 0.18); }
 .hamburger span {
     display: block;
-    width: 26px;
-    height: 2.5px;
+    width: 18px;
+    height: 2px;
     background: var(--text);
-    border-radius: 5px;
-    transition: var(--transition);
+    border-radius: 2px;
+    transition: transform 0.3s var(--ease-out-expo), opacity 0.2s ease;
     transform-origin: center;
 }
-
-.hamburger.active span:nth-child(1) {
-    transform: translateY(8.5px) rotate(45deg);
-}
-
-.hamburger.active span:nth-child(2) {
-    opacity: 0;
-    transform: scaleX(0);
-}
-
-.hamburger.active span:nth-child(3) {
-    transform: translateY(-8.5px) rotate(-45deg);
-}
+.hamburger.active span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.hamburger.active span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+.hamburger.active span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
 
 /* ============================================================
    HERO SECTION — full viewport, gradient background
@@ -746,12 +860,12 @@ nav .container {
     background-clip: text;
     -webkit-text-fill-color: transparent;
     color: transparent;
-    animation: char-mask-rise 0.85s var(--ease-spring-pop) both,
+    animation: char-mask-rise 0.65s var(--ease-spring-pop) both,
                hero-text-shimmer 7s ease-in-out infinite;
 }
 .hero-text h1 .char-unit {
     display: inline-block;
-    animation: char-mask-rise 0.85s var(--ease-spring-pop) both,
+    animation: char-mask-rise 0.65s var(--ease-spring-pop) both,
                hero-text-shimmer 7s ease-in-out infinite;
 }
 @keyframes char-mask-rise {
@@ -1509,7 +1623,7 @@ nav .container {
 /* ============================================================
    PREV / NEXT NAVIGATION
    ============================================================ */
-.prev-next-nav {
+.prev-next-#navbar {
     display: flex;
     justify-content: space-between;
     gap: 20px;
@@ -1997,45 +2111,8 @@ nav .container {
 }
 
 /* ============================================================
-   FOOTER
+   FOOTER (removed — page ends after main content)
    ============================================================ */
-footer {
-    background: var(--footer-bg);
-    color: var(--footer-text);
-    text-align: center;
-    padding: 35px 0 25px;
-}
-
-.social-links {
-    display: flex;
-    justify-content: center;
-    gap: 22px;
-    margin-bottom: 18px;
-}
-
-.social-links a {
-    width: 42px;
-    height: 42px;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.1);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.2rem;
-    color: white;
-    transition: var(--transition);
-}
-
-.social-links a:hover {
-    background: var(--primary);
-    transform: translateY(-3px);
-    box-shadow: 0 5px 15px rgba(0, 113, 227, 0.35);
-}
-
-footer p {
-    font-size: 0.9rem;
-    color: var(--footer-muted);
-}
 
 /* ============================================================
    BACK TO TOP BUTTON
@@ -2113,8 +2190,17 @@ footer p {
 
 /* Mobile */
 @media (max-width: 768px) {
+    /* [refactor] 移除 #navbar { overflow:hidden } —— nav 带 backdrop-filter 已成为 fixed 抽屉的包含块，
+       原 overflow:hidden 会把向下展开的抽屉裁在 65px 导航盒之外，导致移动端菜单在真机不可见。
+       抽屉的隐藏改由自身 transform + visibility 控制，无需裁剪祖先。 */
     :root {
-        --nav-height: 65px;
+        --nav-bar-h: 56px;
+        --nav-float-gap: 0px;
+    }
+
+    /* 移动端抽屉展开时锁定背景滚动 */
+    body.nav-open {
+        overflow: hidden;
     }
 
     .section {
@@ -2130,38 +2216,76 @@ footer p {
     }
 
     /* Mobile nav */
-    .nav-actions {
-        margin-left: auto;
-        margin-right: 15px;
-    }
-
     .nav-links {
         position: fixed;
-        top: var(--nav-height);
-        right: -100%;
+        top: var(--nav-bar-h);
+        right: 0;
         flex-direction: column;
-        background: var(--nav-bg);
-        backdrop-filter: blur(15px);
-        width: 75%;
-        max-width: 320px;
-        height: calc(100vh - var(--nav-height));
-        padding: 50px 35px;
-        box-shadow: -10px 0 30px rgba(0, 0, 0, 0.1);
-        transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        gap: 30px;
+        background: rgba(255, 255, 255, 0.94);
+        -webkit-backdrop-filter: saturate(180%) blur(24px);
+        backdrop-filter: saturate(180%) blur(24px);
+        width: min(82%, 340px);
+        height: calc(100dvh - var(--nav-bar-h));
+        padding: 22px 16px 32px;
+        border-radius: 18px 0 0 18px;
+        box-shadow: -14px 0 44px rgba(0, 0, 0, 0.18);
+        transition: transform 0.42s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.42s, opacity 0.42s;
+        gap: 2px;
+        transform: translateX(100%);
+        visibility: hidden;
+        pointer-events: none;
+        opacity: 0;
+        /* 关闭态 clip-path 收敛绘制区，避免 off-canvas 抽屉引发横向滚动；
+           展开态由 .active 的 inset(0) 解除，且不再受 nav 祖先 overflow 裁剪。 */
+        clip-path: inset(0 0 0 100%);
+        -webkit-clip-path: inset(0 0 0 100%);
+    }
+    [data-theme="dark"] .nav-links {
+        background: rgba(22, 22, 24, 0.92);
+        box-shadow: -14px 0 44px rgba(0, 0, 0, 0.55);
     }
 
     .nav-links.active {
-        right: 0;
+        transform: translateX(0);
+        visibility: visible;
+        pointer-events: auto;
+        opacity: 1;
+        clip-path: inset(0 0 0 0);
+        -webkit-clip-path: inset(0 0 0 0);
     }
 
     .nav-links a {
-        font-size: 1.1rem;
+        font-size: 1.02rem;
+        padding: 11px 14px;
+        border-radius: 10px;
     }
 
     .hamburger {
         display: flex;
     }
+
+    /* 移动端：胶囊展开为全宽顶部条，让出空间 */
+    #navbar {
+        padding: 0;
+    }
+    #navbar .container {
+        width: 100%;
+        max-width: 100%;
+        margin-left: 0;
+        margin-right: 0;
+        padding: 0 10px 0 14px;
+        border-radius: 0;
+        border-left: 0;
+        border-right: 0;
+        border-top: 0;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+        box-shadow: 0 1px 0 rgba(0, 0, 0, 0.04), 0 6px 18px rgba(0, 0, 0, 0.06);
+    }
+    [data-theme="dark"] #navbar .container {
+        border-bottom-color: rgba(255, 255, 255, 0.08);
+        box-shadow: 0 1px 0 rgba(255, 255, 255, 0.04), 0 6px 18px rgba(0, 0, 0, 0.35);
+    }
+    .nav-divider { display: none; }
 
     /* Hero */
     .hero-content {
@@ -2231,7 +2355,7 @@ footer p {
     }
 
     /* Prev/next */
-    .prev-next-nav {
+    .prev-next-#navbar {
         flex-direction: column;
     }
 
@@ -2718,28 +2842,31 @@ footer p {
 .search-trigger {
     display: inline-flex;
     align-items: center;
-    gap: 7px;
-    height: 38px;
-    padding: 0 10px 0 12px;
-    border: 1px solid var(--border-color);
-    border-radius: 999px;
-    background: rgba(125, 125, 135, 0.12);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    gap: 6px;
+    height: 36px;
+    padding: 0 10px 0 11px;
+    border: 1px solid transparent;
+    border-radius: 10px;
+    background: rgba(125, 125, 135, 0.08);
     color: var(--text-muted);
     cursor: pointer;
-    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.25s ease, color 0.25s ease;
+    transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 }
-.search-trigger:hover { transform: translateY(-1px); background: rgba(125, 125, 135, 0.2); color: var(--text); }
+.search-trigger:hover {
+    background: rgba(125, 125, 135, 0.18);
+    color: var(--text);
+    border-color: rgba(125, 125, 135, 0.18);
+}
 .search-trigger i { font-size: 0.82rem; }
 .search-trigger-kbd {
     font-family: var(--font-mono);
-    font-size: 0.66rem;
+    font-size: 0.62rem;
     line-height: 1;
-    padding: 3px 5px;
-    border-radius: 6px;
-    background: rgba(125, 125, 135, 0.22);
+    padding: 2px 5px;
+    border-radius: 5px;
+    background: rgba(125, 125, 135, 0.18);
     color: var(--text-muted);
+    border: 1px solid rgba(125, 125, 135, 0.15);
 }
 .search-overlay {
     position: fixed;
@@ -3042,7 +3169,7 @@ footer p {
 /* ============================================================
    LAYOUT NORMALIZATION & MOTION ENHANCEMENT (v3)
    8px grid rhythm · three-tier weights · 44pt touch targets ·
-   flattened footer · aspect-ratio CLS guard · CSS view-timeline
+   aspect-ratio CLS guard · CSS view-timeline
    scroll-driven accents (progressive enhancement).
    ============================================================ */
 
@@ -3074,54 +3201,8 @@ footer p {
 }
 .section-title, .card-info h4 { font-weight: var(--weight-semibold); }
 
-/* ---- 4) CLS guard: reserve image boxes ---- */
-.hero-image img { aspect-ratio: 1 / 1; object-fit: cover; }
+/* ---- 4) CLS guard: keep intrinsic ratio, no forced crop ---- */
 .md-content img { height: auto; }
-
-/* ---- 5) Flattened footer (links / social / copy) ---- */
-footer { padding: var(--space-8) 0 var(--space-6); }
-.footer-grid {
-    display: grid;
-    grid-template-columns: 1.3fr 1fr auto;
-    gap: var(--space-8);
-    align-items: start;
-    padding-bottom: var(--space-6);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-    margin-bottom: var(--space-4);
-    text-align: left;
-}
-.footer-logo {
-    font-family: var(--font-display);
-    font-weight: var(--weight-bold);
-    font-size: var(--text-lg);
-    color: #fff;
-    display: block;
-    margin-bottom: var(--space-2);
-}
-.footer-tagline { color: var(--footer-muted); font-size: var(--text-sm); margin: 0; }
-.footer-nav { display: flex; flex-direction: column; gap: var(--space-2); }
-.footer-nav a {
-    color: var(--footer-text);
-    font-size: var(--text-sm);
-    display: inline-block;
-    transition: color 0.2s ease, transform 0.25s var(--ease-apple-out);
-}
-.footer-nav a:hover { color: #fff; transform: translateX(3px); }
-.footer-social-label {
-    color: var(--footer-muted);
-    font-size: var(--text-xs);
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    display: block;
-    margin-bottom: var(--space-2);
-}
-.footer-grid .social-links { margin-bottom: 0; justify-content: flex-start; }
-.footer-copy { text-align: center; }
-@media (max-width: 768px) {
-    .footer-grid { grid-template-columns: 1fr; gap: var(--space-6); text-align: center; }
-    .footer-nav { align-items: center; }
-    .footer-grid .social-links { justify-content: center; }
-}
 
 /* ---- 6) CSS view-timeline scroll-driven accents (progressive) ---- */
 @supports (animation-timeline: view()) {
@@ -3138,4 +3219,3 @@ footer { padding: var(--space-8) 0 var(--space-6); }
         @keyframes hero-bg-fade { to { opacity: 0; } }
     }
 }
-

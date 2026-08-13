@@ -43,12 +43,10 @@
     }
 
     function updateThemeIcon(isDark) {
+        // 明暗图标由 CSS 依据 [data-theme] 控制显隐，这里只更新无障碍标签，
+        // 不再改写 className，避免主题切换瞬间的图标闪烁。
         const toggle = document.getElementById('themeToggle');
         if (!toggle) return;
-        const icon = toggle.querySelector('i');
-        if (icon) {
-            icon.className = isDark ? 'fas fa-sun' : 'fas fa-moon';
-        }
         toggle.setAttribute('aria-label', isDark ? '切换到亮色模式' : '切换到暗色模式');
     }
 
@@ -86,28 +84,76 @@
     }
 
     // ============================================================
-    // MOBILE NAV
+    // MOBILE NAV — drawer with scrim, ESC, focus trap
     // ============================================================
-    function toggleMobileNav() {
+    const mobileNav = (function () {
         const hamburger = document.getElementById('hamburger');
         const navLinks = document.getElementById('navLinks');
-        if (!hamburger || !navLinks) return;
-        const isActive = navLinks.classList.toggle('active');
-        hamburger.classList.toggle('active', isActive);
-        hamburger.setAttribute('aria-expanded', String(isActive));
-        document.body.style.overflow = isActive ? 'hidden' : '';
-    }
+        const scrim = document.getElementById('navScrim');
+        let isOpen = false;
 
-    function closeMobileNav() {
-        const hamburger = document.getElementById('hamburger');
-        const navLinks = document.getElementById('navLinks');
-        if (!navLinks) return;
-        navLinks.classList.remove('active');
-        if (hamburger) {
-            hamburger.classList.remove('active');
-            hamburger.setAttribute('aria-expanded', 'false');
+        function open() {
+            if (!navLinks) return;
+            isOpen = true;
+            navLinks.classList.add('active');
+            if (hamburger) {
+                hamburger.classList.add('active');
+                hamburger.setAttribute('aria-expanded', 'true');
+            }
+            if (scrim) {
+                scrim.classList.add('is-open');
+                scrim.setAttribute('aria-hidden', 'false');
+            }
+            document.body.classList.add('nav-open');
+            const first = navLinks.querySelector('a');
+            if (first) first.focus({ preventScroll: true });
         }
-        document.body.style.overflow = '';
+
+        function close() {
+            if (!navLinks) return;
+            isOpen = false;
+            navLinks.classList.remove('active');
+            if (hamburger) {
+                hamburger.classList.remove('active');
+                hamburger.setAttribute('aria-expanded', 'false');
+            }
+            if (scrim) {
+                scrim.classList.remove('is-open');
+                scrim.setAttribute('aria-hidden', 'true');
+            }
+            document.body.classList.remove('nav-open');
+            if (hamburger) hamburger.focus({ preventScroll: true });
+        }
+
+        function toggle() { isOpen ? close() : open(); }
+
+        return { get isOpen() { return isOpen; }, open, close, toggle };
+    })();
+
+    function toggleMobileNav() { mobileNav.toggle(); }
+    function closeMobileNav() { mobileNav.close(); }
+
+    // ESC 关闭抽屉；Tab 在抽屉内循环焦点（基础焦点陷阱）
+    function handleMobileNavKeys(e) {
+        if (!mobileNav.isOpen) return;
+        if (e.key === 'Escape') {
+            e.preventDefault();
+            mobileNav.close();
+        } else if (e.key === 'Tab') {
+            const navLinks = document.getElementById('navLinks');
+            if (!navLinks) return;
+            const focusable = navLinks.querySelectorAll('a');
+            if (!focusable.length) return;
+            const first = focusable[0];
+            const last = focusable[focusable.length - 1];
+            if (e.shiftKey && document.activeElement === first) {
+                e.preventDefault();
+                last.focus();
+            } else if (!e.shiftKey && document.activeElement === last) {
+                e.preventDefault();
+                first.focus();
+            }
+        }
     }
 
     // ============================================================
@@ -282,11 +328,20 @@
     }
 
     // ============================================================
+    // NAV AUTO-HIDE — 已移除。
+    // 下滑自动隐藏属于未要求的功能，会让用户在浏览时失去导航，造成
+    // “导航消失了/没回来”的体验问题。导航始终常驻。
+    // ============================================================
+
+    // ============================================================
     // SCROLL REVEAL (Apple style fade-up)
     // ============================================================
     function setupScrollReveal() {
         if (!('IntersectionObserver' in window)) return;
         if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+        // 若浏览器原生支持 CSS view-timeline，滚动揭示交由纯 CSS 驱动（渐进增强），
+        // JS 的 IntersectionObserver 方案仅作为不支持浏览器的降级兜底。
+        if (window.CSS && window.CSS.supports && window.CSS.supports('animation-timeline', 'view()')) return;
 
         // Backwards-compatible default entrance: the classic targets fade up
         // unless a template already gave them a specific data-reveal variant.
@@ -343,7 +398,7 @@
     // ============================================================
     // NUMBER COUNTERS — count up when scrolled into view (keynote vibe)
     // ============================================================
-    function animateCount(el) {
+    function animateCount(el, done) {
         const target = parseFloat(el.getAttribute('data-count')) || 0;
         const duration = 1500;
         const start = performance.now();
@@ -355,6 +410,7 @@
                 requestAnimationFrame(tick);
             } else {
                 el.textContent = target;
+                if (done) done();
             }
         }
         requestAnimationFrame(tick);
@@ -368,14 +424,25 @@
         if (reduce || !('IntersectionObserver' in window)) {
             nums.forEach(function (el) {
                 el.textContent = el.getAttribute('data-count');
+                const stat = el.closest('.stat');
+                if (stat) stat.classList.add('is-counted');
             });
             return;
         }
         const io = new IntersectionObserver(function (entries) {
             entries.forEach(function (entry) {
                 if (entry.isIntersecting) {
-                    animateCount(entry.target);
-                    io.unobserve(entry.target);
+                    const el = entry.target;
+                    const stat = el.closest('.stat');
+                    // 数字滚动期间标签淡出，完成后同步淡入（标签与数字节奏同步）
+                    if (stat) stat.classList.add('is-counting');
+                    animateCount(el, function () {
+                        if (stat) {
+                            stat.classList.remove('is-counting');
+                            stat.classList.add('is-counted');
+                        }
+                    });
+                    io.unobserve(el);
                 }
             });
         }, { threshold: 0.5 });
@@ -654,7 +721,7 @@ function setupHeroTitle() {
     const nodes = Array.prototype.slice.call(h1.childNodes);
     h1.innerHTML = '';
     let idx = 0;
-    const STEP = 0.045;
+    const STEP = 0.03;   /* 字符交错节奏：首屏整体 0.8s 内完成 */
 
     // Each glyph lives inside an overflow-hidden mask so it can slide
     // up into view (Apple keynote style) instead of just fading in.
@@ -781,7 +848,7 @@ function setupHeroScroll() {
         setupTypewriter();
         setupHeroScroll();
 
-        // ---- Hamburger menu ----
+        // ---- Mobile drawer ----
         const hamburger = document.getElementById('hamburger');
         if (hamburger) {
             hamburger.addEventListener('click', toggleMobileNav);
@@ -793,23 +860,37 @@ function setupHeroScroll() {
             });
         }
 
-        // Close mobile menu on nav link click
+        // Close drawer when a nav link is tapped
         const navLinks = document.getElementById('navLinks');
         if (navLinks) {
             navLinks.querySelectorAll('a').forEach(link => {
                 link.addEventListener('click', () => {
-                    if (navLinks.classList.contains('active')) {
-                        closeMobileNav();
-                    }
+                    if (mobileNav.isOpen) mobileNav.close();
                 });
             });
         }
+
+        // Tap scrim to dismiss the drawer
+        const navScrim = document.getElementById('navScrim');
+        if (navScrim) {
+            navScrim.addEventListener('click', () => mobileNav.close());
+        }
+
+        // ESC / focus-trap for the drawer
+        document.addEventListener('keydown', handleMobileNavKeys);
 
         // ---- Theme toggle ----
         const themeToggle = document.getElementById('themeToggle');
         if (themeToggle) {
             themeToggle.addEventListener('click', toggleTheme);
         }
+
+        // ---- Platform-aware search shortcut hint ----
+        // macOS shows ⌘K; Windows/Linux show Ctrl K.
+        const isMac = /Mac|iPhone|iPad|iPod/.test(navigator.platform || '') ||
+            (navigator.userAgent || '').includes('Mac');
+        const kbd = document.getElementById('searchKbd');
+        if (kbd && !isMac) kbd.textContent = 'Ctrl K';
 
         // ---- Global ⌘K search ----
         setupGlobalSearch();

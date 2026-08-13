@@ -47,12 +47,6 @@ const SITE_CONFIG = {
     { href: '/blog/', label: '博客', i18nKey: 'nav.blog' },
     { href: '/about/', label: '关于', i18nKey: 'nav.about' },
   ],
-  footer: {
-    text: '© {{ year }} Hanhan Wang. Built with ❤️ and Markdown.',
-    socialLinks: [
-      { href: 'https://github.com/NPU-HanhanWang', icon: 'github', label: 'GitHub' },
-    ],
-  },
   dateFormat: { year: 'numeric', month: 'long', day: 'numeric' },
 };
 
