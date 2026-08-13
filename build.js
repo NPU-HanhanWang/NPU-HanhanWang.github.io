@@ -1107,7 +1107,10 @@ function buildContributionSvg(calendar) {
       }
     }
     (week.contributionDays || []).forEach((day) => {
-      const row = day.weekday; // 0=Sun .. 6=Sat
+      // GitHub GraphQL returns `weekday` as a DayOfWeek enum NAME
+      // ("SUNDAY"…"SATURDAY"), not a 0–6 integer — using it directly made
+      // y = NaN and every cell invisible. Derive the row from the date instead.
+      const row = new Date(day.date + 'T00:00:00').getDay(); // 0=Sun .. 6=Sat
       const y = topPad + row * step;
       const lvl = level(day.contributionCount);
       const isToday = day.date === todayStr;
