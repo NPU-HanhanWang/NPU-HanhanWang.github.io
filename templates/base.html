@@ -123,14 +123,28 @@
     ============================================================ -->
     <footer>
         <div class="container">
-            <div class="social-links">
-                {% for link in SITE.footer.socialLinks %}
-                <a href="{{ link.href }}" target="_blank" rel="noopener" aria-label="{{ link.label }}">
-                    <i class="fab fa-{{ link.icon }}"></i>
-                </a>
-                {% endfor %}
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <span class="footer-logo">{{ SITE.title }}</span>
+                    <p class="footer-tagline">深度学习 · 强化学习 · 可落地的科研</p>
+                </div>
+                <nav class="footer-nav" aria-label="站点地图">
+                    {% for item in SITE.nav %}
+                    <a href="{{ item.href | baseUrl }}">{{ item.label }}</a>
+                    {% endfor %}
+                </nav>
+                <div class="footer-social">
+                    <span class="footer-social-label">关注</span>
+                    <div class="social-links">
+                        {% for link in SITE.footer.socialLinks %}
+                        <a href="{{ link.href }}" target="_blank" rel="noopener" aria-label="{{ link.label }}">
+                            <i class="fab fa-{{ link.icon }}"></i>
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
             </div>
-            <p>© {{ currentYear }} Hanhan Wang. Built with ❤️ and Markdown.</p>
+            <p class="footer-copy">© {{ currentYear }} Hanhan Wang. Built with ❤️ and Markdown.</p>
         </div>
     </footer>
 

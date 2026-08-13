@@ -65,6 +65,44 @@
     --blur-in: 14px;                                         /* 模糊入场强度 */
     --stagger-step: 70ms;                                    /* 错落阶梯 */
 
+    /* ── Apple 标准缓动（规格指定）── */
+    --ease-apple: cubic-bezier(0.42, 0, 0.58, 1);            /* 对称进出 */
+    --ease-apple-out: cubic-bezier(0.25, 0.1, 0.25, 1);      /* 平滑收尾 */
+
+    /* ── 8px 间距网格系统 ── */
+    --space-1: 8px;
+    --space-2: 16px;
+    --space-3: 24px;
+    --space-4: 32px;
+    --space-6: 48px;
+    --space-8: 64px;
+    --space-10: 80px;
+    --space-12: 96px;
+
+    /* ── 模块化字号标尺（≈1.25 微调比，视觉接近黄金分割的层级感）── */
+    --text-xs: 0.8rem;
+    --text-sm: 0.95rem;
+    --text-base: 1.05rem;
+    --text-lg: 1.25rem;
+    --text-xl: 1.55rem;
+    --text-2xl: 1.95rem;
+    --text-3xl: 2.45rem;
+    --text-4xl: 3.05rem;
+    --text-hero: 3.5rem;
+
+    /* ── 三层字重对比 ── */
+    --weight-regular: 400;
+    --weight-semibold: 600;
+    --weight-bold: 700;
+
+    /* ── 触摸目标（Apple HIG 最小 44pt）── */
+    --touch-min: 44px;
+
+    /* ── 毛玻璃分层材质 ── */
+    --glass-blur-light: blur(12px) saturate(160%);
+    --glass-blur-medium: blur(20px) saturate(180%);
+    --glass-blur-strong: blur(28px) saturate(190%);
+
     /* ── Apple 字体栈 ── */
     --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display",
         "Helvetica Neue", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
@@ -2041,7 +2079,7 @@ footer p {
    ============================================================ */
 
 /* Tablet & small desktop */
-@media (max-width: 992px) {
+@media (max-width: 1023px) {
     .hero-content {
         gap: 12px;
     }
@@ -3000,4 +3038,104 @@ footer p {
 }
 .md-content a:not(.btn):not(:has(img)):not(:has(svg)):hover,
 .card-title-link:hover { background-size: 100% 1.5px; }
+
+/* ============================================================
+   LAYOUT NORMALIZATION & MOTION ENHANCEMENT (v3)
+   8px grid rhythm · three-tier weights · 44pt touch targets ·
+   flattened footer · aspect-ratio CLS guard · CSS view-timeline
+   scroll-driven accents (progressive enhancement).
+   ============================================================ */
+
+/* ---- 1) Touch targets: Apple HIG 44pt minimum ---- */
+.theme-toggle,
+.search-trigger,
+.social-links a {
+    min-width: var(--touch-min);
+    min-height: var(--touch-min);
+}
+.search-trigger { height: var(--touch-min); }
+@media (max-width: 768px) {
+    .back-to-top { min-width: var(--touch-min); min-height: var(--touch-min); }
+}
+
+/* ---- 2) 8px grid rhythm ---- */
+.stats-grid { gap: var(--space-3); }
+.stat { padding: var(--space-3) var(--space-2); }
+.card-info { padding: var(--space-3); }
+.section { padding: var(--space-12) 0; }        /* 96px top/bottom breathing */
+@media (max-width: 768px) {
+    .section { padding: var(--space-10) 0; }    /* 80px on mobile */
+    .card-info { padding: var(--space-3) var(--space-2); }
+}
+
+/* ---- 3) Three-tier font weights ---- */
+.section-subtitle, .page-header .subtitle, .card-info p, .stat-label {
+    font-weight: var(--weight-regular);
+}
+.section-title, .card-info h4 { font-weight: var(--weight-semibold); }
+
+/* ---- 4) CLS guard: reserve image boxes ---- */
+.hero-image img { aspect-ratio: 1 / 1; object-fit: cover; }
+.md-content img { height: auto; }
+
+/* ---- 5) Flattened footer (links / social / copy) ---- */
+footer { padding: var(--space-8) 0 var(--space-6); }
+.footer-grid {
+    display: grid;
+    grid-template-columns: 1.3fr 1fr auto;
+    gap: var(--space-8);
+    align-items: start;
+    padding-bottom: var(--space-6);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    margin-bottom: var(--space-4);
+    text-align: left;
+}
+.footer-logo {
+    font-family: var(--font-display);
+    font-weight: var(--weight-bold);
+    font-size: var(--text-lg);
+    color: #fff;
+    display: block;
+    margin-bottom: var(--space-2);
+}
+.footer-tagline { color: var(--footer-muted); font-size: var(--text-sm); margin: 0; }
+.footer-nav { display: flex; flex-direction: column; gap: var(--space-2); }
+.footer-nav a {
+    color: var(--footer-text);
+    font-size: var(--text-sm);
+    display: inline-block;
+    transition: color 0.2s ease, transform 0.25s var(--ease-apple-out);
+}
+.footer-nav a:hover { color: #fff; transform: translateX(3px); }
+.footer-social-label {
+    color: var(--footer-muted);
+    font-size: var(--text-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    display: block;
+    margin-bottom: var(--space-2);
+}
+.footer-grid .social-links { margin-bottom: 0; justify-content: flex-start; }
+.footer-copy { text-align: center; }
+@media (max-width: 768px) {
+    .footer-grid { grid-template-columns: 1fr; gap: var(--space-6); text-align: center; }
+    .footer-nav { align-items: center; }
+    .footer-grid .social-links { justify-content: center; }
+}
+
+/* ---- 6) CSS view-timeline scroll-driven accents (progressive) ---- */
+@supports (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) {
+        .hero { timeline-scope: --heroBgTL; }
+        .hero-grid {
+            view-timeline-name: --heroBgTL;
+            animation-name: hero-bg-fade;
+            animation-timing-function: linear;
+            animation-fill-mode: both;
+            animation-timeline: --heroBgTL;
+            animation-range: exit 0% exit 100%;
+        }
+        @keyframes hero-bg-fade { to { opacity: 0; } }
+    }
+}
 
