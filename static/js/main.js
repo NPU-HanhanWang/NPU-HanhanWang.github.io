@@ -758,9 +758,6 @@ function setupHeroScroll() {
             themeToggle.addEventListener('click', toggleTheme);
         }
 
-        // ---- GitHub heatmap palette switcher ----
-        setupGhcalPalette();
-
         // ---- Global ⌘K search ----
         setupGlobalSearch();
 
@@ -786,31 +783,6 @@ function setupHeroScroll() {
 
         // Initial scroll state
         updateScrollChrome();
-    }
-
-    // ───────────────────────────────────────────────────────────
-    // GitHub heatmap palette switcher (blue / green / grape)
-    // ───────────────────────────────────────────────────────────
-    function setupGhcalPalette() {
-        const card = document.querySelector('.ghcal-card[data-ghcal-palette]');
-        if (!card) return;
-        const KEY = 'ghcal-palette';
-        const saved = localStorage.getItem(KEY);
-        if (saved) card.setAttribute('data-ghcal-palette', saved);
-        const sync = () => {
-            const cur = card.getAttribute('data-ghcal-palette');
-            card.querySelectorAll('.gh-pal-btn').forEach(b => {
-                b.classList.toggle('is-active', b.dataset.palette === cur);
-            });
-        };
-        sync();
-        card.querySelectorAll('.gh-pal-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                card.setAttribute('data-ghcal-palette', btn.dataset.palette);
-                localStorage.setItem(KEY, btn.dataset.palette);
-                sync();
-            });
-        });
     }
 
     // ───────────────────────────────────────────────────────────
