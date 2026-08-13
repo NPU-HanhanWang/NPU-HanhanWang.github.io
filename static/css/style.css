@@ -58,6 +58,13 @@
     --dur-base: 0.5s;
     --dur-slow: 0.8s;
 
+    /* ── Motion System v2：弹簧物理 · 模糊 · 错落 · 揭示 ── */
+    --ease-spring-pop: cubic-bezier(0.34, 1.56, 0.64, 1);   /* 明显回弹 */
+    --ease-in-quart: cubic-bezier(0.5, 0, 0.75, 0);         /* 加速离场 */
+    --dur-reveal: 0.9s;                                      /* 入场编排主时长 */
+    --blur-in: 14px;                                         /* 模糊入场强度 */
+    --stagger-step: 70ms;                                    /* 错落阶梯 */
+
     /* ── Apple 字体栈 ── */
     --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display",
         "Helvetica Neue", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
@@ -463,15 +470,17 @@ nav .container {
     position: absolute;
     bottom: 0;
     left: 0;
-    width: 0;
+    width: 100%;
     height: 2px;
     background: var(--primary);
-    transition: width 0.3s ease;
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform 0.42s var(--ease-out-expo);
 }
 
 .nav-links a:hover::after,
 .nav-links a.active::after {
-    width: 100%;
+    transform: scaleX(1);
 }
 
 /* Hamburger menu icon */
@@ -684,6 +693,13 @@ nav .container {
     background: none;
     -webkit-text-fill-color: inherit;
 }
+/* Masked per-character reveal: each glyph slides up out of an
+   overflow-hidden window with a soft blur (Apple keynote style). */
+.hero-text h1 .char-mask {
+    display: inline-block;
+    overflow: hidden;
+    vertical-align: bottom;
+}
 .hero-text h1 .char {
     display: inline-block;
     background: linear-gradient(100deg, var(--primary) 0%, var(--primary-light) 28%, #5ac8fa 60%, var(--primary) 100%);
@@ -692,17 +708,17 @@ nav .container {
     background-clip: text;
     -webkit-text-fill-color: transparent;
     color: transparent;
-    animation: hero-char-rise 0.7s var(--ease-spring) both,
+    animation: char-mask-rise 0.85s var(--ease-spring-pop) both,
                hero-text-shimmer 7s ease-in-out infinite;
 }
 .hero-text h1 .char-unit {
     display: inline-block;
-    animation: hero-char-rise 0.7s var(--ease-spring) both,
+    animation: char-mask-rise 0.85s var(--ease-spring-pop) both,
                hero-text-shimmer 7s ease-in-out infinite;
 }
-@keyframes hero-char-rise {
-    from { opacity: 0; transform: translateY(0.62em) scale(0.9); }
-    to   { opacity: 1; transform: translateY(0) scale(1); }
+@keyframes char-mask-rise {
+    from { opacity: 0; transform: translateY(118%) scale(0.94); filter: blur(7px); }
+    to   { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
 }
 
 .hero-text .subtitle {
@@ -2882,4 +2898,106 @@ footer p {
     }
     body { opacity: 1 !important; animation: none !important; }
 }
+
+/* ============================================================
+   APPLE MOTION SYSTEM v2
+   Cross-page View Transitions · unified reveal primitives ·
+   scroll-scrubbed hero parallax · premium micro-interactions.
+   Everything degrades gracefully: unsupported browsers simply
+   ignore these rules, and prefers-reduced-motion disables all
+   motion via the global guard above + explicit overrides below.
+   ============================================================ */
+
+/* ---- 1) Cross-page View Transitions (silky MPA page swap) ---- */
+@view-transition { navigation: auto; }
+
+@media (prefers-reduced-motion: no-preference) {
+    ::view-transition-old(root) { animation: vt-page-out 0.38s var(--ease-in-quart) both; }
+    ::view-transition-new(root) { animation: vt-page-in 0.55s var(--ease-out-expo) both; }
+    @keyframes vt-page-out { to   { opacity: 0; transform: translateY(-14px) scale(0.995); } }
+    @keyframes vt-page-in  { from { opacity: 0; transform: translateY(16px) scale(0.995); } }
+}
+@media (prefers-reduced-motion: reduce) {
+    ::view-transition-old(root),
+    ::view-transition-new(root) { animation: none !important; }
+}
+
+/* ---- 2) Unified reveal primitives (data-reveal="...") ---- */
+@media (prefers-reduced-motion: no-preference) {
+    [data-reveal] {
+        opacity: 0;
+        transition:
+            opacity var(--dur-reveal) var(--ease-out-expo),
+            transform var(--dur-reveal) var(--ease-out-expo),
+            filter var(--dur-reveal) var(--ease-out-expo);
+        will-change: opacity, transform;
+    }
+    [data-reveal="fade-up"]     { transform: translate3d(0, 30px, 0); }
+    [data-reveal="fade"]        { transform: none; }
+    [data-reveal="scale"]       { transform: scale(0.92); }
+    [data-reveal="zoom"]        { transform: scale(1.08); }
+    [data-reveal="slide-left"]  { transform: translate3d(-38px, 0, 0); }
+    [data-reveal="slide-right"] { transform: translate3d(38px, 0, 0); }
+    [data-reveal="blur"]        { transform: translate3d(0, 22px, 0) scale(0.98); filter: blur(var(--blur-in)); }
+
+    [data-reveal].revealed {
+        opacity: 1;
+        transform: none;
+        filter: blur(0);
+    }
+    /* entrance finished → release the compositor layer (perf) */
+    [data-reveal].revealed.done { will-change: auto; }
+}
+
+/* ---- 3) Scroll-scrubbed hero backdrop parallax wrapper ---- */
+.hero-bg {
+    position: absolute;
+    inset: -60px 0;         /* bleed so parallax never exposes edges */
+    z-index: 0;
+    pointer-events: none;
+    will-change: transform;
+}
+
+/* ---- 4) Premium micro-interactions ---- */
+/* Button sheen: a soft highlight glides across on hover */
+.btn { position: relative; overflow: hidden; }
+.btn::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -70%;
+    width: 45%;
+    height: 100%;
+    background: linear-gradient(105deg, transparent, rgba(255, 255, 255, 0.38), transparent);
+    transform: skewX(-20deg);
+    transition: left 0.65s var(--ease-out-expo);
+    pointer-events: none;
+    z-index: 1;
+}
+.btn-outline::after {
+    background: linear-gradient(105deg, transparent, rgba(var(--glow-color), 0.18), transparent);
+}
+.btn:hover::after { left: 130%; }
+
+/* Tag chips spring on hover */
+.card-tags span {
+    transition: transform 0.28s var(--ease-spring-pop),
+                background-color 0.2s ease,
+                color 0.2s ease;
+}
+.card-tags span:hover { transform: translateY(-2px) scale(1.07); }
+
+/* Inline-link underline that grows in from the left (Apple style) */
+.md-content a:not(.btn):not(:has(img)):not(:has(svg)),
+.card-title-link {
+    text-decoration: none;
+    background-image: linear-gradient(currentColor, currentColor);
+    background-size: 0% 1.5px;
+    background-repeat: no-repeat;
+    background-position: 0 100%;
+    padding-bottom: 1px;
+    transition: background-size 0.4s var(--ease-out-expo), color 0.2s ease;
+}
+.md-content a:not(.btn):not(:has(img)):not(:has(svg)):hover,
+.card-title-link:hover { background-size: 100% 1.5px; }
 

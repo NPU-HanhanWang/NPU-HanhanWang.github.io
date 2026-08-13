@@ -287,13 +287,22 @@
     function setupScrollReveal() {
         if (!('IntersectionObserver' in window)) return;
         if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+        // Backwards-compatible default entrance: the classic targets fade up
+        // unless a template already gave them a specific data-reveal variant.
+        document.querySelectorAll('.card, .blog-item, .info-item, .chapter-item, .section-title, .stat, .ghcal-card')
+            .forEach(function (el) {
+                if (!el.hasAttribute('data-reveal')) el.setAttribute('data-reveal', 'fade-up');
+            });
+
         // Exclude cards inside horizontal scroll rows — they can sit off-screen
         // horizontally and would otherwise never trigger the reveal.
-        const all = document.querySelectorAll('.card, .blog-item, .info-item, .chapter-item, .section-title, .stat, .ghcal-card');
+        const all = document.querySelectorAll('[data-reveal]');
         const targets = Array.prototype.filter.call(all, function (el) {
             return !el.closest('.h-scroll');
         });
         if (targets.length === 0) return;
+
         // Staggered entrance: siblings animate in sequence (Apple vibe)
         const groups = {};
         targets.forEach(function (el) {
@@ -304,30 +313,31 @@
             groups[key].push(el);
             if (idx > 0) el.style.transitionDelay = (idx * 70) + 'ms';
         });
+
         const io = new IntersectionObserver(function (entries) {
             entries.forEach(function (entry) {
                 if (entry.isIntersecting) {
                     const el = entry.target;
                     // Promote to its own compositor layer only for the entrance,
                     // then release it on transitionend to keep memory/GPU healthy.
-                    el.style.willChange = 'transform, opacity';
+                    el.style.willChange = 'transform, opacity, filter';
                     el.classList.add('revealed');
                     const release = function () {
                         el.classList.add('done');
                         el.style.willChange = 'auto';
+                        // Clear the stagger delay so later hovers feel instant.
+                        el.style.transitionDelay = '';
                         el.removeEventListener('transitionend', release);
                     };
                     el.addEventListener('transitionend', release);
                     // Fallback in case transitionend doesn't fire (e.g. interrupted)
-                    setTimeout(release, 1000);
+                    setTimeout(release, 1400);
                     io.unobserve(el);
                 }
             });
         }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
-        targets.forEach(function (el) {
-            el.classList.add('reveal');
-            io.observe(el);
-        });
+
+        targets.forEach(function (el) { io.observe(el); });
     }
 
     // ============================================================
@@ -506,6 +516,32 @@
     }
 
 // ============================================================
+// SCROLL SCRUB — hero backdrop parallax (continuous, scroll-linked)
+// The .hero-bg wrapper drifts slower than the foreground content,
+// producing a sense of depth. Gated to hover devices & no
+// reduced-motion; driven by the single central rAF scheduler.
+// ============================================================
+function setupScrollScrub() {
+    const bg = document.querySelector('.hero-bg');
+    if (!bg) return;
+    const reduce = window.matchMedia &&
+        window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const noHover = window.matchMedia &&
+        window.matchMedia('(hover: none)').matches;
+    if (reduce || noHover) return;
+    const hero = bg.closest('.hero') || bg.parentElement;
+    function update() {
+        const rect = hero.getBoundingClientRect();
+        // p: 0 when the hero's top reaches the viewport top → 1 after a
+        // full hero-height of scroll. The backdrop sinks as you scroll.
+        const p = Math.min(Math.max(-rect.top / rect.height, 0), 1);
+        bg.style.transform = 'translate3d(0, ' + (p * 48) + 'px, 0)';
+    }
+    onScrollFrame(update);
+    update();
+}
+
+// ============================================================
 // STARFIELD — lightweight canvas particle backdrop in the hero
 // (Apple/tech vibe: drifting nodes + faint connective lines)
 // Gated to hover devices & no reduced-motion preference; pauses
@@ -619,6 +655,16 @@ function setupHeroTitle() {
     h1.innerHTML = '';
     let idx = 0;
     const STEP = 0.045;
+
+    // Each glyph lives inside an overflow-hidden mask so it can slide
+    // up into view (Apple keynote style) instead of just fading in.
+    function wrapInMask(inner) {
+        const mask = document.createElement('span');
+        mask.className = 'char-mask';
+        mask.appendChild(inner);
+        return mask;
+    }
+
     nodes.forEach(function (node) {
         if (node.nodeType === 3) { // text node
             const text = node.textContent;
@@ -627,13 +673,13 @@ function setupHeroTitle() {
                 span.className = 'char';
                 span.textContent = (ch === ' ') ? ' ' : ch;
                 span.style.animationDelay = (idx * STEP) + 's';
-                h1.appendChild(span);
+                h1.appendChild(wrapInMask(span));
                 idx++;
             }
         } else if (node.nodeType === 1) { // element (e.g. .highlight)
             node.classList.add('char-unit');
             node.style.animationDelay = (idx * STEP) + 's';
-            h1.appendChild(node);
+            h1.appendChild(wrapInMask(node));
             idx += Math.max(1, node.textContent.length);
         }
     });
@@ -724,6 +770,9 @@ function setupHeroScroll() {
 
         // Subtle parallax on section titles
         setupParallax();
+
+        // Continuous scroll-scrubbed hero backdrop parallax
+        setupScrollScrub();
 
         // Canvas starfield backdrop in the hero
         setupStarfield();
