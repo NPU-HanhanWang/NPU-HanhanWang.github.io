@@ -80,6 +80,18 @@ marked.setOptions({
   mangle: false,
 });
 
+// Inject loading="lazy" + decoding="async" into content images so the
+// browser defers offscreen images (extreme-performance win on long posts).
+function lazyImages(html) {
+  if (!html) return html;
+  return html.replace(/<img\b([^>]*)>/gi, (full, attrs) => {
+    let a = attrs;
+    if (!/\bloading=/.test(a)) a = ' loading="lazy"' + a;
+    if (!/\bdecoding=/.test(a)) a = ' decoding="async"' + a;
+    return '<img' + a + '>';
+  });
+}
+
 
 // ─── Nunjucks setup ──────────────────────────────────────────────────────────
 const nunjucksEnv = nunjucks.configure(TEMPLATES_DIR, {
@@ -291,7 +303,7 @@ function parseBilingualContent(filePath) {
     return {
       raw: parsed.content,
       frontmatter: parsed.data,
-      html: marked.parse(parsed.content),
+      html: lazyImages(marked.parse(parsed.content)),
     };
   };
 

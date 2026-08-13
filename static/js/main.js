@@ -244,9 +244,31 @@
     }
 
     // ============================================================
-    // SCROLL HANDLER
+    // CENTRAL SCROLL DISPATCHER (single rAF-batched listener)
+    // All scroll-driven work funnels through ONE passive listener so the
+    // browser only schedules one rAF per frame and reads layout once.
     // ============================================================
-    function onScroll() {
+    const _scrollSubs = [];
+    let _scrollScheduled = false;
+    function _processScroll() {
+        _scrollScheduled = false;
+        for (let i = 0; i < _scrollSubs.length; i++) {
+            try { _scrollSubs[i](); } catch (e) { /* keep others alive */ }
+        }
+    }
+    function onScrollFrame(fn) { _scrollSubs.push(fn); }
+    function scheduleScroll() {
+        if (!_scrollScheduled) {
+            _scrollScheduled = true;
+            requestAnimationFrame(_processScroll);
+        }
+    }
+    window.addEventListener('scroll', scheduleScroll, { passive: true });
+
+    // ============================================================
+    // SCROLL HANDLER — navbar state, back-to-top, reading progress
+    // ============================================================
+    function updateScrollChrome() {
         const navbar = document.getElementById('navbar');
         const backToTopBtn = document.getElementById('backToTop');
 
@@ -285,8 +307,20 @@
         const io = new IntersectionObserver(function (entries) {
             entries.forEach(function (entry) {
                 if (entry.isIntersecting) {
-                    entry.target.classList.add('revealed');
-                    io.unobserve(entry.target);
+                    const el = entry.target;
+                    // Promote to its own compositor layer only for the entrance,
+                    // then release it on transitionend to keep memory/GPU healthy.
+                    el.style.willChange = 'transform, opacity';
+                    el.classList.add('revealed');
+                    const release = function () {
+                        el.classList.add('done');
+                        el.style.willChange = 'auto';
+                        el.removeEventListener('transitionend', release);
+                    };
+                    el.addEventListener('transitionend', release);
+                    // Fallback in case transitionend doesn't fire (e.g. interrupted)
+                    setTimeout(release, 1000);
+                    io.unobserve(el);
                 }
             });
         }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
@@ -402,8 +436,9 @@
 
         // ── Magnetic buttons ──
         document.querySelectorAll('.btn').forEach(function (btn) {
-            btn.style.transition =
-                'transform 0.18s ease-out, background 0.25s ease, box-shadow 0.25s ease';
+            const trackEase = 'transform 0.18s var(--ease-out-quint), background-color 0.25s ease, box-shadow 0.25s ease';
+            const releaseEase = 'transform 0.55s var(--ease-spring), background-color 0.25s ease, box-shadow 0.25s ease';
+            btn.style.transition = trackEase;
             btn.addEventListener('mousemove', function (e) {
                 const r = btn.getBoundingClientRect();
                 const mx = e.clientX - r.left - r.width / 2;
@@ -412,6 +447,7 @@
                     'translate(' + (mx * 0.18) + 'px, ' + (my * 0.28) + 'px)';
             });
             btn.addEventListener('mouseleave', function () {
+                btn.style.transition = releaseEase;
                 btn.style.transform = '';
             });
         });
@@ -431,10 +467,13 @@
                 const r = el.getBoundingClientRect();
                 const px = (e.clientX - r.left) / r.width - 0.5;
                 const py = (e.clientY - r.top) / r.height - 0.5;
+                el.style.transition = 'none'; // track the cursor with zero lag
                 el.style.transform =
                     'perspective(900px) rotateX(' + (-py * 4) + 'deg) rotateY(' + (px * 4) + 'deg)';
             });
             el.addEventListener('mouseleave', function () {
+                // springy, GPU-composited return to rest
+                el.style.transition = 'transform 0.5s var(--ease-spring)';
                 el.style.transform = '';
             });
         });
@@ -452,7 +491,6 @@
         if (reduce || noHover) return;
         const items = document.querySelectorAll('.parallax');
         if (items.length === 0) return;
-        let raf = null;
         function update() {
             const vh = window.innerHeight;
             items.forEach(function (el) {
@@ -462,11 +500,8 @@
                 const y = Math.max(-18, Math.min(18, off * -24));
                 el.style.transform = 'translate3d(0, ' + y + 'px, 0)';
             });
-            raf = null;
         }
-        window.addEventListener('scroll', function () {
-            if (!raf) raf = requestAnimationFrame(update);
-        }, { passive: true });
+        onScrollFrame(update);
         update();
     }
 
@@ -651,17 +686,13 @@ function setupHeroScroll() {
     const noHover = window.matchMedia &&
         window.matchMedia('(hover: none)').matches;
     if (reduce || noHover) return;
-    let raf = null;
     function update() {
         const rect = hero.getBoundingClientRect();
         const p = Math.min(Math.max(-rect.top / rect.height, 0), 1);
         content.style.transform = 'scale(' + (1 - p * 0.12) + ')';
         content.style.opacity = String(1 - p * 0.85);
-        raf = null;
     }
-    window.addEventListener('scroll', function () {
-        if (!raf) raf = requestAnimationFrame(update);
-    }, { passive: true });
+    onScrollFrame(update);
     update();
 }
 
@@ -741,8 +772,8 @@ function setupHeroScroll() {
             });
         }
 
-        // ---- Scroll handler ----
-        window.addEventListener('scroll', onScroll, { passive: true });
+        // ---- Scroll handler (central rAF dispatcher) ----
+        onScrollFrame(updateScrollChrome);
 
         // ---- Mermaid diagrams ----
         renderMermaidDiagrams();
@@ -754,7 +785,7 @@ function setupHeroScroll() {
         setupTableWrappers();
 
         // Initial scroll state
-        onScroll();
+        updateScrollChrome();
     }
 
     // ───────────────────────────────────────────────────────────
