@@ -61,66 +61,6 @@ STATS STRIP — animated counters (Apple keynote vibe)
             <span class="stat-number" data-count="{{ stats.chapters }}">0</span>
             <span class="stat-label">课程章节</span>
         </div>
-        <div class="stat">
-            <span class="stat-number" data-count="{{ stats.github.repos }}">0</span>
-            <span class="stat-label">GitHub 仓库</span>
-        </div>
-        {% if stats.github.contributions > 0 %}
-        <div class="stat">
-            <span class="stat-number" data-count="{{ stats.github.contributions }}">0</span>
-            <span class="stat-label">年度贡献</span>
-        </div>
-        {% endif %}
-    </div>
-</section>
-
-<!-- ============================================================
-GITHUB ACTIVITY — contribution heatmap (build-time inline SVG)
-============================================================ -->
-<section class="section ghcal-section" id="github-activity" data-nav="GitHub">
-    <div class="container">
-        <h2 class="section-title"><span class="parallax">GitHub 活跃度</span></h2>
-        <p class="section-subtitle" data-reveal="fade">过去一年的代码贡献</p>
-        <div class="ghcal-card" data-reveal="blur">
-            {% if stats.github.calendarSvg %}
-            <div class="ghcal-overview">
-                <div class="ghcal-stat">
-                    <span class="ghcal-stat-num">{{ stats.github.contributions or 0 }}</span>
-                    <span class="ghcal-stat-label">总贡献 · 近一年</span>
-                </div>
-                <div class="ghcal-stat">
-                    <span class="ghcal-stat-num">{{ stats.github.currentStreak or 0 }}</span>
-                    <span class="ghcal-stat-label">当前连续 (天)</span>
-                </div>
-                <div class="ghcal-stat">
-                    <span class="ghcal-stat-num">{{ stats.github.longestStreak or 0 }}</span>
-                    <span class="ghcal-stat-label">最长连续 (天)</span>
-                </div>
-                <div class="ghcal-stat">
-                    <span class="ghcal-stat-num">{{ stats.github.activeDays or 0 }}</span>
-                    <span class="ghcal-stat-label">活跃天数</span>
-                </div>
-            </div>
-            <div class="ghcal-canvas">
-                <div class="ghcal-scroll">
-                    <div class="ghcal-wrap">{{ stats.github.calendarSvg | safe }}</div>
-                </div>
-            </div>
-            <div class="ghcal-legend">
-                <span class="ghcal-total"><i class="fas fa-circle"></i> {{ stats.github.contributions or 0 }} 次贡献 · 过去一年</span>
-                <span class="ghcal-scale">少
-                    <i class="gh-dot gh-l0"></i><i class="gh-dot gh-l1"></i><i class="gh-dot gh-l2"></i><i class="gh-dot gh-l3"></i><i class="gh-dot gh-l4"></i>
-                    多
-                </span>
-            </div>
-            {% else %}
-            <div class="ghcal-empty">
-                <i class="fab fa-github"></i>
-                <p>配置 <code>GH_CONTRIB_TOKEN</code> 后将自动生成 GitHub 贡献热力图</p>
-                <a href="https://github.com/NPU-HanhanWang" target="_blank" rel="noopener" class="btn btn-outline">前往 GitHub 主页 →</a>
-            </div>
-            {% endif %}
-        </div>
     </div>
 </section>
 

@@ -345,7 +345,7 @@
 
         // Backwards-compatible default entrance: the classic targets fade up
         // unless a template already gave them a specific data-reveal variant.
-        document.querySelectorAll('.card, .blog-item, .info-item, .chapter-item, .section-title, .stat, .ghcal-card')
+        document.querySelectorAll('.card, .blog-item, .info-item, .chapter-item, .section-title, .stat')
             .forEach(function (el) {
                 if (!el.hasAttribute('data-reveal')) el.setAttribute('data-reveal', 'fade-up');
             });
