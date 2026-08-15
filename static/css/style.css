@@ -2653,9 +2653,11 @@ ul {
 .search-trigger {
     display: inline-flex;
     align-items: center;
+    justify-content: space-between;
     gap: 7px;
     height: 36px;
-    padding: 0 13px;
+    min-width: 200px;
+    padding: 0 11px 0 13px;
     border: 1px solid rgba(125, 125, 135, 0.16);
     border-radius: 10px;
     background: rgba(125, 125, 135, 0.08);
@@ -2669,11 +2671,20 @@ ul {
     color: var(--text);
     border-color: rgba(125, 125, 135, 0.26);
 }
-.search-trigger i { font-size: 0.82rem; }
+.search-trigger-hint {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    flex: 1;
+    min-width: 0;
+}
+.search-trigger-hint i { font-size: 0.82rem; }
 .search-trigger-label {
     font-size: 0.85rem;
     font-weight: 500;
     letter-spacing: 0.01em;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 .search-trigger-kbd {
     font-family: var(--font-mono);
@@ -2684,11 +2695,13 @@ ul {
     background: rgba(125, 125, 135, 0.18);
     color: var(--text-muted);
     border: 1px solid rgba(125, 125, 135, 0.15);
+    flex: none;
 }
 /* 移动端：回到仅图标的紧凑方块，不显示「搜索」文字 */
 @media (max-width: 768px) {
     .search-trigger-label { display: none; }
     .search-trigger {
+        min-width: 0;
         padding: 0;
         justify-content: center;
         gap: 0;
