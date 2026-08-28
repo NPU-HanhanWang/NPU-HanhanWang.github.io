@@ -1,0 +1,373 @@
+/* ============================================================
+   handbook.css — AI Agent 学习手册（重做样式，主题感知）
+   复用博客设计令牌（--primary / --bg / --text / --border-color /
+   glass-blur / 8px 网格 / 1.618 比例），随站点 light/dark 切换。
+   仅在 handbook 文章页通过 blog-post.html 按 frontmatter 加载。
+   ============================================================ */
+
+/* 手册专用语义色（随主题切换） */
+:root {
+  --hb-green: #0a9d6b;
+  --hb-amber: #b8780a;
+  --hb-toc-w: 300px;
+}
+[data-theme="dark"] {
+  --hb-green: #36d399;
+  --hb-amber: #ffb454;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html { scroll-behavior: smooth; }
+}
+
+.handbook-page {
+  padding-top: var(--nav-height);
+  padding-bottom: 0;
+}
+
+.handbook {
+  display: flex;
+  align-items: flex-start;
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* ─── 左侧目录 TOC ─────────────────────────────────────────── */
+.handbook-toc {
+  flex: 0 0 var(--hb-toc-w);
+  width: var(--hb-toc-w);
+  position: sticky;
+  top: var(--nav-height);
+  align-self: flex-start;
+  height: calc(100vh - var(--nav-height));
+  overflow-y: auto;
+  padding: 40px 18px 60px;
+  border-right: 1px solid var(--border-color);
+  background: color-mix(in srgb, var(--bg) 82%, transparent);
+  -webkit-overflow-scrolling: touch;
+}
+.handbook-toc-inner { width: 100%; }
+
+.handbook-toc-brand {
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: .3px;
+  margin-bottom: 4px;
+  color: var(--text-heading);
+}
+.handbook-toc-brand small {
+  display: block;
+  color: var(--text-muted);
+  font-weight: 400;
+  font-size: 12px;
+  margin-top: 4px;
+  line-height: 1.5;
+}
+.handbook-toc-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--text-muted);
+  margin: 22px 0 8px;
+}
+
+.hb-toc-list,
+.hb-toc-sublist {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.hb-toc-list > li { margin-bottom: 2px; }
+
+.hb-toc-chap {
+  display: block;
+  padding: 7px 10px;
+  border-radius: 10px;
+  color: var(--text);
+  font-weight: 600;
+  font-size: 14px;
+  transition: background .18s var(--ease-out-quint, ease), color .18s;
+}
+.hb-toc-chap:hover { background: color-mix(in srgb, var(--primary) 10%, transparent); text-decoration: none; }
+.hb-toc-chap.active {
+  background: linear-gradient(90deg, color-mix(in srgb, var(--primary) 22%, transparent), color-mix(in srgb, var(--primary) 4%, transparent));
+  color: var(--text-heading);
+  border-left: 3px solid var(--primary);
+  padding-left: 7px;
+}
+
+.hb-toc-sublist {
+  margin: 0;
+  padding: 2px 0 6px 6px;
+  border-left: 1px solid var(--border-color);
+}
+.hb-toc-sub {
+  display: block;
+  padding: 4px 10px;
+  color: var(--text-muted);
+  font-size: 12.5px;
+  border-radius: 8px;
+  transition: background .18s, color .18s;
+}
+.hb-toc-sub:hover { background: color-mix(in srgb, var(--primary) 10%, transparent); color: var(--text); text-decoration: none; }
+.hb-toc-sub.active { color: var(--primary); font-weight: 600; }
+
+/* ─── 右侧正文 ─────────────────────────────────────────────── */
+.handbook-main {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 0 0 120px;
+}
+
+.handbook-hero {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 56px 40px 28px;
+}
+.handbook-hero h1 {
+  font-size: clamp(28px, 4vw, 38px);
+  line-height: 1.3;
+  margin: 0 0 12px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  background: linear-gradient(120deg, var(--text-heading), var(--primary));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.handbook-hero .sub {
+  color: var(--text-muted);
+  font-size: 16px;
+  max-width: 760px;
+  line-height: 1.7;
+}
+.handbook-hero .formula {
+  margin: 28px 0 8px;
+  padding: 22px 26px;
+  border-radius: var(--border-radius, 18px);
+  background: color-mix(in srgb, var(--card-bg) 70%, transparent);
+  border: 1px solid var(--border-color);
+  backdrop-filter: var(--glass-blur-medium, blur(20px));
+  -webkit-backdrop-filter: var(--glass-blur-medium, blur(20px));
+  font-family: var(--font-mono);
+  font-size: 18px;
+  text-align: center;
+  letter-spacing: .5px;
+  color: var(--text);
+}
+.handbook-hero .formula .b { color: var(--primary); }
+.handbook-hero .formula .e { color: var(--hb-green); }
+.handbook-hero .formula .t { color: var(--hb-amber); }
+.handbook-hero .meta {
+  color: var(--text-muted);
+  font-size: 13px;
+  margin-top: 16px;
+}
+
+/* ─── 章节内容排版 ─────────────────────────────────────────── */
+.handbook-content {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 40px;
+  font-size: 16px;
+  line-height: 1.78;
+  color: var(--text);
+}
+.handbook-content .chapter {
+  padding-top: 16px;
+  scroll-margin-top: calc(var(--nav-height) + 16px);
+}
+.handbook-content .chapter > h1,
+.handbook-content h1[id] {
+  font-size: 27px;
+  margin: 28px 0 16px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border-color);
+  font-weight: 800;
+  color: var(--text-heading);
+  scroll-margin-top: calc(var(--nav-height) + 16px);
+}
+.handbook-content h2 {
+  font-size: 21px;
+  margin: 34px 0 12px;
+  font-weight: 700;
+  color: var(--text-heading);
+  scroll-margin-top: calc(var(--nav-height) + 16px);
+}
+.handbook-content h3 {
+  font-size: 17px;
+  margin: 24px 0 10px;
+  font-weight: 700;
+  color: var(--text);
+  scroll-margin-top: calc(var(--nav-height) + 16px);
+}
+.handbook-content h4 { font-size: 15.5px; margin: 20px 0 8px; font-weight: 700; color: var(--text); }
+.handbook-content p { margin: 10px 0; color: color-mix(in srgb, var(--text) 88%, transparent); }
+.handbook-content ul,
+.handbook-content ol { margin: 10px 0; padding-left: 24px; color: color-mix(in srgb, var(--text) 88%, transparent); }
+.handbook-content li { margin: 6px 0; }
+.handbook-content strong { color: var(--text-heading); font-weight: 700; }
+.handbook-content a { color: var(--primary); text-decoration: none; }
+.handbook-content a:hover { text-decoration: underline; }
+
+/* blockquote = 章节摘要 callout */
+.handbook-content blockquote {
+  margin: 16px 0;
+  padding: 16px 20px;
+  border-left: 4px solid var(--primary);
+  background: color-mix(in srgb, var(--primary) 8%, transparent);
+  border-radius: 0 12px 12px 0;
+  color: var(--text-muted);
+  font-size: 15px;
+}
+.handbook-content blockquote p { margin: 6px 0; color: var(--text-muted); }
+
+/* 通用 callout（手册中的 .callout） */
+.handbook-content .callout {
+  margin: 18px 0;
+  padding: 16px 20px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--primary) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--primary) 30%, transparent);
+  color: var(--text);
+  font-size: 15px;
+}
+.handbook-content .callout strong { color: var(--primary); }
+
+/* 公式（章节内 .formula） */
+.handbook-content .formula {
+  margin: 22px 0;
+  padding: 18px 22px;
+  border-radius: var(--border-radius-sm, 12px);
+  background: color-mix(in srgb, var(--card-bg) 70%, transparent);
+  border: 1px solid var(--border-color);
+  font-family: var(--font-mono);
+  font-size: 17px;
+  text-align: center;
+  color: var(--text);
+}
+.handbook-content .formula .b { color: var(--primary); }
+.handbook-content .formula .e { color: var(--hb-green); }
+.handbook-content .formula .t { color: var(--hb-amber); }
+
+/* 代码 */
+.handbook-content code {
+  font-family: var(--font-mono);
+  font-size: 13.5px;
+  color: var(--pre-accent, #0969da);
+}
+.handbook-content p code,
+.handbook-content li code {
+  background: color-mix(in srgb, var(--primary) 12%, transparent);
+  padding: 1px 6px;
+  border-radius: 6px;
+  color: color-mix(in srgb, var(--primary) 80%, var(--text));
+  font-size: 13px;
+}
+.handbook-content pre {
+  background: var(--pre-bg, #f6f8fa);
+  border: 1px solid var(--pre-border, #d0d7de);
+  border-radius: 12px;
+  padding: 16px 18px;
+  overflow-x: auto;
+  margin: 14px 0;
+}
+.handbook-content pre code {
+  color: var(--pre-color, #24292f);
+  background: none;
+  padding: 0;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+/* 表格 */
+.handbook-content table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 16px 0;
+  background: color-mix(in srgb, var(--card-bg) 60%, transparent);
+  border-radius: 12px;
+  overflow: hidden;
+  font-size: 14px;
+  border: 1px solid var(--border-color);
+}
+.handbook-content th,
+.handbook-content td {
+  border: 1px solid var(--border-color);
+  padding: 10px 12px;
+  text-align: left;
+  vertical-align: top;
+}
+.handbook-content th {
+  background: color-mix(in srgb, var(--primary) 12%, transparent);
+  color: var(--text-heading);
+  font-weight: 700;
+}
+.handbook-content tr:nth-child(even) td { background: color-mix(in srgb, var(--text) 4%, transparent); }
+
+/* 术语表 */
+.handbook-content .glossary-table td.g-term {
+  color: var(--text-heading);
+  font-weight: 600;
+  white-space: nowrap;
+  width: 200px;
+}
+.handbook-content .glossary-table td.g-def { color: var(--text-muted); }
+
+/* 分隔线 */
+.handbook-content hr {
+  border: none;
+  border-top: 1px solid var(--border-color);
+  margin: 22px 0;
+}
+
+/* ─── 移动端目录抽屉 ───────────────────────────────────────── */
+.handbook-toc-toggle {
+  display: none;
+  position: fixed;
+  right: 18px;
+  bottom: 22px;
+  z-index: 95;
+  background: color-mix(in srgb, var(--primary) 92%, transparent);
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  padding: 12px 18px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(0,0,0,.25);
+  backdrop-filter: var(--glass-blur-medium, blur(20px));
+  -webkit-backdrop-filter: var(--glass-blur-medium, blur(20px));
+}
+.handbook-toc-scrim {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 94;
+  background: rgba(0,0,0,.45);
+}
+
+@media (max-width: 900px) {
+  .handbook { display: block; }
+  .handbook-toc {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 280px;
+    height: 100vh;
+    z-index: 96;
+    transform: translateX(-100%);
+    transition: transform .25s var(--ease-out-quint, ease);
+    background: var(--bg);
+    border-right: 1px solid var(--border-color);
+  }
+  .handbook-toc.open { transform: translateX(0); }
+  .handbook-main { margin-left: 0; }
+  .handbook-hero,
+  .handbook-content { padding-left: 20px; padding-right: 20px; }
+  .handbook-hero { padding-top: 48px; }
+  .handbook-toc-toggle { display: block; }
+  .handbook-toc-scrim.show { display: block; }
+}

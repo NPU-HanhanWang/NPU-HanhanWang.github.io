@@ -1,12 +1,32 @@
 {% extends "base.html" %}
 
+{% set isHandbook = (page.bi and page.bi.zh and page.bi.zh.frontmatter and page.bi.zh.frontmatter.handbook) or
+                      (page.bi and page.bi.fallback and page.bi.fallback.frontmatter and page.bi.fallback.frontmatter.handbook) %}
+
 {% block title %}{{ page.title.zh or page.title.en }}{% endblock %}
 {% block description %}{{ (page.description.zh or page.description.en) or '' }}{% endblock %}
+
+{% block head %}
+{% if isHandbook %}
+<link rel="stylesheet" href="{{ SITE.baseUrl }}/css/handbook.css">
+{% endif %}
+{% endblock %}
 
 {% block content %}
 <!-- ============================================================
 CONTENT PAGE
 ============================================================ -->
+{% if isHandbook %}
+<section class="content-page handbook-page">
+    {% if page.bi.zh %}
+    {{ page.bi.zh.html | safe }}
+    {% elif page.bi.fallback %}
+    {{ page.bi.fallback.html | safe }}
+    {% elif page.bi.en %}
+    {{ page.bi.en.html | safe }}
+    {% endif %}
+</section>
+{% else %}
 <section class="content-page">
     <div class="container">
         <!-- Breadcrumbs -->
@@ -66,4 +86,11 @@ CONTENT PAGE
         </article>
     </div>
 </section>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+{% if isHandbook %}
+<script src="{{ SITE.baseUrl }}/js/handbook.js" defer></script>
+{% endif %}
 {% endblock %}
