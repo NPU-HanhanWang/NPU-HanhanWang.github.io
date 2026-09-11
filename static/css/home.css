@@ -1,0 +1,1267 @@
+/* ============================================================
+   HOME.CSS — 首页专属「编辑式排版」层
+   ------------------------------------------------------------
+   只在首页加载（templates/home.html 的 {% block head %}）。
+   所有规则作用域限定在 .home-editorial 之下，对其它页面零影响。
+
+   设计意图：把首页从「模板式并列」——居中标题 + 均匀圆角卡片 +
+   居中胶囊按钮，靠堆叠装饰（彩虹渐变标题 / 星星画布 / 流动分隔线 /
+   炫彩边框）制造高级感——换成「编辑式骨格」：
+
+     · 排版先于装饰：超大字号 + 高对比层级 + 细规则线
+     · 编号章节（01 / 02 / 03）+ 左对齐标题 + 右端文本链接
+     · 表格化行式列表（细线分隔）替代悬浮卡片
+     · 等宽小字 + 表格数字（tabular-nums）承载所有元信息
+     · 装饰降到只有：极光、点阵、纸张噪点
+
+   所有尺寸走 8px 网格；动效只用 transform / opacity / color。
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   1) 令牌
+   ------------------------------------------------------------ */
+.home-editorial {
+    /* 细线：编辑式版面的骨架 */
+    --he-hair: rgba(0, 0, 0, 0.10);
+    --he-hair-soft: rgba(0, 0, 0, 0.06);
+    --he-hair-strong: rgba(0, 0, 0, 0.20);
+
+    /* 墨色层级 */
+    --he-ink: var(--text-heading);
+    --he-dim: var(--text-muted);
+    --he-accent: var(--primary);
+
+    /* 浅灰面板（.he-post--lead 的 #f5f5f7）上，--primary 只有 4.31 对比度，
+       差一点不到 AA 的 4.5。小号强调文字改用深一档的蓝（5.06:1）。 */
+    --he-accent-deep: #0066cc;
+
+    --he-mono: var(--font-mono);
+
+    /* 版心：比通用 .container 略宽，给编辑式版面更多呼吸 */
+    --he-measure: 1240px;
+
+    /* 章节垂直节奏 */
+    --he-section-y: clamp(64px, 7.5vw, 104px);
+}
+
+[data-theme="dark"] .home-editorial {
+    --he-hair: rgba(255, 255, 255, 0.14);
+    --he-hair-soft: rgba(255, 255, 255, 0.08);
+    --he-hair-strong: rgba(255, 255, 255, 0.26);
+    /* 暗色面板上 --primary 本身已达 AA，无需再加深 */
+    --he-accent-deep: var(--primary);
+}
+
+.home-editorial .he-container {
+    width: 90%;
+    max-width: var(--he-measure);
+    margin: 0 auto;
+}
+
+/* 等宽小标签（所有元信息共用） */
+.he-mono-label {
+    font-family: var(--he-mono);
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--he-dim);
+    font-variant-numeric: tabular-nums;
+}
+
+/* ============================================================
+   2) HERO — 编辑式封面（信息栏 / 主标题 / 肖像 三段式）
+   覆盖 style.css 里 .hero 的「100vh 垂直居中」配方。
+   ============================================================ */
+.home-editorial .hero {
+    min-height: 0;
+    display: block;
+    align-items: stretch;
+    padding-top: calc(var(--nav-height) + clamp(40px, 7vh, 88px));
+    padding-bottom: clamp(56px, 8vh, 96px);
+    border-bottom: 1px solid var(--he-hair);
+    background: linear-gradient(180deg, var(--bg-gradient-start) 0%, var(--bg) 100%);
+}
+
+/* ── 背景：极光 + 点阵 + 纸张噪点 ── */
+.he-hero-bg {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.he-aurora {
+    position: absolute;
+    inset: -28%;
+    background:
+        radial-gradient(36% 42% at 16% 22%, rgba(var(--glow-color), 0.16), transparent 68%),
+        radial-gradient(30% 38% at 88% 24%, rgba(var(--glow-color-2), 0.13), transparent 70%),
+        radial-gradient(40% 46% at 62% 88%, rgba(var(--glow-color), 0.10), transparent 72%);
+    filter: blur(56px) saturate(118%);
+    animation: he-drift 26s ease-in-out infinite alternate;
+}
+
+@keyframes he-drift {
+    0% {
+        transform: translate3d(0, 0, 0) scale(1);
+    }
+
+    100% {
+        transform: translate3d(2.5%, -2%, 0) scale(1.06);
+    }
+}
+
+.he-dots {
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(circle, rgba(var(--glow-color), 0.16) 1px, transparent 1.3px);
+    background-size: 34px 34px;
+    -webkit-mask-image: radial-gradient(ellipse 72% 62% at 28% 38%, #000 0%, transparent 76%);
+    mask-image: radial-gradient(ellipse 72% 62% at 28% 38%, #000 0%, transparent 76%);
+    opacity: 0.5;
+}
+
+[data-theme="dark"] .he-dots {
+    opacity: 0.34;
+}
+
+/* 纸张噪点：给纯色底一点印刷质感，几乎不可察觉但去掉「数字扁平感」 */
+.he-grain {
+    position: absolute;
+    inset: 0;
+    opacity: 0.028;
+    mix-blend-mode: multiply;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+[data-theme="dark"] .he-grain {
+    opacity: 0.05;
+    mix-blend-mode: screen;
+}
+
+/* ── 三段式网格 ── */
+.home-editorial .hero-content {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: 200px minmax(0, 1fr) clamp(230px, 27%, 330px);
+    gap: clamp(28px, 3.6vw, 56px);
+    align-items: end;
+    transform-origin: center;
+    /* style.css 的移动端规则把 .hero-content 设成 text-align:center 且
+       flex-direction:column-reverse；编辑式版面全程左对齐，这里提权覆盖
+       （.home-editorial .hero-content 的权重高于媒体查询里的 .hero-content）。 */
+    text-align: left;
+}
+
+/* 左：信息栏 */
+.he-rail {
+    align-self: start;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+    padding-left: 18px;
+    border-left: 1px solid var(--he-hair);
+}
+
+.he-rail-block {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.he-edu {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    list-style: none;
+}
+
+.he-edu li {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.he-edu-year {
+    font-family: var(--he-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.05em;
+    color: var(--he-accent);
+    font-variant-numeric: tabular-nums;
+}
+
+.he-edu-school {
+    font-size: 0.88rem;
+    font-weight: 600;
+    line-height: 1.4;
+    color: var(--he-ink);
+    letter-spacing: -0.01em;
+}
+
+.he-edu-detail {
+    font-size: 0.76rem;
+    color: var(--he-dim);
+}
+
+.he-rail-text {
+    font-size: 0.84rem;
+    line-height: 1.65;
+    color: var(--he-ink);
+}
+
+/* 中：主标题区 */
+.he-kicker {
+    font-family: var(--he-mono);
+    font-size: 0.74rem;
+    font-weight: 500;
+    letter-spacing: 0.22em;
+    color: var(--he-dim);
+    margin-bottom: 10px;
+}
+
+.home-editorial .hero-text {
+    position: relative;
+    z-index: 1;
+}
+
+.home-editorial .hero-text h1 {
+    position: relative;
+    font-size: clamp(3.1rem, 8.6vw, 6.2rem);
+    line-height: 1.06;
+    letter-spacing: -0.045em;
+    font-weight: 700;
+    color: var(--he-ink);
+    margin: 0 0 26px;
+    padding-bottom: 16px;
+    /* 撤掉彩虹渐变 + 无限 shimmer —— 廉价感的主要来源之一 */
+    background: none;
+    -webkit-background-clip: initial;
+    background-clip: initial;
+    -webkit-text-fill-color: currentColor;
+    animation: none;
+}
+
+/* 姓名下方的一条强调线 —— 唯一的彩色笔触，替代彩虹渐变。
+   放在 h1（块级、无 overflow 裁剪）上而不是逐字的 .char-mask 内，
+   避免被 mask 的 overflow:hidden 截断。 */
+.home-editorial .hero-text h1::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, var(--he-accent) 0%, #5ac8fa 42%, transparent 92%);
+    transform: scaleX(0);
+    transform-origin: left center;
+    animation: he-rule-in 1.1s var(--ease-out-expo) 0.55s forwards;
+}
+
+.home-editorial .hero-text h1.chars-split {
+    background: none;
+    -webkit-text-fill-color: currentColor;
+    color: var(--he-ink);
+}
+
+/* 逐字揭示保留（main.js 注入 .char / .char-mask / .char-unit），
+   但只留 mask-rise，去掉 hero-text-shimmer。 */
+.home-editorial .hero-text h1 .char,
+.home-editorial .hero-text h1 .char-unit {
+    background: none;
+    -webkit-background-clip: initial;
+    background-clip: initial;
+    -webkit-text-fill-color: currentColor;
+    color: var(--he-ink);
+    animation: char-mask-rise 0.7s var(--ease-spring-pop) both;
+}
+
+/* 姓名下的一条强调线已移至 h1::after（见上），此处只保留逐字揭示。
+   注意 .char-mask 是 overflow:hidden 的滑动窗，所以 h1 的 line-height
+   必须略大于 1（1.06），否则汉字会被 mask 裁掉上下两端。 */
+.home-editorial .hero-text h1 .char-unit {
+    position: relative;
+}
+
+@keyframes he-rule-in {
+    to {
+        transform: scaleX(1);
+    }
+}
+
+.he-lede {
+    font-size: clamp(0.98rem, 1.15vw, 1.1rem);
+    line-height: 1.85;
+    color: var(--he-dim);
+    max-width: 46ch;
+    margin: 0 0 28px;
+}
+
+/* typewriter 降为次级信息，标签改成等宽小字 */
+.home-editorial .hero-typed {
+    font-size: 1.02rem;
+    gap: 10px;
+    margin-bottom: 30px;
+}
+
+.home-editorial .hero-typed .typed-label {
+    font-family: var(--he-mono);
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.16em;
+    color: var(--he-dim);
+}
+
+/* 主按钮改为「墨色实心」——比系统蓝更有编辑气质 */
+.he-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px 18px;
+}
+
+.he-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    min-height: 46px;
+    padding: 0 26px;
+    border-radius: 999px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    cursor: pointer;
+    transition:
+        background-color 0.35s var(--ease-out-expo),
+        color 0.35s var(--ease-out-expo),
+        border-color 0.35s var(--ease-out-expo),
+        transform 0.35s var(--ease-out-expo);
+}
+
+.he-btn i {
+    font-size: 0.78rem;
+    transition: transform 0.4s var(--ease-out-expo);
+}
+
+.he-btn:hover i {
+    transform: translateX(5px);
+}
+
+.he-btn:active {
+    transform: scale(0.975);
+    transition-duration: 0.12s;
+}
+
+.he-btn--primary {
+    background: var(--he-ink);
+    color: var(--bg);
+    border: 1px solid var(--he-ink);
+}
+
+.he-btn--primary:hover {
+    background: var(--he-accent);
+    border-color: var(--he-accent);
+    color: #fff;
+}
+
+.he-btn--ghost {
+    background: transparent;
+    color: var(--he-ink);
+    border: 1px solid var(--he-hair-strong);
+}
+
+.he-btn--ghost:hover {
+    border-color: var(--he-ink);
+    background: rgba(var(--glow-color), 0.06);
+}
+
+/* 右：肖像（编辑式：极小圆角 + 错位细线框） */
+.he-portrait {
+    position: relative;
+    justify-self: end;
+    align-self: end;
+    width: 100%;
+    max-width: 330px;
+    margin: 0;
+}
+
+.he-portrait img {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+    object-position: center 20%;
+    border-radius: 3px;
+    box-shadow: 0 32px 64px -34px rgba(0, 0, 0, 0.45);
+}
+
+/* 错位的细线框：一个纯排版式的装饰，替代圆角卡片+投影 */
+.he-portrait::after {
+    content: '';
+    position: absolute;
+    inset: 16px -16px -16px 16px;
+    border: 1px solid var(--he-hair-strong);
+    border-radius: 3px;
+    z-index: 0;
+    pointer-events: none;
+}
+
+[data-theme="dark"] .he-portrait img {
+    box-shadow: 0 32px 64px -30px rgba(0, 0, 0, 0.9);
+}
+
+.he-portrait-cap {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 22px;
+    padding-top: 10px;
+    border-top: 1px solid var(--he-hair);
+    font-family: var(--he-mono);
+    font-size: 0.66rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--he-dim);
+}
+
+/* ============================================================
+   3) 指标行 —— 大号表格数字 + 竖细线分隔
+   （数值由服务端直接渲染，不依赖 JS 从 0 起数，
+     所以禁用 JS / 首次绘制都不会出现「0 篇文章」）
+   ============================================================ */
+.he-metrics {
+    border-bottom: 1px solid var(--he-hair);
+}
+
+.he-metrics-inner {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.he-metric {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    padding: 36px 0 36px 28px;
+    border-left: 1px solid var(--he-hair);
+}
+
+.he-metric:first-child {
+    border-left: 0;
+    padding-left: 0;
+}
+
+.he-metric-value {
+    font-size: clamp(1.85rem, 3.3vw, 2.5rem);
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -0.04em;
+    color: var(--he-ink);
+    font-variant-numeric: tabular-nums;
+}
+
+.he-metric-label {
+    font-family: var(--he-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.14em;
+    color: var(--he-dim);
+}
+
+/* ============================================================
+   4) 章节骨架 —— 编号 + 左对齐标题 + 细规则线 + 右端文本链接
+   这一条是去掉「模板感」最关键的改动：不再居中。
+   ============================================================ */
+.he-section {
+    position: relative;
+    padding: var(--he-section-y) 0;
+}
+
+.he-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(var(--he-measure), 90%);
+    height: 1px;
+    background: var(--he-hair);
+}
+
+.he-head {
+    display: flex;
+    align-items: baseline;
+    gap: 18px;
+    margin-bottom: clamp(30px, 3.6vw, 48px);
+}
+
+.he-head-index {
+    flex: none;
+    font-family: var(--he-mono);
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.16em;
+    color: var(--he-accent);
+    font-variant-numeric: tabular-nums;
+}
+
+.he-head-title {
+    flex: none;
+    font-size: clamp(1.55rem, 2.9vw, 2.3rem);
+    font-weight: 700;
+    line-height: 1.05;
+    letter-spacing: -0.038em;
+    color: var(--he-ink);
+}
+
+.he-head-rule {
+    flex: 1 1 auto;
+    min-width: 24px;
+    height: 1px;
+    background: linear-gradient(90deg, var(--he-hair-strong), var(--he-hair-soft) 70%, transparent);
+    transform: translateY(-0.32em);
+}
+
+.he-head-link {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    padding: 12px 0;
+    margin: -12px 0;
+    font-size: 0.86rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    color: var(--he-dim);
+    transition: color 0.3s var(--ease-out-expo);
+}
+
+.he-head-link i {
+    font-size: 0.72rem;
+    transition: transform 0.4s var(--ease-out-expo);
+}
+
+.he-head-link:hover {
+    color: var(--he-accent);
+}
+
+.he-head-link:hover i {
+    transform: translateX(5px);
+}
+
+/* 等宽 # 前缀标签 —— 替代蓝底圆胶囊 */
+.he-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 16px;
+    list-style: none;
+}
+
+.he-tags li {
+    font-family: var(--he-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.06em;
+    color: var(--he-dim);
+}
+
+.he-tags li::before {
+    content: '#';
+    margin-right: 1px;
+    opacity: 0.5;
+}
+
+/* ============================================================
+   5) 文章 —— Bento（1 大 + 2 小），用细线而非卡片
+   ============================================================ */
+.he-posts {
+    display: grid;
+    grid-template-columns: minmax(0, 1.34fr) minmax(0, 1fr);
+}
+
+.he-post {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    padding: clamp(24px, 2.6vw, 36px);
+    border-bottom: 1px solid var(--he-hair);
+    transition: background-color 0.45s var(--ease-out-expo);
+}
+
+.he-post:hover {
+    background: rgba(var(--glow-color), 0.05);
+}
+
+.he-post--lead {
+    grid-row: span 2;
+    border-right: 1px solid var(--he-hair);
+    /* 主打文章给一层中性底色：一是把「跨两行」的大块留白变成有意的
+       版面块面，二是与右侧两条白色小条目形成主次对比。 */
+    background: var(--bg-alt);
+}
+
+.he-post--lead:hover {
+    background: rgba(var(--glow-color), 0.07);
+}
+
+.he-post-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+    font-family: var(--he-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--he-dim);
+    font-variant-numeric: tabular-nums;
+}
+
+.he-post-meta .he-dot {
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background: currentColor;
+    opacity: 0.45;
+}
+
+.he-post-title {
+    font-size: clamp(1.12rem, 1.5vw, 1.38rem);
+    font-weight: 700;
+    line-height: 1.3;
+    letter-spacing: -0.022em;
+    color: var(--he-ink);
+    margin-bottom: 12px;
+}
+
+.he-post--lead .he-post-title {
+    font-size: clamp(1.7rem, 3vw, 2.3rem);
+    line-height: 1.14;
+    letter-spacing: -0.038em;
+    margin-bottom: 16px;
+    max-width: 20ch;
+}
+
+.he-post-excerpt {
+    font-size: 0.92rem;
+    line-height: 1.78;
+    color: var(--he-dim);
+    margin-bottom: 20px;
+}
+
+.he-post--lead .he-post-excerpt {
+    font-size: 1.01rem;
+    line-height: 1.82;
+    max-width: 44ch;
+    margin-bottom: 24px;
+}
+
+/* 「标签 + 阅读」作为整体压到卡片底部：主打文章跨两行，
+   底部对齐比让空白落在正文与标签之间更耐看。 */
+.he-post-foot {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 18px;
+    margin-top: auto;
+}
+
+.he-post .he-tags {
+    margin-bottom: 0;
+}
+
+.he-post-more {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    font-family: var(--he-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--he-accent-deep);
+}
+
+.he-post-more i {
+    font-size: 0.68rem;
+    transition: transform 0.4s var(--ease-out-expo);
+}
+
+.he-post:hover .he-post-more i {
+    transform: translateX(6px);
+}
+
+/* ============================================================
+   6) 项目 —— 索引式行列表（序号 / 标题 / 描述 / 标签 / 箭头）
+   ============================================================ */
+.he-projects {
+    list-style: none;
+}
+
+.he-project {
+    display: grid;
+    grid-template-columns: 58px minmax(0, 1fr) 44px;
+    gap: 0 20px;
+    align-items: start;
+    padding: clamp(24px, 2.6vw, 38px) 0;
+    border-bottom: 1px solid var(--he-hair);
+    transition: background-color 0.45s var(--ease-out-expo);
+}
+
+.he-project:hover {
+    background: rgba(var(--glow-color), 0.05);
+}
+
+.he-project-index {
+    font-family: var(--he-mono);
+    font-size: 0.74rem;
+    letter-spacing: 0.1em;
+    color: var(--he-dim);
+    font-variant-numeric: tabular-nums;
+    padding-top: 0.42em;
+    transition: color 0.3s var(--ease-out-expo);
+}
+
+.he-project:hover .he-project-index {
+    color: var(--he-accent);
+}
+
+.he-project-title {
+    font-size: clamp(1.3rem, 2.2vw, 1.75rem);
+    font-weight: 700;
+    line-height: 1.22;
+    letter-spacing: -0.032em;
+    color: var(--he-ink);
+    margin-bottom: 12px;
+}
+
+.he-project-title a {
+    /* 垂直 padding + 等量负 margin：把命中区撑到 44pt 而不改变排版行高 */
+    display: inline-block;
+    padding: 6px 0;
+    margin: -6px 0;
+    background-image: linear-gradient(var(--he-ink), var(--he-ink));
+    background-repeat: no-repeat;
+    background-size: 0% 1px;
+    background-position: 0 calc(100% - 6px);
+    transition: background-size 0.5s var(--ease-out-expo);
+}
+
+.he-project:hover .he-project-title a {
+    background-size: 100% 1px;
+}
+
+.he-project-desc {
+    font-size: 0.94rem;
+    line-height: 1.78;
+    color: var(--he-dim);
+    max-width: 62ch;
+    margin-bottom: 18px;
+}
+
+.he-project-foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px 26px;
+}
+
+.he-project-links {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    list-style: none;
+}
+
+.he-project-links a {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    /* 同上：撑到 44pt 命中区，负 margin 抵消排版影响 */
+    padding: 12px 0;
+    margin: -12px 0;
+    font-family: var(--he-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    color: var(--he-ink);
+    transition: color 0.3s var(--ease-out-expo);
+}
+
+.he-project-links a:hover {
+    color: var(--he-accent);
+}
+
+.he-project-arrow {
+    justify-self: end;
+    padding-top: 0.4em;
+    color: var(--he-hair-strong);
+    transition: color 0.35s var(--ease-out-expo), transform 0.45s var(--ease-out-expo);
+}
+
+.he-project:hover .he-project-arrow {
+    color: var(--he-accent);
+    transform: translate(5px, -5px);
+}
+/* ============================================================
+   7) 课程 —— 条形行（标题 / 章数 / 细进度线）
+   解决旧版「空卡片」问题：所有课程都有等量的视觉重量。
+   ============================================================ */
+.he-courses {
+    list-style: none;
+}
+
+/* 整行可点：<li> 只负责分隔线，网格放在内部的 <a> 上 */
+.he-course {
+    border-bottom: 1px solid var(--he-hair);
+}
+
+.he-course-link {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 8px 32px;
+    padding: clamp(20px, 2.2vw, 30px) 0;
+    border-radius: 0;
+    transition: background-color 0.45s var(--ease-out-expo);
+}
+
+.he-course-link:hover {
+    background: var(--bg-alt);
+}
+
+.he-course-title {
+    grid-area: 1 / 1;
+    font-size: clamp(1rem, 1.3vw, 1.12rem);
+    font-weight: 600;
+    line-height: 1.4;
+    letter-spacing: -0.018em;
+    color: var(--he-ink);
+    transition: color 0.3s var(--ease-out-expo);
+}
+
+.he-course-link:hover .he-course-title {
+    color: var(--he-accent);
+}
+
+.he-course-desc {
+    grid-area: 2 / 1;
+    font-size: 0.86rem;
+    line-height: 1.7;
+    color: var(--he-dim);
+    max-width: 60ch;
+}
+
+.he-course-count {
+    grid-area: 1 / 2 / span 2 / auto;
+    align-self: center;
+    display: flex;
+    align-items: baseline;
+    gap: 5px;
+    font-family: var(--he-mono);
+    font-size: 1.6rem;
+    font-weight: 600;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--he-ink);
+    font-variant-numeric: tabular-nums;
+}
+
+.he-course-count em {
+    font-size: 0.68rem;
+    font-style: normal;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    color: var(--he-dim);
+}
+
+.he-course-bar {
+    grid-area: 3 / 1 / auto / -1;
+    height: 2px;
+    margin-top: 14px;
+    border-radius: 2px;
+    background: var(--he-hair-soft);
+    overflow: hidden;
+}
+
+.he-course-bar i {
+    display: block;
+    height: 100%;
+    border-radius: 2px;
+    background: linear-gradient(90deg, var(--he-accent), #5ac8fa);
+    transform-origin: left center;
+}
+
+/* ============================================================
+   8) 关键词索引（替代跑马灯胶囊）
+   ============================================================ */
+.he-focus {
+    border-bottom: 1px solid var(--he-hair);
+}
+
+.he-focus-inner {
+    display: grid;
+    grid-template-columns: 168px minmax(0, 1fr);
+    gap: 16px 32px;
+    align-items: baseline;
+    padding: 40px 0;
+}
+
+.he-focus-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 24px;
+    list-style: none;
+}
+
+.he-focus-list li {
+    font-family: var(--he-mono);
+    font-size: 0.76rem;
+    letter-spacing: 0.07em;
+    color: var(--he-dim);
+    transition: color 0.3s var(--ease-out-expo);
+}
+
+.he-focus-list li:hover {
+    color: var(--he-ink);
+}
+
+/* ============================================================
+   9) 联系 —— 编辑式收尾
+   ============================================================ */
+.he-contact {
+    background: var(--bg-alt);
+    border-top: 1px solid var(--he-hair);
+    padding: var(--he-section-y) 0 clamp(48px, 6vw, 80px);
+}
+
+.he-contact-inner {
+    display: grid;
+    grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr);
+    gap: 32px 48px;
+    align-items: end;
+}
+
+.he-contact-kicker {
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: var(--he-dim);
+    margin-bottom: 18px;
+}
+
+.he-contact-mail {
+    display: inline-block;
+    /* 命中区 ≥44pt：垂直 padding 撑开 + 负 margin 抵消排版影响，
+       background-position 同步下移，让下划线仍贴着文字基线 */
+    padding: 9px 0;
+    margin: -9px 0;
+    font-size: clamp(1.45rem, 3.4vw, 2.5rem);
+    font-weight: 700;
+    line-height: 1.12;
+    letter-spacing: -0.042em;
+    color: var(--he-ink);
+    word-break: break-word;
+    background-image: linear-gradient(currentColor, currentColor);
+    background-repeat: no-repeat;
+    background-size: 100% 1px;
+    background-position: 0 calc(100% - 9px);
+    transition: color 0.35s var(--ease-out-expo);
+}
+
+.he-contact-mail:hover {
+    color: var(--he-accent);
+}
+
+.he-contact-org {
+    margin-top: 18px;
+    font-family: var(--he-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--he-dim);
+}
+
+.he-contact-links {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    list-style: none;
+}
+
+.he-contact-links a {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    min-height: 44px;
+    padding: 0 0 0 0;
+    font-size: 0.92rem;
+    font-weight: 500;
+    color: var(--he-ink);
+    border-bottom: 1px solid var(--he-hair);
+    transition: color 0.3s var(--ease-out-expo), border-color 0.3s var(--ease-out-expo);
+}
+
+.he-contact-links a i {
+    font-size: 0.7rem;
+    color: var(--he-dim);
+    transition: transform 0.4s var(--ease-out-expo), color 0.3s var(--ease-out-expo);
+}
+
+.he-contact-links a:hover {
+    color: var(--he-accent);
+    border-color: var(--he-accent);
+}
+
+.he-contact-links a:hover i {
+    color: var(--he-accent);
+    transform: translate(4px, -4px);
+}
+
+/* ============================================================
+   10) 响应式
+   ============================================================ */
+
+/* 中屏：信息栏折成横向条，肖像收窄 */
+@media (max-width: 1024px) {
+    .home-editorial .hero-content {
+        grid-template-columns: minmax(0, 1fr) clamp(200px, 30%, 260px);
+        align-items: end;
+    }
+
+    .he-rail {
+        grid-column: 1 / -1;
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 20px 44px;
+        align-self: start;
+        padding: 18px 0 0;
+        border-left: 0;
+        border-top: 1px solid var(--he-hair);
+        order: -1;
+    }
+
+    .he-rail-block {
+        gap: 8px;
+    }
+
+    .he-edu {
+        flex-direction: row;
+        gap: 24px;
+    }
+
+    .he-portrait {
+        max-width: 260px;
+    }
+
+    .he-portrait-cap {
+        flex-direction: column;
+        gap: 4px;
+        align-items: flex-start;
+    }
+
+    .he-contact-inner {
+        grid-template-columns: minmax(0, 1fr);
+        align-items: start;
+    }
+}
+
+/* 竖屏 / 手机 */
+@media (max-width: 760px) {
+    .home-editorial .hero {
+        padding-top: calc(var(--nav-height) + 32px);
+        padding-bottom: 48px;
+    }
+
+    .home-editorial .hero-content {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 32px;
+    }
+
+    .he-portrait {
+        order: -1;
+        justify-self: start;
+        max-width: 190px;
+    }
+
+    .he-portrait::after {
+        inset: 10px -10px -10px 10px;
+    }
+
+    /* 信息栏折成紧凑的「标签 ｜ 值」两列：
+       竖排 6 行会霸占整个首屏，一行一条才好读。 */
+    .he-rail {
+        gap: 16px;
+        padding-top: 16px;
+    }
+
+    .he-rail-block {
+        display: grid;
+        grid-template-columns: 74px minmax(0, 1fr);
+        align-items: baseline;
+        gap: 4px 14px;
+    }
+
+    .he-edu {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .he-edu li {
+        display: block;
+        line-height: 1.6;
+    }
+
+    .he-edu-year {
+        margin-right: 7px;
+    }
+
+    .he-edu-school {
+        font-size: 0.85rem;
+    }
+
+    .he-edu-detail::before {
+        content: '· ';
+    }
+
+    .he-metrics-inner {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .he-metric {
+        padding: 24px 0 24px 20px;
+    }
+
+    .he-metric:nth-child(odd) {
+        border-left: 0;
+        padding-left: 0;
+    }
+
+    .he-metric:nth-child(n + 3) {
+        border-top: 1px solid var(--he-hair);
+    }
+
+    /* 章节头：规则线让位，标题与链接分列两端 */
+    .he-head {
+        flex-wrap: wrap;
+        gap: 8px 14px;
+    }
+
+    .he-head-rule {
+        display: none;
+    }
+
+    .he-head-link {
+        margin-left: auto;
+    }
+
+    /* 文章 bento 塌成单列 */
+    .he-posts {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .he-post--lead {
+        grid-row: auto;
+        border-right: 0;
+    }
+
+    .he-post--lead .he-post-title {
+        max-width: none;
+    }
+
+    .he-post {
+        padding: 26px 0;
+    }
+
+    /* 项目行：序号移到标题上方一行 */
+    .he-project {
+        grid-template-columns: minmax(0, 1fr) 32px;
+        gap: 0 14px;
+    }
+
+    .he-project-index {
+        grid-column: 1 / -1;
+        padding-top: 0;
+        margin-bottom: 8px;
+    }
+
+    .he-project-arrow {
+        padding-top: 0.2em;
+    }
+
+    /* 小屏字号更小，命中区要再撑一点才够 44pt */
+    .he-project-title a {
+        padding: 10px 0;
+        margin: -10px 0;
+        background-position: 0 calc(100% - 10px);
+    }
+
+    .he-focus-inner {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 14px;
+    }
+
+    .he-contact-links a {
+        min-height: 48px;
+    }
+}
+
+/* 儿童级窄屏：超大标题收敛一点，避免断行过碎 */
+@media (max-width: 420px) {
+    .home-editorial .hero-text h1 {
+        font-size: clamp(2.6rem, 15vw, 3.4rem);
+    }
+
+    .he-btn {
+        flex: 1 1 auto;
+    }
+}
+
+/* ============================================================
+   11) 无障碍 · 动效偏好 · 印刷
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+
+    .he-aurora,
+    .home-editorial .hero-text h1::after {
+        animation: none;
+    }
+
+    .home-editorial .hero-text h1::after {
+        transform: scaleX(1);
+    }
+
+    .he-btn,
+    .he-btn i,
+    .he-post,
+    .he-project,
+    .he-project-arrow,
+    .he-project-title a,
+    .he-contact-links a,
+    .he-contact-links a i,
+    .he-head-link,
+    .he-head-link i {
+        transition: none;
+    }
+
+    .he-post:hover .he-post-more i,
+    .he-project:hover .he-project-arrow {
+        transform: none;
+    }
+}
+
+/* 键盘 / 触屏回退：无 hover 能力时，hover 态直接常显，避免信息不可达 */
+@media (hover: none) {
+    .he-project:hover {
+        background: transparent;
+    }
+
+    .he-post:hover {
+        background: transparent;
+    }
+
+    .he-project-title a {
+        background-size: 100% 1px;
+    }
+}

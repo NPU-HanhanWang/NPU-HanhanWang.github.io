@@ -5,3 +5,7 @@ public/
 .env
 .DS_Store
 *.log
+
+# 工作记忆与视觉审计产物：本地用，不进公开仓库
+.workbuddy/audit/
+.workbuddy/memory/

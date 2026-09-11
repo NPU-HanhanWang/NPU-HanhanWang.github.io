@@ -2954,6 +2954,18 @@ ul {
     [data-reveal].revealed.done { will-change: auto; }
 }
 
+/* Print / 导出 PDF：IntersectionObserver 不产生帧，滚动揭示不会触发，
+   所以必须显式还原，否则打印稿会整段缺内容。 */
+@media print {
+    [data-reveal],
+    .reveal {
+        opacity: 1 !important;
+        transform: none !important;
+        filter: none !important;
+        visibility: visible !important;
+    }
+}
+
 /* ---- 3) Scroll-scrubbed hero backdrop parallax wrapper ---- */
 .hero-bg {
     position: absolute;

@@ -1,6 +1,24 @@
 ---
 title: "你好，我是 <span class=\"highlight\">王汉翰</span>"
-description: "🎓 教育背景<span class=\"edu-line\">西北工业大学 · 统计学 (2020–2024)</span><span class=\"edu-line\">北京航空航天大学 · 统计学 (2025–2028)</span>"
+description: "王汉翰的个人主页 —— 北京航空航天大学统计学硕士研究生，研究方向为深度学习和强化学习。这里整理课程笔记、项目作品与技术文章。"
+greeting: "你好，我是"
+name: "王汉翰"
+lede: "专注于深度学习与强化学习的研究生。热衷于把研究成果转化为可落地的项目，用代码解决实际问题。"
+based: "中国 · 北京"
+email: "wanghanhan_nwpu@163.com"
+focus:
+  - 深度学习
+  - 强化学习
+  - PyTorch
+  - Python
+  - 学术写作
+education:
+  - year: "2025—2028"
+    school: "北京航空航天大学"
+    detail: "统计学 · 硕士"
+  - year: "2020—2024"
+    school: "西北工业大学"
+    detail: "统计学 · 本科"
 order: 1
 ---
 

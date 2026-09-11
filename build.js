@@ -830,7 +830,14 @@ async function buildAll(content) {
       ...content.projects.flatMap(p => p.tags || []),
     ];
     const uniqueTags = [...new Set(allTags)];
-    const featuredProjects = content.projects.filter(p => p.featured).slice(0, 3);
+    // Featured first, then top up with the remaining projects: keeps the
+    // homepage "精选项目" section from rendering as a single lonely row
+    // when only one project is flagged `featured`.
+    const featuredFirst = [
+      ...content.projects.filter(p => p.featured),
+      ...content.projects.filter(p => !p.featured),
+    ];
+    const featuredProjects = featuredFirst.slice(0, 3);
     const recentPosts = content.blog.slice(0, 3);
     // Only surface courses that actually have chapters on the homepage overview
     const coursesOverview = content.courses.filter(c => c.chapters.length > 0);

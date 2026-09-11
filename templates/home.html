@@ -3,215 +3,283 @@
 {% block title %}首页{% endblock %}
 {% block description %}{{ (page.description.zh or page.description.en or SITE.description) | striptags }}{% endblock %}
 
+{% block head %}
+<!-- 首页专属「编辑式排版」层：作用域限定在 .home-editorial，不影响其它页面 -->
+<link rel="stylesheet" href="{{ SITE.baseUrl }}/css/home.css">
+{% endblock %}
+
 {% block content %}
+{# ── 内容驱动的首页字段（content/home.*.md 的 frontmatter），全部带兜底 ── #}
+{% set fm = (page.bi.fallback.frontmatter if page.bi.fallback else {}) %}
+{% set heroGreeting = fm.greeting or '你好，我是' %}
+{% set heroName = fm.name or '王汉翰' %}
+{% set heroLede = fm.lede or '专注于深度学习与强化学习的研究生。热衷于把研究成果转化为可落地的项目，用代码解决实际问题。' %}
+{% set edu = fm.education or [
+    { year: '2025—2028', school: '北京航空航天大学', detail: '统计学 · 硕士' },
+    { year: '2020—2024', school: '西北工业大学', detail: '统计学 · 本科' }
+] %}
+{% set focusList = fm.focus or ['深度学习', '强化学习', 'PyTorch', 'Python', '学术写作'] %}
+{% set basedIn = fm.based or '中国 · 北京' %}
+{% set mailTo = fm.email or 'wanghanhan_nwpu@163.com' %}
+
+<div class="home-editorial">
+
 <!-- ============================================================
-HERO SECTION
+HERO — 编辑式封面：信息栏 / 主标题 / 肖像 三段式
+（保留 .hero / .hero-bg / .hero-content / .hero-text 类名，
+  以兼容 main.js 里已有的视差与逐字揭示逻辑）
 ============================================================ -->
-<section class="hero" id="home" data-nav="首页">
-    <div class="hero-bg" aria-hidden="true">
-        <div class="hero-aurora"></div>
-        <div class="hero-orb o1"></div>
-        <div class="hero-orb o2"></div>
-        <div class="hero-grid"></div>
-        <canvas class="hero-stars"></canvas>
+<section class="hero he-hero" id="home" data-nav="首页">
+    <div class="hero-bg he-hero-bg" aria-hidden="true">
+        <div class="he-aurora"></div>
+        <div class="he-dots"></div>
+        <div class="he-grain"></div>
     </div>
-    <div class="container hero-content">
-        <div class="hero-text">
-            {% if page.title.zh %}
-            <h1>{{ page.title.zh | safe }}</h1>
-            {% elif page.title.en %}
-            <h1>{{ page.title.en | safe }}</h1>
-            {% else %}
-            <h1>你好，我是 <span class="highlight">王汉翰</span></h1>
-            {% endif %}
 
-            {% if page.description.zh or page.description.en %}
-            <div class="subtitle">{{ (page.description.zh or page.description.en) | safe }}</div>
-            {% endif %}
+    <div class="he-container hero-content">
+        <!-- 左：信息栏 -->
+        <aside class="he-rail" aria-label="个人基本信息">
+            <div class="he-rail-block">
+                <span class="he-mono-label">Education</span>
+                <ol class="he-edu">
+                    {% for item in edu %}
+                    <li>
+                        <span class="he-edu-year">{{ item.year }}</span>
+                        <span class="he-edu-school">{{ item.school }}</span>
+                        {% if item.detail %}<span class="he-edu-detail">{{ item.detail }}</span>{% endif %}
+                    </li>
+                    {% endfor %}
+                </ol>
+            </div>
+            <div class="he-rail-block">
+                <span class="he-mono-label">Focus</span>
+                <p class="he-rail-text">{{ focusList | join(' · ') }}</p>
+            </div>
+            <div class="he-rail-block">
+                <span class="he-mono-label">Based in</span>
+                <p class="he-rail-text">{{ basedIn }}</p>
+            </div>
+        </aside>
 
-            <p class="hero-desc">专注于深度学习与强化学习的研究生。热衷于将研究成果转化为可落地的项目，用代码解决实际问题。</p>
+        <!-- 中：主标题区 -->
+        <div class="he-hero-main">
+            <p class="he-kicker">{{ heroGreeting }}</p>
+            <div class="hero-text">
+                <h1><span class="highlight">{{ heroName }}</span></h1>
+            </div>
+            <p class="he-lede">{{ heroLede }}</p>
 
             <div class="hero-typed" aria-hidden="true">
                 <span class="typed-label">正在探索</span>
                 <span class="typewriter" id="typewriter"></span><span class="typed-cursor"></span>
             </div>
 
-            <div style="display: flex; gap: 15px; flex-wrap: wrap;">
-                <a href="{{ SITE.baseUrl }}/courses/" class="btn">📖 课程学习</a>
-                <a href="{{ SITE.baseUrl }}/projects/" class="btn btn-outline">🚀 项目作品</a>
+            <div class="he-actions">
+                <a href="{{ SITE.baseUrl }}/courses/" class="he-btn he-btn--primary">
+                    课程学习<i class="fas fa-arrow-right"></i>
+                </a>
+                <a href="{{ SITE.baseUrl }}/projects/" class="he-btn he-btn--ghost">项目作品</a>
             </div>
         </div>
-        <div class="hero-image" aria-label="个人头像">
-            <img src="{{ SITE.baseUrl }}/img/pic_me.jpg" alt="王汉翰的个人头像"
-                fetchpriority="high" decoding="async" />
+
+        <!-- 右：肖像（错位细线框） -->
+        <figure class="he-portrait">
+            <img src="{{ SITE.baseUrl }}/img/pic_me.jpg" alt="{{ heroName }}的个人头像"
+                width="330" height="413" fetchpriority="high" decoding="async">
+            <figcaption class="he-portrait-cap">
+                <span>Wang Hanhan</span>
+                <span>{{ currentYear }}</span>
+            </figcaption>
+        </figure>
+    </div>
+</section>
+
+<!-- ============================================================
+指标行 — 大号表格数字 + 竖细线（服务端直接渲染，无 0 闪烁）
+============================================================ -->
+<section class="he-metrics" aria-label="站点数据">
+    <div class="he-container he-metrics-inner">
+        <div class="he-metric">
+            <span class="he-metric-value">{{ stats.posts }}</span>
+            <span class="he-metric-label">篇文章</span>
+        </div>
+        <div class="he-metric">
+            <span class="he-metric-value">{{ stats.courses }}</span>
+            <span class="he-metric-label">门课程</span>
+        </div>
+        <div class="he-metric">
+            <span class="he-metric-value">{{ stats.chapters }}</span>
+            <span class="he-metric-label">个章节</span>
+        </div>
+        <div class="he-metric">
+            <span class="he-metric-value">{{ stats.projects }}</span>
+            <span class="he-metric-label">个项目</span>
         </div>
     </div>
 </section>
 
 <!-- ============================================================
-STATS STRIP — animated counters (Apple keynote vibe)
+01 最近文章 — Bento（1 大 + 2 小），用细线而非卡片
 ============================================================ -->
-<section class="stats-strip">
-    <div class="container stats-grid">
-        <div class="stat">
-            <span class="stat-number" data-count="{{ stats.posts }}">0</span>
-            <span class="stat-label">篇文章</span>
-        </div>
-        <div class="stat">
-            <span class="stat-number" data-count="{{ stats.chapters }}">0</span>
-            <span class="stat-label">课程章节</span>
-        </div>
-    </div>
-</section>
+{% if recentPosts | length > 0 %}
+<section class="he-section" id="posts">
+    <div class="he-container">
+        <header class="he-head">
+            <span class="he-head-index">01</span>
+            <h2 class="he-head-title">最近文章</h2>
+            <span class="he-head-rule" aria-hidden="true"></span>
+            <a class="he-head-link" href="{{ SITE.baseUrl }}/blog/">
+                全部文章<i class="fas fa-arrow-right"></i>
+            </a>
+        </header>
 
-<!-- ============================================================
-RECENT POSTS — horizontal scroll-snap cards
-============================================================ -->
-<section class="section" id="recent-posts" data-nav="文章">
-    <div class="container">
-        <h2 class="section-title"><span class="parallax">最近文章</span></h2>
-        <p class="section-subtitle" data-reveal="fade">最新的技术笔记与思考</p>
-        <div class="h-scroll">
+        <div class="he-posts">
             {% for post in recentPosts %}
-            <a href="{{ SITE.baseUrl }}/blog/{{ post.slug }}.html" class="card post-card">
-                <div class="card-info">
-                    {% if post.date %}
-                    <span class="card-date">{{ post.date | date('MMM YYYY') }}</span>
-                    {% endif %}
-                    <h4>{{ post.title.zh or post.title.en }}</h4>
-                    <p>{{ (post.description.zh or post.description.en) | truncate(110) }}</p>
+            <a href="{{ SITE.baseUrl }}/blog/{{ post.slug }}.html"
+               class="he-post{% if loop.first %} he-post--lead{% endif %}" data-reveal="fade-up">
+                <div class="he-post-meta">
+                    {% if post.date %}<time datetime="{{ post.date }}">{{ post.date | date('MMM YYYY') }}</time>
+                    <span class="he-dot" aria-hidden="true"></span>{% endif %}
+                    <span>{{ post.readingTime or 1 }} 分钟</span>
+                </div>
+                <h3 class="he-post-title">{{ post.title.zh or post.title.en }}</h3>
+                <p class="he-post-excerpt">
+                    {{ (post.description.zh or post.description.en) | truncate(240 if loop.first else 92) }}
+                </p>
+                <div class="he-post-foot">
                     {% if post.tags | length > 0 %}
-                    <div class="card-tags">
-                        {% for tag in post.tags %}<span>{{ tag }}</span>{% endfor %}
-                    </div>
+                    <ul class="he-tags">
+                        {% for tag in post.tags %}<li>{{ tag }}</li>{% endfor %}
+                    </ul>
                     {% endif %}
+                    <span class="he-post-more">阅读<i class="fas fa-arrow-right"></i></span>
                 </div>
             </a>
             {% endfor %}
         </div>
-        <div class="section-more">
-            <a href="{{ SITE.baseUrl }}/blog/" class="btn btn-outline">查看全部文章 →</a>
-        </div>
     </div>
 </section>
+{% endif %}
 
 <!-- ============================================================
-FEATURED PROJECTS — horizontal scroll-snap cards
+02 精选项目 — 索引式行列表
 ============================================================ -->
 {% if featuredProjects | length > 0 %}
-<section class="section section-alt" id="featured-projects" data-nav="项目">
-    <div class="container">
-        <h2 class="section-title"><span class="parallax">精选项目</span></h2>
-        <p class="section-subtitle" data-reveal="fade">我正在做与做过的一些事情</p>
-        <div class="h-scroll">
+<section class="he-section" id="featured-projects">
+    <div class="he-container">
+        <header class="he-head">
+            <span class="he-head-index">02</span>
+            <h2 class="he-head-title">精选项目</h2>
+            <span class="he-head-rule" aria-hidden="true"></span>
+            <a class="he-head-link" href="{{ SITE.baseUrl }}/projects/">
+                全部项目<i class="fas fa-arrow-right"></i>
+            </a>
+        </header>
+
+        <ul class="he-projects">
             {% for proj in featuredProjects %}
-            <div class="card project-card">
-                <div class="card-info">
-                    <h4><a href="{{ SITE.baseUrl }}/projects/{{ proj.slug }}/" class="card-title-link">{{ proj.title.zh or proj.title.en }}</a></h4>
-                    <p>{{ (proj.description.zh or proj.description.en) | truncate(120) }}</p>
-                    {% if proj.tags | length > 0 %}
-                    <div class="card-tags">
-                        {% for tag in proj.tags %}<span>{{ tag }}</span>{% endfor %}
-                    </div>
-                    {% endif %}
-                    <div class="card-links">
-                        {% if proj.links.github %}<a href="{{ proj.links.github }}" target="_blank" rel="noopener"><i class="fab fa-github"></i> GitHub</a>{% endif %}
-                        {% if proj.links.demo %}<a href="{{ proj.links.demo }}" target="_blank" rel="noopener">🔗 Demo</a>{% endif %}
+            <li class="he-project" data-reveal="fade-up">
+                <span class="he-project-index">{{ '%02d' | format(loop.index) }}</span>
+                <div class="he-project-body">
+                    <h3 class="he-project-title">
+                        <a href="{{ SITE.baseUrl }}/projects/{{ proj.slug }}/">{{ proj.title.zh or proj.title.en }}</a>
+                    </h3>
+                    <p class="he-project-desc">{{ (proj.description.zh or proj.description.en) | truncate(180) }}</p>
+                    <div class="he-project-foot">
+                        {% if proj.tags | length > 0 %}
+                        <ul class="he-tags">
+                            {% for tag in proj.tags %}<li>{{ tag }}</li>{% endfor %}
+                        </ul>
+                        {% endif %}
+                        <ul class="he-project-links">
+                            {% if proj.links.github %}
+                            <li><a href="{{ proj.links.github }}" target="_blank" rel="noopener">
+                                <i class="fab fa-github" aria-hidden="true"></i>GitHub</a></li>
+                            {% endif %}
+                            {% if proj.links.demo %}
+                            <li><a href="{{ proj.links.demo }}" target="_blank" rel="noopener">Demo
+                                <i class="fas fa-arrow-right he-diag" aria-hidden="true"></i></a></li>
+                            {% endif %}
+                        </ul>
                     </div>
                 </div>
-            </div>
+                <span class="he-project-arrow" aria-hidden="true">
+                    <i class="fas fa-arrow-right he-diag"></i>
+                </span>
+            </li>
             {% endfor %}
-        </div>
-        <div class="section-more">
-            <a href="{{ SITE.baseUrl }}/projects/" class="btn btn-outline">查看全部项目 →</a>
-        </div>
+        </ul>
     </div>
 </section>
 {% endif %}
 
 <!-- ============================================================
-COURSES OVERVIEW — grid with progress
+03 课程进度 — 条形行（每门课视觉重量一致）
 ============================================================ -->
 {% if courses | length > 0 %}
-<section class="section" id="courses-overview" data-nav="课程">
-    <div class="container">
-        <h2 class="section-title"><span class="parallax">课程进度</span></h2>
-        <p class="section-subtitle" data-reveal="fade">持续整理的课程笔记</p>
-        <div class="card-grid">
-            {% for course in courses %}
-            <a href="{{ SITE.baseUrl }}/courses/{{ course.slug }}/" class="card course-card">
-                <div class="card-info">
-                    <h4>{{ course.title.zh or course.title.en }}</h4>
-                    <p>{{ (course.description.zh or course.description.en) | truncate(80) }}</p>
-                    <div class="course-progress">
-                        <div class="course-progress-bar">
-                            <span style="width: {{ ((course.chapters | length) * 100 / stats.maxChapters) | round }}%"></span>
-                        </div>
-                        <span class="course-progress-label">已整理 {{ course.chapters | length }} 章</span>
-                    </div>
-                </div>
+<section class="he-section" id="courses-overview">
+    <div class="he-container">
+        <header class="he-head">
+            <span class="he-head-index">03</span>
+            <h2 class="he-head-title">课程笔记</h2>
+            <span class="he-head-rule" aria-hidden="true"></span>
+            <a class="he-head-link" href="{{ SITE.baseUrl }}/courses/">
+                全部课程<i class="fas fa-arrow-right"></i>
             </a>
+        </header>
+
+        <ul class="he-courses">
+            {% for course in courses %}
+            <li class="he-course" data-reveal="fade-up">
+                <a class="he-course-link" href="{{ SITE.baseUrl }}/courses/{{ course.slug }}/">
+                    <span class="he-course-title">{{ course.title.zh or course.title.en }}</span>
+                    <span class="he-course-desc">{{ (course.description.zh or course.description.en) | truncate(110) }}</span>
+                    <span class="he-course-count" title="已整理章节数">
+                        {{ '%02d' | format(course.chapters | length) }}<em>章</em>
+                    </span>
+                    <span class="he-course-bar" aria-hidden="true">
+                        <i style="width: {{ ((course.chapters | length) * 100 / stats.maxChapters) | round }}%"></i>
+                    </span>
+                </a>
+            </li>
             {% endfor %}
-        </div>
-        <div class="section-more">
-            <a href="{{ SITE.baseUrl }}/courses/" class="btn btn-outline">浏览全部课程 →</a>
-        </div>
+        </ul>
     </div>
 </section>
 {% endif %}
 
 <!-- ============================================================
-TECH STACK MARQUEE
+关键词索引 — 替代跑马灯胶囊
 ============================================================ -->
 {% if allTags | length > 0 %}
-<section class="tech-marquee-section" aria-label="技术栈">
-    <div class="tech-marquee">
-        <div class="marquee-track">
-            {% for tag in allTags %}<span class="marquee-item">{{ tag }}</span>{% endfor %}
-            {% for tag in allTags %}<span class="marquee-item" aria-hidden="true">{{ tag }}</span>{% endfor %}
-        </div>
+<section class="he-focus" aria-label="研究与技术方向">
+    <div class="he-container he-focus-inner">
+        <span class="he-mono-label">Keywords</span>
+        <ul class="he-focus-list">
+            {% for tag in allTags %}{% if loop.index <= 14 %}<li>{{ tag }}</li>{% endif %}{% endfor %}
+        </ul>
     </div>
 </section>
 {% endif %}
 
 <!-- ============================================================
-CONTACT SECTION
+联系 — 编辑式收尾
 ============================================================ -->
-<section class="section" id="contact" data-nav="联系">
-    <div class="container">
-        <h2 class="section-title"><span class="parallax">联系我</span></h2>
-        <p class="section-subtitle" data-reveal="fade">有学术合作或其他问题？欢迎联系！</p>
-        <div class="contact-info">
-            <!-- 邮箱 -->
-            <div class="info-item">
-                <div class="info-icon">
-                    <i class="fas fa-envelope"></i>
-                </div>
-                <span><a href="mailto:wanghanhan_nwpu@163.com">wanghanhan_nwpu@163.com</a></span>
-            </div>
-            <!-- 所在地 -->
-            <div class="info-item">
-                <div class="info-icon">
-                    <i class="fas fa-map-marker-alt"></i>
-                </div>
-                <span>中国 · 北京</span>
-            </div>
-            <!-- 西北工业大学 -->
-            <div class="info-item">
-                <div class="info-icon">
-                    <i class="fas fa-university"></i>
-                </div>
-                <span><a href="https://www.nwpu.edu.cn/" target="_blank">西北工业大学</a></span>
-            </div>
-            <!-- 北京航空航天大学 -->
-            <div class="info-item">
-                <div class="info-icon">
-                    <i class="fas fa-university"></i>
-                </div>
-                <span><a href="https://www.buaa.edu.cn/" target="_blank">北京航空航天大学</a></span>
-            </div>
+<section class="he-contact" id="contact">
+    <div class="he-container he-contact-inner">
+        <div>
+            <p class="he-contact-kicker">有学术合作或其它问题，欢迎来信。</p>
+            <a class="he-contact-mail" href="mailto:{{ mailTo }}">{{ mailTo }}</a>
+            <p class="he-contact-org">{{ basedIn }}</p>
         </div>
+        <ul class="he-contact-links">
+            <li><a href="https://www.nwpu.edu.cn/" target="_blank" rel="noopener">
+                西北工业大学<i class="fas fa-arrow-right he-diag" aria-hidden="true"></i></a></li>
+            <li><a href="https://www.buaa.edu.cn/" target="_blank" rel="noopener">
+                北京航空航天大学<i class="fas fa-arrow-right he-diag" aria-hidden="true"></i></a></li>
+        </ul>
     </div>
 </section>
 
+</div>
 {% endblock %}

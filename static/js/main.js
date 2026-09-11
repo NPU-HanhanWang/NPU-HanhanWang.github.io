@@ -339,9 +339,13 @@
     function setupScrollReveal() {
         if (!('IntersectionObserver' in window)) return;
         if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-        // 若浏览器原生支持 CSS view-timeline，滚动揭示交由纯 CSS 驱动（渐进增强），
-        // JS 的 IntersectionObserver 方案仅作为不支持浏览器的降级兜底。
-        if (window.CSS && window.CSS.supports && window.CSS.supports('animation-timeline', 'view()')) return;
+
+        // 修复说明：这里原本有一段「若浏览器支持 animation-timeline: view()，
+        // 滚动揭示就交给纯 CSS」的提前 return。但 CSS 侧只给 .hero-grid 写了
+        // view-timeline，没有任何规则会揭示 [data-reveal] —— 结果在 Chrome /
+        // Safari 上，模板里手写的 [data-reveal] 元素永远拿不到 .revealed，
+        // 永久停留在 opacity: 0（首页两个 section 副标题就是这样消失的）。
+        // 现在由 JS 统一接管揭示，并以 setTimeout 兜底（见文件末尾）。
 
         // Backwards-compatible default entrance: the classic targets fade up
         // unless a template already gave them a specific data-reveal variant.
@@ -393,6 +397,20 @@
         }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
 
         targets.forEach(function (el) { io.observe(el); });
+
+        // 兜底：若 3s 后仍有元素没被揭示（IntersectionObserver 在
+        // content-visibility:auto 容器内的漏判、快速跳转锚点等），
+        // 把已经进入视口范围的一律强制揭示，保证内容不会永久不可见。
+        window.setTimeout(function () {
+            const vh = window.innerHeight || 800;
+            targets.forEach(function (el) {
+                if (el.classList.contains('revealed')) return;
+                const r = el.getBoundingClientRect();
+                if (r.top < vh * 1.2 && r.bottom > -vh * 0.2) {
+                    el.classList.add('revealed', 'done');
+                }
+            });
+        }, 3000);
     }
 
     // ============================================================
