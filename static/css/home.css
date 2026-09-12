@@ -1265,3 +1265,148 @@
         background-size: 100% 1px;
     }
 }
+
+/* ============================================================
+   首页动效增强 — 与 motion.css 的三层体系协同
+   这里只处理「首页特有」的结构；卡片流光、涟漪、下划线等
+   通用动效统一放在 motion.css，避免两处各写一遍。
+   ============================================================ */
+
+/* ---- 入场：肖像幕布揭示 + 章节细线绘制 ---- */
+@media (prefers-reduced-motion: no-preference) {
+
+    /* 肖像：clip-path 由下往上拉开，像舞台幕布 */
+    .he-portrait img {
+        animation: he-portrait-in 1.15s var(--ease-out-expo) 0.22s both;
+    }
+
+    @keyframes he-portrait-in {
+        from {
+            opacity: 0;
+            clip-path: inset(0 0 100% 0);
+            transform: scale(1.04) translate3d(0, 16px, 0);
+        }
+
+        to {
+            opacity: 1;
+            clip-path: inset(0 0 0 0);
+            transform: none;
+        }
+    }
+
+    /* 章节头：编号淡入 + 细线自左绘出（.he-head 由 JS 揭示） */
+    .he-head-rule {
+        transform: scaleX(0);
+        transform-origin: left center;
+        transition: transform 0.95s var(--ease-out-expo) 0.12s;
+    }
+
+    .he-head.revealed .he-head-rule {
+        transform: scaleX(1);
+    }
+
+    .he-head-index {
+        opacity: 0;
+        transform: translate3d(0, 8px, 0);
+        transition:
+            opacity 0.6s var(--ease-out-expo),
+            transform 0.6s var(--ease-out-expo);
+    }
+
+    .he-head.revealed .he-head-index {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+/* ---- 悬停反馈（增强层：精细指针 + 未减弱动效） ---- */
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+
+    /* 肖像：错位细线框随悬停位移，图片轻微推近 */
+    .he-portrait img {
+        transition: transform 0.7s var(--ease-spring), filter 0.5s ease;
+    }
+
+    .he-portrait::after {
+        transition: transform 0.7s var(--ease-spring), border-color 0.4s ease;
+    }
+
+    .he-portrait:hover img {
+        transform: scale(1.025);
+        filter: saturate(108%) contrast(101%);
+    }
+
+    .he-portrait:hover::after {
+        transform: translate3d(8px, 8px, 0);
+        border-color: var(--he-accent);
+    }
+
+    /* 指标行：整格泛起底色，数字上抬并转强调色 */
+    .he-metric {
+        transition: background 0.3s ease;
+    }
+
+    .he-metric:hover {
+        background: rgba(var(--glow-color), 0.045);
+    }
+
+    .he-metric-value {
+        transition: color 0.3s ease, transform 0.5s var(--ease-spring);
+    }
+
+    .he-metric:hover .he-metric-value {
+        color: var(--he-accent);
+        transform: translate3d(0, -2px, 0);
+    }
+
+    /* Hero 主标题：字符悬停点亮。
+       只改颜色不改位移 —— .char 处在 overflow:hidden 的 .char-mask 内，
+       上移会被遮罩裁掉。 */
+    .home-editorial .hero-text h1 .char {
+        transition: color 0.25s ease;
+    }
+
+    .home-editorial .hero-text h1 .char:hover {
+        color: var(--he-accent);
+    }
+
+    /* Hero 按钮：一道高光掠过 */
+    .he-btn {
+        position: relative;
+        overflow: hidden;
+    }
+
+    .he-btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -80%;
+        width: 45%;
+        height: 100%;
+        background: linear-gradient(105deg, transparent, rgba(255, 255, 255, 0.42), transparent);
+        transform: skewX(-20deg);
+        transition: left 0.7s var(--ease-out-expo);
+        pointer-events: none;
+    }
+
+    .he-btn:hover::before {
+        left: 130%;
+    }
+}
+
+/* ---- 减弱动效：把上面所有入场态还原为终态 ---- */
+@media (prefers-reduced-motion: reduce) {
+    .he-head-rule {
+        transform: none !important;
+    }
+
+    .he-head-index {
+        opacity: 1 !important;
+        transform: none !important;
+    }
+
+    .he-portrait img {
+        animation: none !important;
+        clip-path: none !important;
+    }
+}

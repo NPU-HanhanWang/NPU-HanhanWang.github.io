@@ -1,0 +1,541 @@
+/* ============================================================
+   motion.css — 全站动效层（三层体系）
+   ------------------------------------------------------------
+   基础层  Base      : 所有设备生效。导航滑动指示条、页头遮罩揭示、
+                       卡片错落入场、链接下划线绘制、进度条辉光。
+   增强层  Enhanced  : 仅 (hover:hover) and (pointer:fine)。
+                       3D 倾斜、聚光跟随、磁吸、流光边框、光标辉光。
+   移动层  Touch     : 仅 (hover:none)。触摸涟漪 + 滚动驱动入场，
+                       替代所有依赖指针悬停的效果。
+   降级    Reduced   : prefers-reduced-motion 下全部关闭。
+
+   本文件只负责「动」，不改动任何既有布局与配色，
+   因此单独成文件、在 style.css 之后加载。
+   ============================================================ */
+
+:root {
+    --mv-glow: 0, 113, 227;
+    --mv-fast: 0.2s;
+    --mv-mid: 0.42s;
+    --mv-slow: 0.72s;
+    --mv-spring: cubic-bezier(0.34, 1.32, 0.64, 1);
+    --mv-expo: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+[data-theme="dark"] {
+    --mv-glow: 10, 132, 255;
+}
+
+/* ============================================================
+   1. 导航栏 —— 滑动指示条
+   ============================================================ */
+.nav-links {
+    position: relative;
+}
+
+.nav-indicator {
+    position: absolute;
+    left: 0;
+    bottom: -3px;
+    height: 2px;
+    width: 0;
+    border-radius: 2px;
+    background: linear-gradient(90deg,
+            var(--primary) 0%,
+            var(--primary-light) 55%,
+            #5ac8fa 100%);
+    box-shadow: 0 0 10px rgba(var(--mv-glow), 0.85),
+        0 0 22px rgba(var(--mv-glow), 0.35);
+    transform: translate3d(0, 0, 0);
+    opacity: 0;
+    pointer-events: none;
+    z-index: 1;
+    transition:
+        transform var(--mv-mid) var(--mv-spring),
+        width var(--mv-mid) var(--mv-spring),
+        opacity var(--mv-fast) ease;
+}
+
+/* 指示条下方的柔光晕，让高光看起来是「发光」而非「画一条线」 */
+.nav-indicator::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: -3px;
+    width: 140%;
+    height: 8px;
+    transform: translateX(-50%);
+    background: radial-gradient(ellipse at center,
+            rgba(var(--mv-glow), 0.55) 0%,
+            rgba(var(--mv-glow), 0) 70%);
+    filter: blur(2px);
+    pointer-events: none;
+}
+
+.nav-indicator.is-visible {
+    opacity: 1;
+}
+
+/* 抽屉形态（移动端展开）下不显示指示条——纵向列表里没有意义 */
+@media (max-width: 900px) {
+    .nav-indicator {
+        display: none;
+    }
+}
+
+/* ---- 导航操作按钮：悬浮微抬 + 图标旋转 ---- */
+@media (hover: hover) and (pointer: fine) {
+    .search-trigger,
+    .theme-toggle {
+        transition:
+            background var(--mv-fast) ease,
+            color var(--mv-fast) ease,
+            transform var(--mv-mid) var(--mv-spring),
+            box-shadow var(--mv-mid) ease;
+    }
+
+    .search-trigger:hover,
+    .theme-toggle:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 18px rgba(var(--mv-glow), 0.28);
+    }
+
+    .search-trigger:active,
+    .theme-toggle:active {
+        transform: translateY(0) scale(0.94);
+    }
+
+    .theme-toggle i {
+        transition: transform var(--mv-slow) var(--mv-spring), opacity var(--mv-fast) ease;
+    }
+
+    .theme-toggle:hover i {
+        transform: rotate(-25deg) scale(1.12);
+    }
+}
+
+/* ---- 品牌字标：常驻缓慢呼吸光（很轻，避免喧宾夺主） ---- */
+@media (prefers-reduced-motion: no-preference) {
+    .logo-mark {
+        animation: mv-mark-breathe 5.5s ease-in-out infinite;
+    }
+
+    @keyframes mv-mark-breathe {
+
+        0%,
+        100% {
+            box-shadow:
+                inset 0 1px 0 rgba(255, 255, 255, 0.28),
+                0 2px 6px rgba(var(--mv-glow), 0.38);
+        }
+
+        50% {
+            box-shadow:
+                inset 0 1px 0 rgba(255, 255, 255, 0.34),
+                0 3px 14px rgba(var(--mv-glow), 0.62);
+        }
+    }
+}
+
+/* ============================================================
+   2. 页头（内页 page-header）—— 遮罩揭示
+   由 JS 把标题文本包进 .mv-mask > .mv-mask-inner，
+   载入后加 .is-revealed 触发上滑揭示。
+   ============================================================ */
+.mv-mask {
+    display: inline-block;
+    overflow: hidden;
+    vertical-align: bottom;
+    padding-bottom: 0.06em;
+    /* 给下伸笔画留余量，避免裁剪 */
+}
+
+.mv-mask-inner {
+    display: inline-block;
+    will-change: transform;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .mv-mask-inner {
+        transform: translate3d(0, 115%, 0);
+        transition: transform 0.92s var(--mv-expo);
+    }
+
+    .is-revealed .mv-mask-inner {
+        transform: translate3d(0, 0, 0);
+    }
+
+    /* 逐字符时按序错开 */
+    .mv-mask-inner[style*="--mv-delay"] {
+        transition-delay: var(--mv-delay, 0ms);
+    }
+}
+
+/* 页头副标题：淡入 + 细线自左绘出 */
+.mv-ph-sub {
+    display: inline-block;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .mv-ph-sub {
+        opacity: 0;
+        transform: translate3d(0, 12px, 0);
+        transition:
+            opacity var(--mv-slow) var(--mv-expo) 0.18s,
+            transform var(--mv-slow) var(--mv-expo) 0.18s;
+    }
+
+    .is-revealed .mv-ph-sub {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+/* 页头底部一道细高光，载入时自中间向两侧展开 */
+.mv-ph-rule {
+    display: block;
+    width: min(240px, 42%);
+    height: 1px;
+    margin: 22px auto 0;
+    background: linear-gradient(90deg,
+            transparent,
+            rgba(var(--mv-glow), 0.75) 30%,
+            rgba(var(--mv-glow), 0.75) 70%,
+            transparent);
+    transform: scaleX(0);
+    transform-origin: center;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .mv-ph-rule {
+        transition: transform 1s var(--mv-expo) 0.32s;
+    }
+
+    .is-revealed .mv-ph-rule {
+        transform: scaleX(1);
+    }
+}
+
+/* ============================================================
+   3. 卡片 —— 流光边框（增强层）
+   conic-gradient 沿边框旋转；不支持 @property 的浏览器
+   退化为静态渐变，不会破版。
+   ============================================================ */
+@property --mv-angle {
+    syntax: '<angle>';
+    initial-value: 0deg;
+    inherits: false;
+}
+
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+
+    .card,
+    .blog-item,
+    .he-post,
+    .he-project,
+    .he-course,
+    .stat {
+        position: relative;
+    }
+
+    .card::after,
+    .blog-item::after,
+    .he-post::after,
+    .he-project::after,
+    .he-course::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        padding: 1px;
+        background: conic-gradient(from var(--mv-angle, 0deg),
+                transparent 0deg,
+                rgba(var(--mv-glow), 0) 40deg,
+                rgba(var(--mv-glow), 0.9) 78deg,
+                #5ac8fa 92deg,
+                rgba(var(--mv-glow), 0) 140deg,
+                transparent 360deg);
+        -webkit-mask:
+            linear-gradient(#000 0 0) content-box,
+            linear-gradient(#000 0 0);
+        -webkit-mask-composite: xor;
+        mask:
+            linear-gradient(#000 0 0) content-box,
+            linear-gradient(#000 0 0);
+        mask-composite: exclude;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity var(--mv-mid) ease;
+        animation: mv-border-spin 5.5s linear infinite;
+        z-index: 2;
+    }
+
+    .card:hover::after,
+    .blog-item:hover::after,
+    .he-post:hover::after,
+    .he-project:hover::after,
+    .he-course:hover::after {
+        opacity: 1;
+    }
+
+    @keyframes mv-border-spin {
+        to {
+            --mv-angle: 360deg;
+        }
+    }
+}
+
+/* ============================================================
+   4. 入场变体 —— 比默认 fade-up 更有分量
+   ============================================================ */
+@media (prefers-reduced-motion: no-preference) {
+    [data-reveal="rise"] {
+        transform: translate3d(0, 46px, 0) scale(0.972);
+        opacity: 0;
+    }
+
+    [data-reveal="rise"].revealed {
+        transform: none;
+        opacity: 1;
+    }
+
+    [data-reveal="mask-up"] {
+        clip-path: inset(0 0 100% 0);
+        transform: translate3d(0, 20px, 0);
+        opacity: 1;
+    }
+
+    [data-reveal="mask-up"].revealed {
+        clip-path: inset(0 0 -12px 0);
+        transform: none;
+    }
+
+    [data-reveal] {
+        transition-timing-function: var(--mv-expo);
+    }
+}
+
+/* ============================================================
+   5. 链接 —— 下划线自左绘出
+   ============================================================ */
+.mv-underline {
+    position: relative;
+    text-decoration: none;
+}
+
+.mv-underline::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -2px;
+    height: 1.5px;
+    border-radius: 1px;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: right center;
+    transition: transform var(--mv-mid) var(--mv-expo);
+    pointer-events: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .mv-underline:hover::after {
+        transform: scaleX(1);
+        transform-origin: left center;
+    }
+}
+
+/* ============================================================
+   6. 触摸涟漪（移动层）
+   ============================================================ */
+.mv-ripple-host {
+    position: relative;
+    overflow: hidden;
+}
+
+.mv-ripple-wave {
+    position: absolute;
+    border-radius: 50%;
+    background: radial-gradient(circle,
+            rgba(var(--mv-glow), 0.34) 0%,
+            rgba(var(--mv-glow), 0.12) 55%,
+            rgba(var(--mv-glow), 0) 72%);
+    transform: translate(-50%, -50%) scale(0);
+    pointer-events: none;
+    will-change: transform, opacity;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .mv-ripple-wave {
+        animation: mv-ripple-out 0.62s var(--mv-expo) forwards;
+    }
+
+    @keyframes mv-ripple-out {
+        to {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 0;
+        }
+    }
+}
+
+/* ============================================================
+   7. 阅读进度条 —— 末端辉光
+   ============================================================ */
+@media (prefers-reduced-motion: no-preference) {
+    .reading-progress::after {
+        content: '';
+        position: absolute;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        width: 28px;
+        background: linear-gradient(90deg,
+                rgba(255, 255, 255, 0) 0%,
+                rgba(255, 255, 255, 0.9) 100%);
+        filter: blur(1.5px);
+        opacity: 0.85;
+        animation: mv-progress-pulse 1.6s ease-in-out infinite;
+    }
+
+    @keyframes mv-progress-pulse {
+
+        0%,
+        100% {
+            opacity: 0.55;
+        }
+
+        50% {
+            opacity: 1;
+        }
+    }
+}
+
+/* ============================================================
+   8. 回到顶部 —— 环形进度 + 悬浮放大
+   ============================================================ */
+@media (hover: hover) and (pointer: fine) {
+    .back-to-top {
+        transition:
+            transform var(--mv-mid) var(--mv-spring),
+            opacity var(--mv-mid) ease,
+            box-shadow var(--mv-mid) ease;
+    }
+
+    .back-to-top.visible:hover {
+        transform: translateY(-4px) scale(1.08);
+        box-shadow: 0 10px 26px rgba(var(--mv-glow), 0.38);
+    }
+}
+
+/* ============================================================
+   9. 主题切换 —— 圆形扩散（View Transitions）
+   仅在切换主题时挂上 [data-vt-theme]，避免影响跨页导航过渡。
+   ============================================================ */
+@media (prefers-reduced-motion: no-preference) {
+    html[data-vt-theme]::view-transition-old(root),
+    html[data-vt-theme]::view-transition-new(root) {
+        animation: none;
+        mix-blend-mode: normal;
+    }
+
+    html[data-vt-theme]::view-transition-old(root) {
+        z-index: 1;
+    }
+
+    html[data-vt-theme]::view-transition-new(root) {
+        z-index: 2147483646;
+    }
+}
+
+/* ============================================================
+   10. 光标辉光增强（增强层）
+   悬停在可交互元素上时放大并加深，形成「吸附」暗示。
+   ============================================================ */
+@media (hover: hover) and (pointer: fine) {
+    .cursor-glow {
+        transition:
+            opacity var(--mv-fast) ease,
+            width var(--mv-mid) var(--mv-spring),
+            height var(--mv-mid) var(--mv-spring),
+            background var(--mv-mid) ease;
+    }
+
+    .cursor-glow.is-hovered {
+        width: 320px !important;
+        height: 320px !important;
+        background: radial-gradient(circle,
+                rgba(var(--mv-glow), 0.2) 0%,
+                rgba(var(--mv-glow), 0.07) 40%,
+                rgba(var(--mv-glow), 0) 70%);
+    }
+}
+
+/* ============================================================
+   11. 移动端（触摸层）—— 触摸反馈
+   ============================================================ */
+@media (hover: none) {
+
+    .card,
+    .blog-item,
+    .he-post,
+    .he-project,
+    .he-course {
+        transition:
+            transform var(--mv-fast) var(--mv-expo),
+            box-shadow var(--mv-fast) ease;
+    }
+
+    .card:active,
+    .blog-item:active,
+    .he-post:active,
+    .he-project:active,
+    .he-course:active {
+        transform: scale(0.985);
+    }
+
+    /* 触摸设备上把 hover 态的高亮改成 :active，避免「粘住」的悬停色 */
+    .nav-links a:active {
+        background: rgba(var(--mv-glow), 0.14);
+    }
+}
+
+/* ============================================================
+   12. 降级 —— 尊重系统减弱动效偏好
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+
+    .nav-indicator,
+    .mv-ph-rule {
+        display: none !important;
+    }
+
+    .mv-mask-inner {
+        transform: none !important;
+        transition: none !important;
+    }
+
+    .mv-ph-sub {
+        opacity: 1 !important;
+        transform: none !important;
+    }
+
+    .card::after,
+    .blog-item::after,
+    .he-post::after,
+    .he-project::after,
+    .he-course::after {
+        display: none !important;
+    }
+
+    .mv-ripple-wave {
+        display: none !important;
+    }
+
+    .logo-mark {
+        animation: none !important;
+    }
+
+    .reading-progress::after {
+        display: none !important;
+    }
+}

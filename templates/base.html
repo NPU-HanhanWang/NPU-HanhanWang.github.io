@@ -31,6 +31,10 @@
     <link rel="stylesheet" id="hljs-theme-dark" href="{{ SITE.baseUrl }}/vendor/highlight.js/styles/github-dark.min.css" disabled>
     <!-- Main Stylesheet -->
     <link rel="stylesheet" href="{{ SITE.baseUrl }}/css/style.css">
+    <!-- Motion layer: 全站动效（基础层/增强层/触摸层），必须在 style.css 之后加载。
+         页面专属样式（如 home.css）由各模板的 head 区块在其后注入，可覆盖本层。
+         注意：注释里不要写 Nunjucks 标签，模板引擎仍会解析注释内容。 -->
+    <link rel="stylesheet" href="{{ SITE.baseUrl }}/css/motion.css">
 
     <!-- Mermaid: diagram rendering from markdown code blocks (localized) -->
     <script src="{{ SITE.baseUrl }}/vendor/mermaid/mermaid.min.js"></script>

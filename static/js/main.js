@@ -50,9 +50,62 @@
         toggle.setAttribute('aria-label', isDark ? '切换到亮色模式' : '切换到暗色模式');
     }
 
+    // 主题切换：以按钮为圆心做圆形扩散（View Transitions）。
+    // motion.css 里 html[data-vt-theme] 会关掉默认的整页淡入淡出，
+    // 让 clip-path 的圆形揭示成为唯一过渡；不支持时静默降级为直接切换。
     function toggleTheme() {
         const current = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
-        applyTheme(current === 'dark' ? 'light' : 'dark');
+        const next = current === 'dark' ? 'light' : 'dark';
+        const reduce = window.matchMedia &&
+            window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        if (reduce || typeof document.startViewTransition !== 'function') {
+            applyTheme(next);
+            return;
+        }
+
+        // 圆心取主题按钮中心；取不到时退回右上角
+        const btn = document.getElementById('themeToggle');
+        let x = window.innerWidth - 36, y = 36;
+        if (btn) {
+            const r = btn.getBoundingClientRect();
+            x = r.left + r.width / 2;
+            y = r.top + r.height / 2;
+        }
+        const radius = Math.hypot(
+            Math.max(x, window.innerWidth - x),
+            Math.max(y, window.innerHeight - y)
+        );
+
+        const root = document.documentElement;
+        root.setAttribute('data-vt-theme', '1');
+        let vt;
+        try {
+            vt = document.startViewTransition(function () { applyTheme(next); });
+        } catch (e) {
+            root.removeAttribute('data-vt-theme');
+            applyTheme(next);
+            return;
+        }
+        vt.ready.then(function () {
+            root.animate(
+                {
+                    clipPath: [
+                        'circle(0px at ' + x + 'px ' + y + 'px)',
+                        'circle(' + radius + 'px at ' + x + 'px ' + y + 'px)'
+                    ]
+                },
+                {
+                    duration: 620,
+                    easing: 'cubic-bezier(0.16, 1, 0.3, 1)',
+                    pseudoElement: '::view-transition-new(root)'
+                }
+            );
+        }).catch(function () { /* ready 被跳过：直接切换即可 */ });
+
+        vt.finished.catch(function () { /* 忽略中断 */ }).then(function () {
+            root.removeAttribute('data-vt-theme');
+        });
     }
 
     // Listen for system theme changes
@@ -349,9 +402,11 @@
 
         // Backwards-compatible default entrance: the classic targets fade up
         // unless a template already gave them a specific data-reveal variant.
+        // 「rise」比 fade-up 位移更大并带轻微缩放，内页列表的层次感更强
+        // （变体定义在 motion.css）。
         document.querySelectorAll('.card, .blog-item, .info-item, .chapter-item, .section-title, .stat')
             .forEach(function (el) {
-                if (!el.hasAttribute('data-reveal')) el.setAttribute('data-reveal', 'fade-up');
+                if (!el.hasAttribute('data-reveal')) el.setAttribute('data-reveal', 'rise');
             });
 
         // Exclude cards inside horizontal scroll rows — they can sit off-screen
@@ -370,7 +425,8 @@
             groups[key] = groups[key] || [];
             const idx = groups[key].length;
             groups[key].push(el);
-            if (idx > 0) el.style.transitionDelay = (idx * 70) + 'ms';
+            // 交错节奏封顶 6 档：列表长时不至于让末尾元素迟迟不出现
+            if (idx > 0) el.style.transitionDelay = (Math.min(idx, 6) * 80) + 'ms';
         });
 
         const io = new IntersectionObserver(function (entries) {
@@ -496,6 +552,19 @@
             document.addEventListener('mouseout', function (e) {
                 if (!e.relatedTarget) glow.style.opacity = '0';
             });
+
+            // 悬停到可点击目标时辉光放大，形成「吸附」暗示（motion.css: .is-hovered）
+            const HOT = 'a, button, .card, .blog-item, .he-post, .stat, input, .chapter-item';
+            document.addEventListener('mouseover', function (e) {
+                if (e.target && e.target.closest && e.target.closest(HOT)) {
+                    glow.classList.add('is-hovered');
+                }
+            }, { passive: true });
+            document.addEventListener('mouseout', function (e) {
+                if (e.target && e.target.closest && e.target.closest(HOT)) {
+                    glow.classList.remove('is-hovered');
+                }
+            }, { passive: true });
         }
 
         // ── Hero parallax + avatar tilt ──
@@ -571,6 +640,182 @@
                 el.style.transition = 'transform 0.5s var(--ease-spring)';
                 el.style.transform = '';
             });
+        });
+    }
+
+    // ============================================================
+    // NAV INDICATOR — 导航滑动高亮条（基础层，所有设备）
+    // 指示条吸附到 .active 链接；指针设备悬停时预览移动，移出后复位。
+    // 抽屉形态下 CSS 会隐藏它，纵向列表里没有意义。
+    // ============================================================
+    function setupNavIndicator() {
+        const navLinks = document.getElementById('navLinks');
+        if (!navLinks) return;
+        const links = Array.prototype.slice.call(navLinks.querySelectorAll('a'));
+        if (links.length === 0) return;
+
+        const ind = document.createElement('span');
+        ind.className = 'nav-indicator';
+        ind.setAttribute('aria-hidden', 'true');
+        navLinks.appendChild(ind);
+
+        function moveTo(el) {
+            // offsetParent 为 null = 元素当前不可渲染（抽屉折叠），跳过
+            if (!el || !el.offsetParent) return;
+            ind.style.width = el.offsetWidth + 'px';
+            ind.style.transform = 'translate3d(' + el.offsetLeft + 'px, 0, 0)';
+            ind.classList.add('is-visible');
+        }
+
+        function reset() {
+            const active = navLinks.querySelector('a.active');
+            if (active) moveTo(active);
+            else ind.classList.remove('is-visible');
+        }
+
+        // 首帧布局未必稳定（字体、logo 宽度），load 后再校一次。
+        // setTimeout 兜底：后台标签页 / 未产帧时 rAF 不调度，指示条会一直不出现。
+        requestAnimationFrame(reset);
+        window.setTimeout(reset, 200);
+        window.addEventListener('load', reset);
+        window.addEventListener('resize', reset);
+
+        const fine = window.matchMedia &&
+            window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+        if (fine) {
+            links.forEach(function (a) {
+                a.addEventListener('mouseenter', function () { moveTo(a); });
+                a.addEventListener('focus', function () { moveTo(a); });
+            });
+            navLinks.addEventListener('mouseleave', reset);
+            navLinks.addEventListener('focusout', reset);
+        }
+
+        // updateNavActive() 会在初始化后改写 .active，跟随变化
+        if ('MutationObserver' in window) {
+            const mo = new MutationObserver(reset);
+            links.forEach(function (a) {
+                mo.observe(a, { attributes: true, attributeFilter: ['class'] });
+            });
+        }
+    }
+
+    // ============================================================
+    // PAGE HEADER REVEAL — 内页标题遮罩上滑揭示（基础层）
+    // 内页原本完全静态：h1 与副标题没有任何入场，看着像 Word 文档。
+    // 这里把标题逐字包进遮罩，载入后统一上滑揭示。
+    // ============================================================
+    function setupPageHeaderReveal() {
+        const header = document.querySelector('.page-header');
+        if (!header) return;
+        const reduce = window.matchMedia &&
+            window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const h1 = header.querySelector('h1');
+        const sub = header.querySelector('.subtitle');
+        const container = header.querySelector('.container') || header;
+
+        function makeMask(text, delayMs) {
+            const outer = document.createElement('span');
+            outer.className = 'mv-mask';
+            const inner = document.createElement('span');
+            inner.className = 'mv-mask-inner';
+            inner.textContent = text;
+            if (delayMs) inner.style.setProperty('--mv-delay', delayMs + 'ms');
+            outer.appendChild(inner);
+            return outer;
+        }
+
+        if (h1 && !h1.getAttribute('data-mv')) {
+            h1.setAttribute('data-mv', '1');
+            if (!reduce && h1.children.length === 0) {
+                // 纯文本标题：逐字揭示（中文标题通常 2–6 字，节奏刚好）
+                const text = h1.textContent;
+                h1.textContent = '';
+                let i = 0;
+                for (const ch of text) {
+                    if (ch === ' ' || ch === '\n' || ch === '\t') {
+                        h1.appendChild(document.createTextNode(' '));
+                    } else {
+                        h1.appendChild(makeMask(ch, i * 55));
+                        i++;
+                    }
+                }
+            } else if (!reduce) {
+                // 含内嵌 HTML：整块当一个遮罩单元，不拆以免破坏结构
+                const inner = document.createElement('span');
+                inner.className = 'mv-mask-inner';
+                while (h1.firstChild) inner.appendChild(h1.firstChild);
+                const outer = document.createElement('span');
+                outer.className = 'mv-mask';
+                outer.appendChild(inner);
+                h1.appendChild(outer);
+            }
+        }
+
+        if (sub && !sub.getAttribute('data-mv')) {
+            sub.setAttribute('data-mv', '1');
+            if (!reduce) sub.classList.add('mv-ph-sub');
+        }
+
+        if (!reduce) {
+            const rule = document.createElement('span');
+            rule.className = 'mv-ph-rule';
+            rule.setAttribute('aria-hidden', 'true');
+            container.appendChild(rule);
+        }
+
+        // 双 rAF：确保初始 transform 已被采纳，transition 才会真正跑起来。
+        // setTimeout 兜底很关键：rAF 在后台标签页或未产帧时不调度，
+        // 而页头被遮罩藏住了文字 —— 兜底不到位就会变成「标题直接消失」。
+        const reveal = function () { header.classList.add('is-revealed'); };
+        requestAnimationFrame(function () { requestAnimationFrame(reveal); });
+        window.setTimeout(reveal, 260);
+    }
+
+    // ============================================================
+    // LINK UNDERLINE — 下划线自左绘出（基础层）
+    // ============================================================
+    function setupLinkUnderlines() {
+        const SEL = '.md-content a:not(.btn), .card-links span, .he-head-link, ' +
+            '.he-post-more, .result-title, .back-to-top';
+        document.querySelectorAll(SEL).forEach(function (el) {
+            el.classList.add('mv-underline');
+        });
+    }
+
+    // ============================================================
+    // RIPPLE — 触摸/点击涟漪
+    // 这是移动端「炫酷感」的主要来源：触摸设备上没有 hover，
+    // 若只靠淡入，点击反馈会非常空洞。
+    // ============================================================
+    function setupRipple() {
+        const reduce = window.matchMedia &&
+            window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if (reduce) return;
+        const SEL = '.btn, .card, .blog-item, .he-post, .nav-links a, ' +
+            '.theme-toggle, .search-trigger, .back-to-top, .chapter-item, ' +
+            '.info-item, .stat, .he-course, .he-project';
+        const hosts = document.querySelectorAll(SEL);
+        if (hosts.length === 0) return;
+        hosts.forEach(function (el) {
+            if (el.classList.contains('mv-ripple-host')) return;
+            el.classList.add('mv-ripple-host');
+            el.addEventListener('pointerdown', function (e) {
+                const r = el.getBoundingClientRect();
+                const size = Math.max(r.width, r.height) * 2.4;
+                const wave = document.createElement('span');
+                wave.className = 'mv-ripple-wave';
+                wave.style.width = size + 'px';
+                wave.style.height = size + 'px';
+                wave.style.left = (e.clientX - r.left) + 'px';
+                wave.style.top = (e.clientY - r.top) + 'px';
+                el.appendChild(wave);
+                const kill = function () {
+                    if (wave.parentNode) wave.parentNode.removeChild(wave);
+                };
+                wave.addEventListener('animationend', kill);
+                window.setTimeout(kill, 900);
+            }, { passive: true });
         });
     }
 
@@ -844,8 +1089,16 @@ function setupHeroScroll() {
         // Update nav active state
         updateNavActive();
 
+        // 导航滑动指示条（依赖 .active，故放在 updateNavActive 之后）
+        setupNavIndicator();
+
         // Scroll reveal animations
         setupScrollReveal();
+
+        // 内页页头遮罩揭示 + 链接下划线 + 触摸涟漪（基础层/触摸层）
+        setupPageHeaderReveal();
+        setupLinkUnderlines();
+        setupRipple();
 
         // Number counters (stats strip)
         setupCounters();
@@ -1034,6 +1287,8 @@ function setupHeroScroll() {
                     <div class="result-desc">${desc}</div>
                 </a>`;
             }).join('');
+            // 结果是动态生成的，下划线要重新套用
+            setupLinkUnderlines();
         }
 
         function open() {
